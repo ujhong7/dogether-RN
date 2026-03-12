@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Pressable, Text } from 'react-native';
 import { router } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
@@ -15,12 +15,13 @@ export function CompleteScreen() {
   const completeStartFlow = useSessionStore((state) => state.completeStartFlow);
   const setSelectedGroupId = useMainStore((state) => state.setSelectedGroupId);
   const queryClient = useQueryClient();
+  const [isLeavingToMain, setIsLeavingToMain] = useState(false);
 
   useEffect(() => {
-    if (!payload) {
+    if (!payload && !isLeavingToMain) {
       router.replace('/start');
     }
-  }, [payload]);
+  }, [isLeavingToMain, payload]);
 
   if (!payload) {
     return null;
@@ -33,12 +34,13 @@ export function CompleteScreen() {
       <Pressable
         style={styles.button}
         onPress={async () => {
+          setIsLeavingToMain(true);
           setSelectedGroupId(payload.targetGroupId);
           await queryClient.invalidateQueries({ queryKey: ['groups'] });
           await queryClient.invalidateQueries({ queryKey: ['todos'] });
           completeStartFlow();
-          clearCompletePayload();
           router.replace('/main');
+          clearCompletePayload();
         }}
       >
         <Text style={styles.buttonText}>홈으로 가기</Text>
