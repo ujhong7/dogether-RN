@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, Text } from 'react-native';
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text } from 'react-native';
 import { router } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { Screen } from '../../components/Screen';
@@ -110,28 +110,35 @@ export function TodoWriteScreen() {
   return (
     <Screen>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.flex}>
-        <TodoWriteHeader todoCount={todos.length} />
+        <ScrollView
+          style={styles.contentScroll}
+          contentContainerStyle={styles.contentScrollContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          <TodoWriteHeader todoCount={todos.length} />
 
-        <TodoInputBar
-          draft={draft}
-          todoCount={todos.length}
-          isFocused={isFocused}
-          canAdd={canAdd}
-          onChangeDraft={setDraft}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
-          onAdd={handleAddTodo}
-        />
+          <TodoInputBar
+            draft={draft}
+            todoCount={todos.length}
+            isFocused={isFocused}
+            canAdd={canAdd}
+            onChangeDraft={setDraft}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+            onAdd={handleAddTodo}
+          />
 
-        <TodoDraftList
-          todos={todos}
-          isBootstrapping={isBootstrapping}
-          onRemove={(index) =>
-            setTodos((current) =>
-              current.filter((todo, currentIndex) => currentIndex !== index || todo.locked),
-            )
-          }
-        />
+          <TodoDraftList
+            todos={todos}
+            isBootstrapping={isBootstrapping}
+            onRemove={(index) =>
+              setTodos((current) =>
+                current.filter((todo, currentIndex) => currentIndex !== index || todo.locked),
+              )
+            }
+          />
+        </ScrollView>
 
         <Pressable
           style={[styles.saveButton, !canSave ? styles.saveButtonDisabled : undefined]}
