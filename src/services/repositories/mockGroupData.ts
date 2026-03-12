@@ -1,4 +1,5 @@
 import type { Group } from '../../models/group';
+import type { AppErrorCode } from '../../models/error';
 import { storage } from '../../lib/storage';
 
 const JOINED_GROUPS_KEY = 'mockJoinedGroups';
@@ -111,23 +112,23 @@ export function createMockGroup(input: {
 
 export type JoinMockGroupResult =
   | { ok: true; group: Group }
-  | { ok: false; reason: 'full' | 'joined' | 'invalid' };
+  | { ok: false; code: Extract<AppErrorCode, 'CGF-0002' | 'CGF-0003' | 'CGF-0004' | 'CGF-0005'> };
 
 export function joinMockGroupByCode(code: string): JoinMockGroupResult {
   const normalizedCode = code.trim().toUpperCase();
   const joinedGroups = readGroups();
 
   if (joinedGroups.some((group) => group.joinCode.toUpperCase() === normalizedCode)) {
-    return { ok: false, reason: 'joined' };
+    return { ok: false, code: 'CGF-0002' };
   }
 
   const target = seededJoinableGroups.find((group) => group.joinCode.toUpperCase() === normalizedCode);
   if (!target) {
-    return { ok: false, reason: 'invalid' };
+    return { ok: false, code: 'CGF-0005' };
   }
 
   if (target.currentMember >= target.maximumMember) {
-    return { ok: false, reason: 'full' };
+    return { ok: false, code: 'CGF-0003' };
   }
 
   const joinedGroup: Group = {

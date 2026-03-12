@@ -1,17 +1,18 @@
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, Text, TextInput, View } from 'react-native';
 import { router } from 'expo-router';
+import { AppAlertModal } from '../../components/AppAlertModal';
 import { Screen } from '../../components/Screen';
+import { getAppError, type AppErrorCode } from '../../models/error';
 import { joinMockGroupByCode } from '../../services/repositories/mockGroupData';
 import { useMainStore } from '../../stores/mainStore';
 import { useStartFlowStore } from '../../stores/startFlowStore';
 import { GroupJoinHeader } from './components/GroupJoinHeader';
-import { GroupJoinErrorModal } from './components/GroupJoinErrorModal';
 import { groupJoinStyles as styles } from './styles';
 
 export function GroupJoinScreen() {
   const [joinCode, setJoinCode] = useState('');
-  const [errorType, setErrorType] = useState<'full' | 'joined' | 'invalid' | null>(null);
+  const [errorCode, setErrorCode] = useState<AppErrorCode | null>(null);
   const [isFocused, setIsFocused] = useState(false);
   const setCompletePayload = useStartFlowStore((state) => state.setCompletePayload);
   const setSelectedGroupId = useMainStore((state) => state.setSelectedGroupId);
@@ -44,7 +45,7 @@ export function GroupJoinScreen() {
           onPress={() => {
             const result = joinMockGroupByCode(normalizedCode);
             if (!result.ok) {
-              setErrorType(result.reason);
+              setErrorCode(result.code);
               return;
             }
             setSelectedGroupId(result.group.id);
@@ -65,7 +66,11 @@ export function GroupJoinScreen() {
         </Pressable>
       </KeyboardAvoidingView>
 
-      <GroupJoinErrorModal errorType={errorType} onClose={() => setErrorType(null)} />
+      <AppAlertModal
+        visible={Boolean(errorCode)}
+        error={getAppError(errorCode ?? 'CGF-0005')}
+        onClose={() => setErrorCode(null)}
+      />
     </Screen>
   );
 }

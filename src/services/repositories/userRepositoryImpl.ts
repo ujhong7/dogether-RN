@@ -4,6 +4,7 @@ import type { ApiEnvelope } from '../../types/api';
 import type { Profile } from '../../models/profile';
 import type { Ranking } from '../../models/ranking';
 import type { UserRepository } from './contracts/userRepository';
+import { toAppError } from '../errors/appError';
 
 export class UserRepositoryImpl implements UserRepository {
   async getRanking(groupId: number): Promise<Ranking[]> {
@@ -16,12 +17,8 @@ export class UserRepositoryImpl implements UserRepository {
         achievementRate: Number(raw.achievementRate ?? 0),
         profileImageUrl: raw.profileImageUrl,
       }));
-    } catch {
-      return [
-        { memberId: 1, rank: 1, name: '유재홍', achievementRate: 97 },
-        { memberId: 2, rank: 2, name: 'RN Crew A', achievementRate: 90 },
-        { memberId: 3, rank: 3, name: 'RN Crew B', achievementRate: 82 },
-      ];
+    } catch (error) {
+      throw toAppError(error);
     }
   }
 
@@ -32,8 +29,8 @@ export class UserRepositoryImpl implements UserRepository {
         name: String(res.data.data?.name ?? 'RN Learner'),
         imageUrl: res.data.data?.profileImageUrl,
       };
-    } catch {
-      return { name: 'RN Learner' };
+    } catch (error) {
+      throw toAppError(error);
     }
   }
 }

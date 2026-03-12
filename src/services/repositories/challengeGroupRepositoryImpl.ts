@@ -3,6 +3,7 @@ import { endpoints } from '../api/endpoints';
 import type { ApiEnvelope } from '../../types/api';
 import type { Todo } from '../../models/todo';
 import type { ChallengeGroupRepository } from './contracts/challengeGroupRepository';
+import { toAppError } from '../errors/appError';
 
 function mapTodo(raw: any): Todo {
   return {
@@ -22,12 +23,8 @@ export class ChallengeGroupRepositoryImpl implements ChallengeGroupRepository {
         params: { date },
       });
       return (res.data.data?.todos ?? []).map(mapTodo);
-    } catch {
-      return [
-        { id: 101, content: 'RN 라우팅 구조 잡기', status: 'APPROVED', reviewFeedback: '좋아요' },
-        { id: 102, content: 'React Query로 서버 상태 분리', status: 'WAIT_APPROVAL' },
-        { id: 103, content: 'Zustand로 UI 상태 관리', status: 'WAIT_CERTIFICATION' },
-      ];
+    } catch (error) {
+      throw toAppError(error);
     }
   }
 
