@@ -1,3 +1,3 @@
-import { StartScreen } from '../src/features/start/StartScreen';
+import { StartScreen } from '../src/features/start';
 
 export default StartScreen;

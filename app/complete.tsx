@@ -1,3 +1,3 @@
-import { CompleteScreen } from '../src/features/complete/CompleteScreen';
+import { CompleteScreen } from '../src/features/complete';
 
 export default CompleteScreen;
