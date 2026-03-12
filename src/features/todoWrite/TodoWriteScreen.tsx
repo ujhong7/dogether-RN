@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text } from 'react-native';
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { Screen } from '../../components/Screen';
@@ -110,12 +110,7 @@ export function TodoWriteScreen() {
   return (
     <Screen>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.flex}>
-        <ScrollView
-          style={styles.contentScroll}
-          contentContainerStyle={styles.contentScrollContent}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-        >
+        <View style={styles.topSection}>
           <TodoWriteHeader todoCount={todos.length} />
 
           <TodoInputBar
@@ -128,7 +123,14 @@ export function TodoWriteScreen() {
             onBlur={() => setIsFocused(false)}
             onAdd={handleAddTodo}
           />
+        </View>
 
+        <ScrollView
+          style={styles.listScroll}
+          contentContainerStyle={styles.listScrollContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
           <TodoDraftList
             todos={todos}
             isBootstrapping={isBootstrapping}

@@ -16,11 +16,16 @@ export const todoWriteStyles = StyleSheet.create({
   limit: { color: colors.text, fontSize: 18, fontWeight: '800', marginBottom: 20 },
   limitCurrent: { color: colors.primary },
   limitTotal: { color: '#72788B' },
-  contentScroll: {
-    flex: 1,
+  topSection: {
+    flexShrink: 0,
   },
-  contentScrollContent: {
-    paddingBottom: 20,
+  listScroll: {
+    flex: 1,
+    marginTop: 14,
+  },
+  listScrollContent: {
+    paddingBottom: 16,
+    flexGrow: 1,
   },
   inputRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   inputWrap: { flex: 1, position: 'relative' },
@@ -74,7 +79,7 @@ export const todoWriteStyles = StyleSheet.create({
   },
   emptyTitle: { color: '#D1D5E5', fontSize: 20, fontWeight: '800', marginBottom: 6 },
   emptyDesc: { color: '#7F8598', fontSize: 13 },
-  todoList: { marginTop: 14, gap: 10 },
+  todoList: { gap: 10 },
   todoRow: {
     minHeight: 52,
     borderRadius: 12,
