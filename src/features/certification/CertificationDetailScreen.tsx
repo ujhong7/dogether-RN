@@ -16,6 +16,10 @@ import { useCertificationViewerStore } from '../../store/certificationViewerStor
 import { certificationDetailStyles as styles } from './styles';
 import { getFeedbackText, getStatusMeta } from './utils';
 
+const THUMB_SIZE = 46;
+const THUMB_GAP = 8;
+const THUMB_ITEM_WIDTH = THUMB_SIZE + THUMB_GAP;
+
 export function CertificationDetailScreen() {
   const { context, selectedIndex, setSelectedIndex } = useCertificationViewerStore();
   const thumbListRef = useRef<FlatList>(null);
@@ -50,10 +54,12 @@ export function CertificationDetailScreen() {
       return;
     }
 
-    thumbListRef.current?.scrollToIndex({
-      index: safeIndex,
-      animated: true,
-      viewPosition: 0.5,
+    requestAnimationFrame(() => {
+      thumbListRef.current?.scrollToIndex({
+        index: safeIndex,
+        animated: true,
+        viewPosition: 0.5,
+      });
     });
   }, [orderedTodos.length, safeIndex]);
 
@@ -90,6 +96,19 @@ export function CertificationDetailScreen() {
           style={styles.thumbList}
           contentContainerStyle={styles.thumbContent}
           keyExtractor={(item) => String(item.id)}
+          getItemLayout={(_, index) => ({
+            length: THUMB_ITEM_WIDTH,
+            offset: THUMB_ITEM_WIDTH * index,
+            index,
+          })}
+          onScrollToIndexFailed={({ index }) => {
+            setTimeout(() => {
+              thumbListRef.current?.scrollToOffset({
+                offset: THUMB_ITEM_WIDTH * index,
+                animated: true,
+              });
+            }, 50);
+          }}
           renderItem={({ item, index }) => (
             <Pressable
               style={[styles.thumbCard, index === safeIndex ? styles.thumbCardActive : undefined]}
