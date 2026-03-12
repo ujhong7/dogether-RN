@@ -1,3 +1,3 @@
-import { MainScreen } from '../src/features/main/MainScreen';
+import { MainScreen } from '../src/features/main';
 
 export default MainScreen;
