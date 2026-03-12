@@ -82,9 +82,6 @@ export function CertificationDetailScreen() {
     );
   }
 
-  const statusMeta = getStatusMeta(currentTodo.status);
-  const feedbackText = getFeedbackText(currentTodo);
-
   return (
     <Screen>
       <View style={styles.flex}>
@@ -131,7 +128,11 @@ export function CertificationDetailScreen() {
           )}
         />
 
-        <ScrollView showsVerticalScrollIndicator={false}>
+        <ScrollView
+          style={styles.pageScroll}
+          contentContainerStyle={styles.pageScrollContent}
+          showsVerticalScrollIndicator={false}
+        >
           <ScrollView
             ref={mediaScrollRef}
             horizontal
@@ -145,38 +146,45 @@ export function CertificationDetailScreen() {
               }
             }}
           >
-            {orderedTodos.map((todo) => (
-              <View key={todo.id} style={[styles.mediaCard, { width: mediaCardWidth }]}>
-                {todo.certificationMediaUrl ? (
-                  <>
-                    <Image source={{ uri: todo.certificationMediaUrl }} style={styles.mediaImage} resizeMode="cover" />
-                    {todo.certificationContent ? (
-                      <View style={styles.mediaOverlay}>
-                        <Text style={styles.mediaOverlayText}>{todo.certificationContent}</Text>
+            {orderedTodos.map((todo) => {
+              const pageStatusMeta = getStatusMeta(todo.status);
+              const pageFeedbackText = getFeedbackText(todo);
+
+              return (
+                <View key={todo.id} style={[styles.page, { width: mediaCardWidth }]}>
+                  <View style={styles.mediaCard}>
+                    {todo.certificationMediaUrl ? (
+                      <>
+                        <Image source={{ uri: todo.certificationMediaUrl }} style={styles.mediaImage} resizeMode="cover" />
+                        {todo.certificationContent ? (
+                          <View style={styles.mediaOverlay}>
+                            <Text style={styles.mediaOverlayText}>{todo.certificationContent}</Text>
+                          </View>
+                        ) : null}
+                      </>
+                    ) : (
+                      <View style={styles.emptyState}>
+                        <Text style={styles.emptyIcon}>🐧</Text>
+                        <Text style={styles.emptyCaption}>아직 열심히 전진중이에요</Text>
                       </View>
-                    ) : null}
-                  </>
-                ) : (
-                  <View style={styles.emptyState}>
-                    <Text style={styles.emptyIcon}>🐧</Text>
-                    <Text style={styles.emptyCaption}>아직 열심히 전진중이에요</Text>
+                    )}
                   </View>
-                )}
-              </View>
-            ))}
+
+                  <Text style={styles.todoTitle}>{todo.content}</Text>
+
+                  <View style={[styles.statusBadge, { backgroundColor: pageStatusMeta.color }]}>
+                    <Text style={styles.statusBadgeText}>{pageStatusMeta.label}</Text>
+                  </View>
+
+                  {pageFeedbackText ? (
+                    <View style={styles.feedbackBox}>
+                      <Text style={styles.feedbackText}>{pageFeedbackText}</Text>
+                    </View>
+                  ) : null}
+                </View>
+              );
+            })}
           </ScrollView>
-
-          <Text style={styles.todoTitle}>{currentTodo.content}</Text>
-
-          <View style={[styles.statusBadge, { backgroundColor: statusMeta.color }]}>
-            <Text style={styles.statusBadgeText}>{statusMeta.label}</Text>
-          </View>
-
-          {feedbackText ? (
-            <View style={styles.feedbackBox}>
-              <Text style={styles.feedbackText}>{feedbackText}</Text>
-            </View>
-          ) : null}
         </ScrollView>
 
         {currentTodo.status === 'WAIT_CERTIFICATION' ? (

@@ -64,6 +64,15 @@ export const certificationDetailStyles = StyleSheet.create({
     overflow: 'hidden',
     marginBottom: 18,
   },
+  pageScroll: {
+    flex: 1,
+  },
+  pageScrollContent: {
+    paddingBottom: 24,
+  },
+  page: {
+    paddingRight: 16,
+  },
   mediaImage: {
     width: '100%',
     height: '100%',
@@ -123,6 +132,7 @@ export const certificationDetailStyles = StyleSheet.create({
     backgroundColor: colors.surfaceLight,
     paddingHorizontal: 14,
     paddingVertical: 12,
+    marginBottom: 16,
   },
   feedbackText: {
     color: colors.text,
