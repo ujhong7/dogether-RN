@@ -1,4 +1,4 @@
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import type { Todo } from '../../../domain/entities/todo';
 import type { MainSheetStatus } from '../useMainScreen';
@@ -110,79 +110,85 @@ export function MainPanel({
 
       {sheetStatus === 'certificateTodo' || sheetStatus === 'todoList' || sheetStatus === 'emptyList' ? (
         <View style={styles.todoSection}>
-          {filteredTodos.length > 0 ? (
-            filteredTodos.map((todo) => {
-              const uncertified = todo.status === 'WAIT_CERTIFICATION';
-              const accent = getTodoAccent(todo.status);
-              const currentIndex = filteredTodos.findIndex((item) => item.id === todo.id);
-              const handleOpenViewer = () => {
-                if (!currentGroupId) {
-                  return;
-                }
+          <ScrollView
+            style={styles.todoListScroll}
+            contentContainerStyle={styles.todoListContent}
+            showsVerticalScrollIndicator={false}
+          >
+            {filteredTodos.length > 0 ? (
+              filteredTodos.map((todo) => {
+                const uncertified = todo.status === 'WAIT_CERTIFICATION';
+                const accent = getTodoAccent(todo.status);
+                const currentIndex = filteredTodos.findIndex((item) => item.id === todo.id);
+                const handleOpenViewer = () => {
+                  if (!currentGroupId) {
+                    return;
+                  }
 
-                openViewer({
-                  groupId: currentGroupId,
-                  date: queryDate,
-                  todoIds: filteredTodos.map((item) => item.id),
-                  selectedIndex: currentIndex < 0 ? 0 : currentIndex,
-                });
-                router.push('/certification');
-              };
-
-              const handleGoCertify = () => {
-                if (!currentGroupId || dateOffset < 0) {
-                  return;
-                }
-
-                router.push({
-                  pathname: '/certify',
-                  params: {
-                    todoId: String(todo.id),
-                    groupId: String(currentGroupId),
+                  openViewer({
+                    groupId: currentGroupId,
                     date: queryDate,
-                    content: todo.content,
-                  },
-                });
-              };
+                    todoIds: filteredTodos.map((item) => item.id),
+                    selectedIndex: currentIndex < 0 ? 0 : currentIndex,
+                  });
+                  router.push('/certification');
+                };
 
-              return (
-                <View key={todo.id} style={styles.todoRow}>
-                  <Pressable style={styles.todoRowMain} disabled={!currentGroupId} onPress={handleOpenViewer}>
-                    <View style={styles.todoLeft}>
-                      {!uncertified ? (
-                        <View style={[styles.todoStatusBadge, { backgroundColor: accent }]}>
-                          <Text style={styles.todoStatusBadgeText}>{getTodoLeading(todo.status)}</Text>
-                        </View>
-                      ) : null}
-                      <Text style={[styles.todoContent, uncertified && dateOffset < 0 ? styles.todoDimmed : undefined]}>
-                        {todo.content}
-                      </Text>
-                    </View>
+                const handleGoCertify = () => {
+                  if (!currentGroupId || dateOffset < 0) {
+                    return;
+                  }
 
-                    {!uncertified ? <Text style={styles.rowChevron}>›</Text> : null}
-                  </Pressable>
+                  router.push({
+                    pathname: '/certify',
+                    params: {
+                      todoId: String(todo.id),
+                      groupId: String(currentGroupId),
+                      date: queryDate,
+                      content: todo.content,
+                    },
+                  });
+                };
 
-                  {uncertified ? (
-                    <Pressable
-                      style={[styles.certifyButton, dateOffset < 0 ? styles.certifyButtonDisabled : undefined]}
-                      disabled={dateOffset < 0 || !currentGroupId}
-                      onPress={handleGoCertify}
-                    >
-                      <Text style={[styles.certifyText, dateOffset < 0 ? styles.certifyTextDisabled : undefined]}>
-                        인증하기
-                      </Text>
+                return (
+                  <View key={todo.id} style={styles.todoRow}>
+                    <Pressable style={styles.todoRowMain} disabled={!currentGroupId} onPress={handleOpenViewer}>
+                      <View style={styles.todoLeft}>
+                        {!uncertified ? (
+                          <View style={[styles.todoStatusBadge, { backgroundColor: accent }]}>
+                            <Text style={styles.todoStatusBadgeText}>{getTodoLeading(todo.status)}</Text>
+                          </View>
+                        ) : null}
+                        <Text style={[styles.todoContent, uncertified && dateOffset < 0 ? styles.todoDimmed : undefined]}>
+                          {todo.content}
+                        </Text>
+                      </View>
+
+                      {!uncertified ? <Text style={styles.rowChevron}>›</Text> : null}
                     </Pressable>
-                  ) : null}
-                </View>
-              );
-            })
-          ) : (
-            <View style={styles.emptyFilterState}>
-              <EmptyIllustration tint={filter === 'wait' ? '#E8C95F' : filter === 'reject' ? '#FF4F7A' : '#7F89A8'} />
-              <Text style={styles.centerTitle}>{activeFilterEmptyText || '표시할 투두가 없어요'}</Text>
-              <Text style={styles.centerDescription}>오늘 하루 이루고 싶은 작은 목표를 입력해보세요!</Text>
-            </View>
-          )}
+
+                    {uncertified ? (
+                      <Pressable
+                        style={[styles.certifyButton, dateOffset < 0 ? styles.certifyButtonDisabled : undefined]}
+                        disabled={dateOffset < 0 || !currentGroupId}
+                        onPress={handleGoCertify}
+                      >
+                        <Text style={[styles.certifyText, dateOffset < 0 ? styles.certifyTextDisabled : undefined]}>
+                          인증하기
+                        </Text>
+                      </Pressable>
+                    ) : null}
+                  </View>
+                );
+              })
+            ) : (
+              <View style={styles.emptyFilterState}>
+                <EmptyIllustration tint={filter === 'wait' ? '#E8C95F' : filter === 'reject' ? '#FF4F7A' : '#7F89A8'} />
+                <Text style={styles.centerTitle}>{activeFilterEmptyText || '표시할 투두가 없어요'}</Text>
+                <Text style={styles.centerDescription}>오늘 하루 이루고 싶은 작은 목표를 입력해보세요!</Text>
+              </View>
+            )}
+          </ScrollView>
 
           {dateOffset === 0 && filter === 'all' && visibleTodos.length < 10 ? (
             <Pressable style={styles.addTodoInline} onPress={() => router.push('/todo-write')}>

@@ -130,10 +130,11 @@ export const mainStyles = StyleSheet.create({
     fontSize: 22,
   },
   panel: {
+    flex: 1,
     backgroundColor: '#1E1F24',
     borderRadius: 14,
     padding: 12,
-    minHeight: 470,
+    minHeight: 0,
   },
   dateHeader: {
     flexDirection: 'row',
@@ -276,7 +277,15 @@ export const mainStyles = StyleSheet.create({
     backgroundColor: '#5B9DF0',
   },
   todoSection: {
+    flex: 1,
     gap: 10,
+  },
+  todoListScroll: {
+    flex: 1,
+  },
+  todoListContent: {
+    gap: 10,
+    paddingBottom: 8,
   },
   todoRow: {
     minHeight: 56,
