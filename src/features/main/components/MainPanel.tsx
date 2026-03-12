@@ -115,46 +115,65 @@ export function MainPanel({
               const uncertified = todo.status === 'WAIT_CERTIFICATION';
               const accent = getTodoAccent(todo.status);
               const currentIndex = filteredTodos.findIndex((item) => item.id === todo.id);
-              return (
-                <Pressable
-                  key={todo.id}
-                  style={styles.todoRow}
-                  disabled={!currentGroupId}
-                  onPress={() => {
-                    if (!currentGroupId) {
-                      return;
-                    }
+              const handleOpenViewer = () => {
+                if (!currentGroupId) {
+                  return;
+                }
 
-                    openViewer({
-                      groupId: currentGroupId,
-                      date: queryDate,
-                      todoIds: filteredTodos.map((item) => item.id),
-                      selectedIndex: currentIndex < 0 ? 0 : currentIndex,
-                    });
-                    router.push('/certification');
-                  }}
-                >
-                  <View style={styles.todoLeft}>
-                    {!uncertified ? (
-                      <View style={[styles.todoStatusBadge, { backgroundColor: accent }]}>
-                        <Text style={styles.todoStatusBadgeText}>{getTodoLeading(todo.status)}</Text>
-                      </View>
-                    ) : null}
-                    <Text style={[styles.todoContent, uncertified && dateOffset < 0 ? styles.todoDimmed : undefined]}>
-                      {todo.content}
-                    </Text>
-                  </View>
+                openViewer({
+                  groupId: currentGroupId,
+                  date: queryDate,
+                  todoIds: filteredTodos.map((item) => item.id),
+                  selectedIndex: currentIndex < 0 ? 0 : currentIndex,
+                });
+                router.push('/certification');
+              };
+
+              const handleGoCertify = () => {
+                if (!currentGroupId || dateOffset < 0) {
+                  return;
+                }
+
+                router.push({
+                  pathname: '/certify',
+                  params: {
+                    todoId: String(todo.id),
+                    groupId: String(currentGroupId),
+                    date: queryDate,
+                    content: todo.content,
+                  },
+                });
+              };
+
+              return (
+                <View key={todo.id} style={styles.todoRow}>
+                  <Pressable style={styles.todoRowMain} disabled={!currentGroupId} onPress={handleOpenViewer}>
+                    <View style={styles.todoLeft}>
+                      {!uncertified ? (
+                        <View style={[styles.todoStatusBadge, { backgroundColor: accent }]}>
+                          <Text style={styles.todoStatusBadgeText}>{getTodoLeading(todo.status)}</Text>
+                        </View>
+                      ) : null}
+                      <Text style={[styles.todoContent, uncertified && dateOffset < 0 ? styles.todoDimmed : undefined]}>
+                        {todo.content}
+                      </Text>
+                    </View>
+
+                    {!uncertified ? <Text style={styles.rowChevron}>›</Text> : null}
+                  </Pressable>
 
                   {uncertified ? (
-                    <View style={[styles.certifyButton, dateOffset < 0 ? styles.certifyButtonDisabled : undefined]}>
+                    <Pressable
+                      style={[styles.certifyButton, dateOffset < 0 ? styles.certifyButtonDisabled : undefined]}
+                      disabled={dateOffset < 0 || !currentGroupId}
+                      onPress={handleGoCertify}
+                    >
                       <Text style={[styles.certifyText, dateOffset < 0 ? styles.certifyTextDisabled : undefined]}>
                         인증하기
                       </Text>
-                    </View>
-                  ) : (
-                    <Text style={styles.rowChevron}>›</Text>
-                  )}
-                </Pressable>
+                    </Pressable>
+                  ) : null}
+                </View>
               );
             })
           ) : (
