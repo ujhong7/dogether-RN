@@ -12,11 +12,19 @@ type Props = {
 };
 
 export function GroupSelectSheet({ visible, groups, currentGroupId, onClose, onSelectGroup }: Props) {
+  const rowHeight = 40;
+  const rowGap = 8;
+  const headerHeight = 54;
+  const footerHeight = 58;
+  const listHeight =
+    groups.length === 0 ? 0 : Math.min(groups.length * rowHeight + Math.max(groups.length - 1, 0) * rowGap, 220);
+  const sheetHeight = Math.max(198, headerHeight + listHeight + footerHeight);
+
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View style={styles.sheetOverlay}>
         <Pressable style={styles.sheetBackdrop} onPress={onClose} />
-        <View style={styles.groupSheet}>
+        <View style={[styles.groupSheet, { height: sheetHeight }]}>
           <Text style={styles.groupSheetTitle}>그룹 선택</Text>
           <ScrollView
             style={styles.groupSheetScroll}
