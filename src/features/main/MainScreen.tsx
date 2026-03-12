@@ -30,7 +30,7 @@ export function MainScreen() {
   const progressMeta = getProgressMeta(currentGroup);
 
   return (
-    <Screen scroll>
+    <Screen>
       <MainHeader
         group={currentGroup}
         dayLabel={progressMeta.dayLabel}
