@@ -1,3 +1,3 @@
-import { MyScreen } from '../src/features/my/MyScreen';
+import { MyScreen } from '../src/screens/my/MyScreen';
 
 export default MyScreen;

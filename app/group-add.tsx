@@ -1,3 +1,3 @@
-import { GroupAddScreen } from '../src/features/groupAdd';
+import { GroupAddScreen } from '../src/screens/groupAdd';
 
 export default GroupAddScreen;
