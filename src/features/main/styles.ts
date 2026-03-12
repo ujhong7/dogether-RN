@@ -383,18 +383,24 @@ export const mainStyles = StyleSheet.create({
     borderTopRightRadius: 18,
     paddingHorizontal: 20,
     paddingTop: 20,
-    paddingBottom: 40,
-    minHeight: 320,
+    paddingBottom: 28,
+    minHeight: 420,
+    maxHeight: 520,
     gap: 8,
   },
   groupSheetTitle: {
     color: colors.text,
     fontSize: 22,
     fontWeight: '800',
-    marginBottom: 8,
+    marginBottom: 10,
+  },
+  groupSheetScroll: {
+    flexGrow: 0,
+    maxHeight: 260,
   },
   groupSheetList: {
     gap: 8,
+    paddingBottom: 12,
   },
   groupSheetRow: {
     minHeight: 44,
@@ -405,7 +411,7 @@ export const mainStyles = StyleSheet.create({
   },
   groupSheetText: {
     color: '#9EA4B5',
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: '600',
   },
   groupSheetTextSelected: {
@@ -419,12 +425,17 @@ export const mainStyles = StyleSheet.create({
     minWidth: 20,
     textAlign: 'right',
   },
+  groupSheetFooter: {
+    marginTop: 'auto',
+    borderTopWidth: 1,
+    borderTopColor: '#3A3D47',
+    paddingTop: 14,
+  },
   groupAddRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    marginTop: 20,
-    paddingTop: 8,
+    minHeight: 32,
   },
   groupAddPlus: {
     color: '#C3C8D5',

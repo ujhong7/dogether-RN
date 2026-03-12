@@ -1,4 +1,4 @@
-import { Modal, Pressable, Text, View } from 'react-native';
+import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import type { Group } from '../../../domain/entities/group';
 import { mainStyles as styles } from '../styles';
@@ -18,7 +18,11 @@ export function GroupSelectSheet({ visible, groups, currentGroupId, onClose, onS
         <Pressable style={styles.sheetBackdrop} onPress={onClose} />
         <View style={styles.groupSheet}>
           <Text style={styles.groupSheetTitle}>그룹 선택</Text>
-          <View style={styles.groupSheetList}>
+          <ScrollView
+            style={styles.groupSheetScroll}
+            contentContainerStyle={styles.groupSheetList}
+            showsVerticalScrollIndicator={false}
+          >
             {groups.map((group) => {
               const selected = currentGroupId === group.id;
               return (
@@ -37,17 +41,20 @@ export function GroupSelectSheet({ visible, groups, currentGroupId, onClose, onS
                 </Pressable>
               );
             })}
+          </ScrollView>
+
+          <View style={styles.groupSheetFooter}>
+            <Pressable
+              style={styles.groupAddRow}
+              onPress={() => {
+                onClose();
+                router.push('/group-add');
+              }}
+            >
+              <Text style={styles.groupAddPlus}>⊕</Text>
+              <Text style={styles.groupAddText}>새 그룹 추가하기</Text>
+            </Pressable>
           </View>
-          <Pressable
-            style={styles.groupAddRow}
-            onPress={() => {
-              onClose();
-              router.push('/group-add');
-            }}
-          >
-            <Text style={styles.groupAddPlus}>⊕</Text>
-            <Text style={styles.groupAddText}>새 그룹 추가하기</Text>
-          </Pressable>
         </View>
       </View>
     </Modal>
