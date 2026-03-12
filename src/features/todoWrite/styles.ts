@@ -16,6 +16,12 @@ export const todoWriteStyles = StyleSheet.create({
   limit: { color: colors.text, fontSize: 18, fontWeight: '800', marginBottom: 20 },
   limitCurrent: { color: colors.primary },
   limitTotal: { color: '#72788B' },
+  contentScroll: {
+    flex: 1,
+  },
+  contentScrollContent: {
+    paddingBottom: 20,
+  },
   inputRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   inputWrap: { flex: 1, position: 'relative' },
   input: {
@@ -88,7 +94,7 @@ export const todoWriteStyles = StyleSheet.create({
   removeIcon: { color: '#8B91A5', fontSize: 24, lineHeight: 24 },
   lockIcon: { color: '#E4C65A', fontSize: 18, lineHeight: 18 },
   saveButton: {
-    marginTop: 'auto',
+    marginTop: 12,
     alignItems: 'center',
     backgroundColor: colors.primary,
     borderRadius: 12,
