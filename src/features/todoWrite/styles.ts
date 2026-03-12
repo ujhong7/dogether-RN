@@ -78,8 +78,15 @@ export const todoWriteStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
+  todoRowLocked: {
+    backgroundColor: '#22262F',
+  },
   todoText: { flex: 1, color: colors.text, fontSize: 15, fontWeight: '700', marginRight: 12 },
+  todoTextLocked: {
+    color: '#7E8597',
+  },
   removeIcon: { color: '#8B91A5', fontSize: 24, lineHeight: 24 },
+  lockIcon: { color: '#E4C65A', fontSize: 18, lineHeight: 18 },
   saveButton: {
     marginTop: 'auto',
     alignItems: 'center',

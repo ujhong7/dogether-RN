@@ -51,7 +51,13 @@ export class MockChallengeGroupRepository implements ChallengeGroupRepository {
   }
 
   async createTodos(groupId: number, date: string, contents: string[]): Promise<Todo[]> {
-    return saveMockTodos(groupId, date, contents);
+    const storedTodos = getMockTodos(groupId, date);
+    const baseTodos = storedTodos.length > 0 ? storedTodos : todosByGroupId[groupId] ?? [];
+    const lockedTodos = baseTodos.filter((todo) => todo.status !== 'WAIT_CERTIFICATION');
+    const editableTodos = saveMockTodos(groupId, date, contents);
+    const mergedTodos = [...editableTodos, ...lockedTodos];
+    setMockTodos(groupId, date, mergedTodos);
+    return mergedTodos;
   }
 
   async certifyTodo(

@@ -1,8 +1,16 @@
 import { Pressable, Text, View } from 'react-native';
+import type { Todo } from '../../../domain/entities/todo';
 import { todoWriteStyles as styles } from '../styles';
 
+type TodoDraftItem = {
+  id: number;
+  content: string;
+  locked: boolean;
+  status: Todo['status'];
+};
+
 type Props = {
-  todos: string[];
+  todos: TodoDraftItem[];
   isBootstrapping: boolean;
   onRemove: (index: number) => void;
 };
@@ -23,13 +31,23 @@ export function TodoDraftList({ todos, isBootstrapping, onRemove }: Props) {
   return (
     <View style={styles.todoList}>
       {todos.map((todo, index) => (
-        <View key={`${todo}-${index}`} style={styles.todoRow}>
-          <Text style={styles.todoText} numberOfLines={1}>
-            {todo}
+        <View
+          key={`${todo.id}-${index}`}
+          style={[styles.todoRow, todo.locked ? styles.todoRowLocked : undefined]}
+        >
+          <Text
+            style={[styles.todoText, todo.locked ? styles.todoTextLocked : undefined]}
+            numberOfLines={1}
+          >
+            {todo.content}
           </Text>
-          <Pressable onPress={() => onRemove(index)}>
-            <Text style={styles.removeIcon}>×</Text>
-          </Pressable>
+          {todo.locked ? (
+            <Text style={styles.lockIcon}>◔</Text>
+          ) : (
+            <Pressable onPress={() => onRemove(index)}>
+              <Text style={styles.removeIcon}>×</Text>
+            </Pressable>
+          )}
         </View>
       ))}
     </View>

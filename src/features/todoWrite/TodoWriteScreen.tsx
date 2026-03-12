@@ -7,12 +7,20 @@ import { useMainStore } from '../../store/mainStore';
 import { createChallengeGroupRepository, createGroupRepository } from '../../data/repositories';
 import { ChallengeGroupUseCase } from '../../domain/usecases/challengeGroupUseCase';
 import { GroupUseCase } from '../../domain/usecases/groupUseCase';
+import type { Todo } from '../../domain/entities/todo';
 import { todoWriteStyles as styles } from './styles';
 import { MAX_TODO_COUNT, toQueryDate } from './utils';
 import { TodoWriteHeader } from './components/TodoWriteHeader';
 import { TodoInputBar } from './components/TodoInputBar';
 import { TodoDraftList } from './components/TodoDraftList';
 import { TodoSaveConfirmModal } from './components/TodoSaveConfirmModal';
+
+type TodoDraftItem = {
+  id: number;
+  content: string;
+  locked: boolean;
+  status: Todo['status'];
+};
 
 export function TodoWriteScreen() {
   const selectedGroupId = useMainStore((state) => state.selectedGroupId);
@@ -24,14 +32,14 @@ export function TodoWriteScreen() {
   const groupUseCase = useMemo(() => new GroupUseCase(createGroupRepository()), []);
 
   const [draft, setDraft] = useState('');
-  const [todos, setTodos] = useState<string[]>([]);
+  const [todos, setTodos] = useState<TodoDraftItem[]>([]);
   const [isFocused, setIsFocused] = useState(false);
   const [confirmVisible, setConfirmVisible] = useState(false);
   const [isBootstrapping, setIsBootstrapping] = useState(true);
 
   const trimmedDraft = draft.trim();
   const canAdd = trimmedDraft.length > 0 && todos.length < MAX_TODO_COUNT;
-  const canSave = todos.length > 0;
+  const canSave = todos.some((todo) => !todo.locked);
 
   useEffect(() => {
     let mounted = true;
@@ -51,9 +59,12 @@ export function TodoWriteScreen() {
       const existingTodos = await challengeGroupUseCase.getMyTodos(groupId, toQueryDate());
       if (mounted) {
         setTodos(
-          existingTodos
-            .filter((todo) => todo.status === 'WAIT_CERTIFICATION')
-            .map((todo) => todo.content),
+          existingTodos.map((todo) => ({
+            id: todo.id,
+            content: todo.content,
+            locked: todo.status !== 'WAIT_CERTIFICATION',
+            status: todo.status,
+          })),
         );
         setIsBootstrapping(false);
       }
@@ -69,7 +80,10 @@ export function TodoWriteScreen() {
       return;
     }
 
-    setTodos((current) => [trimmedDraft, ...current]);
+    setTodos((current) => [
+      { id: Date.now(), content: trimmedDraft, locked: false, status: 'WAIT_CERTIFICATION' },
+      ...current,
+    ]);
     setDraft('');
   };
 
@@ -83,7 +97,11 @@ export function TodoWriteScreen() {
       return;
     }
 
-    await challengeGroupUseCase.createTodos(groupId, toQueryDate(), todos);
+    await challengeGroupUseCase.createTodos(
+      groupId,
+      toQueryDate(),
+      todos.filter((todo) => !todo.locked).map((todo) => todo.content),
+    );
     await queryClient.invalidateQueries({ queryKey: ['todos'] });
     setConfirmVisible(false);
     router.back();
@@ -108,7 +126,11 @@ export function TodoWriteScreen() {
         <TodoDraftList
           todos={todos}
           isBootstrapping={isBootstrapping}
-          onRemove={(index) => setTodos((current) => current.filter((_, currentIndex) => currentIndex !== index))}
+          onRemove={(index) =>
+            setTodos((current) =>
+              current.filter((todo, currentIndex) => currentIndex !== index || todo.locked),
+            )
+          }
         />
 
         <Pressable
