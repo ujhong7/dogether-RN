@@ -6,6 +6,7 @@ import {
   ScrollView,
   Text,
   View,
+  useWindowDimensions,
 } from 'react-native';
 import { router } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
@@ -23,10 +24,13 @@ const THUMB_ITEM_WIDTH = THUMB_SIZE + THUMB_GAP;
 export function CertificationDetailScreen() {
   const { context, selectedIndex, setSelectedIndex } = useCertificationViewerStore();
   const thumbListRef = useRef<FlatList>(null);
+  const mediaScrollRef = useRef<ScrollView>(null);
+  const { width } = useWindowDimensions();
   const challengeGroupUseCase = useMemo(
     () => new ChallengeGroupUseCase(createChallengeGroupRepository()),
     [],
   );
+  const mediaCardWidth = Math.max(width - 32, 0);
 
   const todosQuery = useQuery({
     queryKey: ['todos', context.groupId, context.date],
@@ -60,8 +64,12 @@ export function CertificationDetailScreen() {
         animated: true,
         viewPosition: 0.5,
       });
+      mediaScrollRef.current?.scrollTo({
+        x: mediaCardWidth * safeIndex,
+        animated: true,
+      });
     });
-  }, [orderedTodos.length, safeIndex]);
+  }, [mediaCardWidth, orderedTodos.length, safeIndex]);
 
   if (!context.groupId || !context.date || orderedTodos.length === 0 || !currentTodo) {
     return (
@@ -124,23 +132,39 @@ export function CertificationDetailScreen() {
         />
 
         <ScrollView showsVerticalScrollIndicator={false}>
-          <View style={styles.mediaCard}>
-            {currentTodo.certificationMediaUrl ? (
-              <>
-                <Image source={{ uri: currentTodo.certificationMediaUrl }} style={styles.mediaImage} resizeMode="cover" />
-                {currentTodo.certificationContent ? (
-                  <View style={styles.mediaOverlay}>
-                    <Text style={styles.mediaOverlayText}>{currentTodo.certificationContent}</Text>
+          <ScrollView
+            ref={mediaScrollRef}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            bounces={false}
+            onMomentumScrollEnd={(event) => {
+              const nextIndex = Math.round(event.nativeEvent.contentOffset.x / mediaCardWidth);
+              if (nextIndex !== safeIndex) {
+                setSelectedIndex(nextIndex);
+              }
+            }}
+          >
+            {orderedTodos.map((todo) => (
+              <View key={todo.id} style={[styles.mediaCard, { width: mediaCardWidth }]}>
+                {todo.certificationMediaUrl ? (
+                  <>
+                    <Image source={{ uri: todo.certificationMediaUrl }} style={styles.mediaImage} resizeMode="cover" />
+                    {todo.certificationContent ? (
+                      <View style={styles.mediaOverlay}>
+                        <Text style={styles.mediaOverlayText}>{todo.certificationContent}</Text>
+                      </View>
+                    ) : null}
+                  </>
+                ) : (
+                  <View style={styles.emptyState}>
+                    <Text style={styles.emptyIcon}>🐧</Text>
+                    <Text style={styles.emptyCaption}>아직 열심히 전진중이에요</Text>
                   </View>
-                ) : null}
-              </>
-            ) : (
-              <View style={styles.emptyState}>
-                <Text style={styles.emptyIcon}>🐧</Text>
-                <Text style={styles.emptyCaption}>아직 열심히 전진중이에요</Text>
+                )}
               </View>
-            )}
-          </View>
+            ))}
+          </ScrollView>
 
           <Text style={styles.todoTitle}>{currentTodo.content}</Text>
 
