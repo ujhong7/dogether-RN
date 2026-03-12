@@ -1,7 +1,11 @@
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { router } from 'expo-router';
+import { AppAlertModal } from '../../components/AppAlertModal';
+import { FullScreenErrorState } from '../../components/FullScreenErrorState';
 import { Screen } from '../../components/Screen';
 import { useRankingQuery } from '../../queries/useRankingQuery';
+import { toAppError } from '../../services/errors/appError';
+import { useSessionStore } from '../../stores/sessionStore';
 import { rankingStyles as styles } from './styles';
 import { getRankAccent } from './utils';
 import { RankingAvatar } from './components/RankingAvatar';
@@ -9,6 +13,39 @@ import { RankingTopThree } from './components/RankingTopThree';
 
 export function RankingScreen() {
   const rankingQuery = useRankingQuery(1);
+  const logout = useSessionStore((state) => state.logout);
+
+  if (rankingQuery.isError) {
+    const appError = toAppError(rankingQuery.error);
+
+    if (appError.variant === 'alert') {
+      return (
+        <Screen>
+          <AppAlertModal
+            visible
+            error={appError}
+            onClose={() => {
+              logout();
+              router.replace('/onboarding');
+            }}
+          />
+        </Screen>
+      );
+    }
+
+    return (
+      <Screen>
+        <FullScreenErrorState
+          title={appError.title}
+          message={appError.message}
+          actionLabel={appError.actionLabel}
+          onRetry={() => {
+            void rankingQuery.refetch();
+          }}
+        />
+      </Screen>
+    );
+  }
 
   const rankings = rankingQuery.data ?? [];
   const others = rankings.slice(3);

@@ -3,6 +3,7 @@ import { endpoints } from '../api/endpoints';
 import type { ApiEnvelope } from '../../types/api';
 import type { Group } from '../../models/group';
 import type { GroupRepository } from './contracts/groupRepository';
+import { toAppError } from '../errors/appError';
 
 function mapGroup(raw: any): Group {
   return {
@@ -24,8 +25,8 @@ export class GroupRepositoryImpl implements GroupRepository {
     try {
       const res = await apiClient.get<ApiEnvelope<{ checkParticipating: boolean }>>(endpoints.checkParticipating);
       return Boolean(res.data.data?.checkParticipating);
-    } catch {
-      return true;
+    } catch (error) {
+      throw toAppError(error);
     }
   }
 
@@ -37,21 +38,8 @@ export class GroupRepositoryImpl implements GroupRepository {
         return [];
       }
       return groups;
-    } catch {
-      return [
-        {
-          id: 1,
-          name: 'RN 전환 스터디',
-          currentMember: 3,
-          maximumMember: 5,
-          joinCode: 'RN2026',
-          status: 'running',
-          duration: 8,
-          progress: 0.6,
-          startDate: '2026-03-01',
-          endDate: '2026-03-14',
-        },
-      ];
+    } catch (error) {
+      throw toAppError(error);
     }
   }
 }
