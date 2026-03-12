@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 import type { Todo } from '../../../domain/entities/todo';
 import type { MainSheetStatus } from '../useMainScreen';
 import type { TodoFilter } from '../../../store/mainStore';
+import { useCertificationViewerStore } from '../../../store/certificationViewerStore';
 import { mainStyles as styles } from '../styles';
 import { MAIN_FILTERS, getTodoAccent, getTodoLeading } from '../utils';
 import { DoneIllustration, EmptyIllustration, TodayIllustration } from './Illustrations';
@@ -40,6 +41,7 @@ export function MainPanel({
   onMoveFuture,
   onSetFilter,
 }: Props) {
+  const openViewer = useCertificationViewerStore((state) => state.openViewer);
   return (
     <View style={styles.panel}>
       <View style={styles.dateHeader}>
@@ -112,25 +114,24 @@ export function MainPanel({
             filteredTodos.map((todo) => {
               const uncertified = todo.status === 'WAIT_CERTIFICATION';
               const accent = getTodoAccent(todo.status);
+              const currentIndex = filteredTodos.findIndex((item) => item.id === todo.id);
               return (
                 <Pressable
                   key={todo.id}
                   style={styles.todoRow}
-                  disabled={!uncertified || dateOffset < 0 || !currentGroupId}
+                  disabled={!currentGroupId}
                   onPress={() => {
-                    if (!uncertified || dateOffset < 0 || !currentGroupId) {
+                    if (!currentGroupId) {
                       return;
                     }
 
-                    router.push({
-                      pathname: '/certify',
-                      params: {
-                        todoId: String(todo.id),
-                        groupId: String(currentGroupId),
-                        date: queryDate,
-                        content: todo.content,
-                      },
+                    openViewer({
+                      groupId: currentGroupId,
+                      date: queryDate,
+                      todoIds: filteredTodos.map((item) => item.id),
+                      selectedIndex: currentIndex < 0 ? 0 : currentIndex,
                     });
+                    router.push('/certification');
                   }}
                 >
                   <View style={styles.todoLeft}>

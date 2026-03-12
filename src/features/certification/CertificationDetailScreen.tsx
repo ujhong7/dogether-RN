@@ -1,0 +1,160 @@
+import { useEffect, useMemo, useRef } from 'react';
+import {
+  FlatList,
+  Image,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from 'react-native';
+import { router } from 'expo-router';
+import { useQuery } from '@tanstack/react-query';
+import { Screen } from '../../components/Screen';
+import { createChallengeGroupRepository } from '../../data/repositories';
+import { ChallengeGroupUseCase } from '../../domain/usecases/challengeGroupUseCase';
+import { useCertificationViewerStore } from '../../store/certificationViewerStore';
+import { certificationDetailStyles as styles } from './styles';
+import { getFeedbackText, getStatusMeta } from './utils';
+
+export function CertificationDetailScreen() {
+  const { context, selectedIndex, setSelectedIndex } = useCertificationViewerStore();
+  const thumbListRef = useRef<FlatList>(null);
+  const challengeGroupUseCase = useMemo(
+    () => new ChallengeGroupUseCase(createChallengeGroupRepository()),
+    [],
+  );
+
+  const todosQuery = useQuery({
+    queryKey: ['todos', context.groupId, context.date],
+    enabled: Boolean(context.groupId && context.date),
+    queryFn: () => challengeGroupUseCase.getMyTodos(context.groupId!, context.date),
+  });
+
+  const orderedTodos = useMemo(() => {
+    const todos = todosQuery.data ?? [];
+    if (!context.todoIds.length) {
+      return todos;
+    }
+
+    const todoMap = new Map(todos.map((todo) => [todo.id, todo]));
+    return context.todoIds
+      .map((id) => todoMap.get(id))
+      .filter((todo): todo is NonNullable<typeof todo> => Boolean(todo));
+  }, [context.todoIds, todosQuery.data]);
+
+  const safeIndex = orderedTodos.length === 0 ? 0 : Math.min(selectedIndex, orderedTodos.length - 1);
+  const currentTodo = orderedTodos[safeIndex];
+
+  useEffect(() => {
+    if (orderedTodos.length === 0) {
+      return;
+    }
+
+    thumbListRef.current?.scrollToIndex({
+      index: safeIndex,
+      animated: true,
+      viewPosition: 0.5,
+    });
+  }, [orderedTodos.length, safeIndex]);
+
+  if (!context.groupId || !context.date || orderedTodos.length === 0 || !currentTodo) {
+    return (
+      <Screen>
+        <View style={styles.emptyState}>
+          <Text style={styles.emptyIcon}>🫥</Text>
+          <Text style={styles.todoTitle}>불러올 인증 정보가 없어요</Text>
+        </View>
+      </Screen>
+    );
+  }
+
+  const statusMeta = getStatusMeta(currentTodo.status);
+  const feedbackText = getFeedbackText(currentTodo);
+
+  return (
+    <Screen>
+      <View style={styles.flex}>
+        <View style={styles.nav}>
+          <Pressable onPress={() => router.back()}>
+            <Text style={styles.navBack}>‹</Text>
+          </Pressable>
+          <Text style={styles.navTitle}>내 인증 정보</Text>
+          <View style={styles.navSpacer} />
+        </View>
+
+        <FlatList
+          ref={thumbListRef}
+          data={orderedTodos}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.thumbList}
+          contentContainerStyle={styles.thumbContent}
+          keyExtractor={(item) => String(item.id)}
+          renderItem={({ item, index }) => (
+            <Pressable
+              style={[styles.thumbCard, index === safeIndex ? styles.thumbCardActive : undefined]}
+              onPress={() => setSelectedIndex(index)}
+            >
+              {item.certificationMediaUrl ? (
+                <Image source={{ uri: item.certificationMediaUrl }} style={styles.thumbImage} resizeMode="cover" />
+              ) : (
+                <Text style={styles.thumbPlaceholder}>🐧</Text>
+              )}
+            </Pressable>
+          )}
+        />
+
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <View style={styles.mediaCard}>
+            {currentTodo.certificationMediaUrl ? (
+              <>
+                <Image source={{ uri: currentTodo.certificationMediaUrl }} style={styles.mediaImage} resizeMode="cover" />
+                {currentTodo.certificationContent ? (
+                  <View style={styles.mediaOverlay}>
+                    <Text style={styles.mediaOverlayText}>{currentTodo.certificationContent}</Text>
+                  </View>
+                ) : null}
+              </>
+            ) : (
+              <View style={styles.emptyState}>
+                <Text style={styles.emptyIcon}>🐧</Text>
+                <Text style={styles.emptyCaption}>아직 열심히 전진중이에요</Text>
+              </View>
+            )}
+          </View>
+
+          <Text style={styles.todoTitle}>{currentTodo.content}</Text>
+
+          <View style={[styles.statusBadge, { backgroundColor: statusMeta.color }]}>
+            <Text style={styles.statusBadgeText}>{statusMeta.label}</Text>
+          </View>
+
+          {feedbackText ? (
+            <View style={styles.feedbackBox}>
+              <Text style={styles.feedbackText}>{feedbackText}</Text>
+            </View>
+          ) : null}
+        </ScrollView>
+
+        {currentTodo.status === 'WAIT_CERTIFICATION' ? (
+          <Pressable
+            style={styles.primaryButton}
+            onPress={() =>
+              router.push({
+                pathname: '/certify',
+                params: {
+                  todoId: String(currentTodo.id),
+                  groupId: String(context.groupId),
+                  date: context.date,
+                  content: currentTodo.content,
+                },
+              })
+            }
+          >
+            <Text style={styles.primaryButtonText}>인증하기</Text>
+          </Pressable>
+        ) : null}
+      </View>
+    </Screen>
+  );
+}
