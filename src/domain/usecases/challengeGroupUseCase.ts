@@ -10,4 +10,8 @@ export class ChallengeGroupUseCase {
   async createTodos(groupId: number, date: string, contents: string[]) {
     return this.challengeGroupRepository.createTodos(groupId, date, contents);
   }
+
+  async certifyTodo(groupId: number, date: string, todoId: number, content: string, mediaUrl: string) {
+    return this.challengeGroupRepository.certifyTodo(groupId, date, todoId, content, mediaUrl);
+  }
 }
