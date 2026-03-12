@@ -1,3 +1,3 @@
-import { TodoWriteScreen } from '../src/features/todoWrite';
+import { TodoWriteScreen } from '../src/screens/todoWrite';
 
 export default TodoWriteScreen;

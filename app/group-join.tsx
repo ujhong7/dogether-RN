@@ -1,3 +1,3 @@
-import { GroupJoinScreen } from '../src/features/groupJoin';
+import { GroupJoinScreen } from '../src/screens/groupJoin';
 
 export default GroupJoinScreen;

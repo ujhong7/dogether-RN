@@ -1,3 +1,3 @@
-import { RankingScreen } from '../src/features/ranking';
+import { RankingScreen } from '../src/screens/ranking';
 
 export default RankingScreen;
