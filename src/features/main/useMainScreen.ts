@@ -33,6 +33,35 @@ function formatDateByOffset(offset: number) {
   return `${year}.${month}.${day}`;
 }
 
+function parseGroupDate(dateLabel: string | undefined) {
+  if (!dateLabel) {
+    return null;
+  }
+
+  const [year, month, day] = dateLabel.split('.').map(Number);
+  if (!year || !month || !day) {
+    return null;
+  }
+
+  return new Date(2000 + year, month - 1, day);
+}
+
+function startOfDay(date: Date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function getPastOffsetLimit(group: Group | undefined) {
+  const startDate = parseGroupDate(group?.startDate);
+  if (!startDate) {
+    return 0;
+  }
+
+  const today = startOfDay(new Date());
+  const groupStart = startOfDay(startDate);
+  const diff = Math.floor((today.getTime() - groupStart.getTime()) / (1000 * 60 * 60 * 24));
+  return Math.max(0, diff);
+}
+
 function getMockTodosForDate(group: Group | undefined, dateOffset: number, todos: Todo[]) {
   if (!group) {
     return [];
@@ -125,7 +154,7 @@ export function useMainScreen() {
       setSelectedGroupId(groupsQuery.data[0].id);
     }
   }, [currentGroup, groupsQuery.data, selectedGroupId, setSelectedGroupId]);
-  const canGoPast = Boolean(currentGroup) && Math.abs(dateOffset) < (currentGroup?.duration ?? 0) - 1;
+  const canGoPast = Math.abs(dateOffset) < getPastOffsetLimit(currentGroup);
   const canGoFuture = dateOffset < 0;
 
   const todosQuery = useQuery({
