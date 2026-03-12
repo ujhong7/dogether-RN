@@ -1,6 +1,6 @@
 import type { Todo } from '../../domain/entities/todo';
 import type { ChallengeGroupRepository } from '../../domain/repositories/challengeGroupRepository';
-import { getMockTodos, saveMockTodos } from './mockTodoData';
+import { getMockTodos, saveMockTodos, setMockTodos } from './mockTodoData';
 
 const todosByGroupId: Record<number, Todo[]> = {
   101: [
@@ -26,5 +26,29 @@ export class MockChallengeGroupRepository implements ChallengeGroupRepository {
 
   async createTodos(groupId: number, date: string, contents: string[]): Promise<Todo[]> {
     return saveMockTodos(groupId, date, contents);
+  }
+
+  async certifyTodo(
+    groupId: number,
+    date: string,
+    todoId: number,
+    content: string,
+    mediaUrl: string,
+  ): Promise<Todo | null> {
+    const storedTodos = getMockTodos(groupId, date);
+    const baseTodos = storedTodos.length > 0 ? storedTodos : todosByGroupId[groupId] ?? [];
+    const updatedTodos = baseTodos.map((todo) =>
+      todo.id === todoId
+        ? {
+            ...todo,
+            status: 'WAIT_APPROVAL' as const,
+            certificationContent: content,
+            certificationMediaUrl: mediaUrl,
+          }
+        : todo,
+    );
+
+    setMockTodos(groupId, date, updatedTodos);
+    return updatedTodos.find((todo) => todo.id === todoId) ?? null;
   }
 }

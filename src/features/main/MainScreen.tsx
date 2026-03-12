@@ -14,6 +14,7 @@ export function MainScreen() {
     filteredTodos,
     visibleTodos,
     dateOffset,
+    queryDate,
     filter,
     formattedDate,
     canGoPast,
@@ -46,6 +47,8 @@ export function MainScreen() {
         visibleTodos={visibleTodos}
         filteredTodos={filteredTodos}
         dateOffset={dateOffset}
+        currentGroupId={currentGroup?.id}
+        queryDate={queryDate}
         activeFilterEmptyText={activeFilterEmptyText}
         onMovePast={movePast}
         onMoveFuture={moveFuture}

@@ -152,6 +152,7 @@ export function useMainScreen() {
     canGoPast,
     canGoFuture,
     formattedDate: formatDateByOffset(dateOffset),
+    queryDate: getDateByOffset(dateOffset),
     currentGroup,
     groupsQuery,
     todosQuery,

@@ -16,6 +16,8 @@ type Props = {
   visibleTodos: Todo[];
   filteredTodos: Todo[];
   dateOffset: number;
+  currentGroupId?: number;
+  queryDate: string;
   activeFilterEmptyText: string;
   onMovePast: () => void;
   onMoveFuture: () => void;
@@ -31,6 +33,8 @@ export function MainPanel({
   visibleTodos,
   filteredTodos,
   dateOffset,
+  currentGroupId,
+  queryDate,
   activeFilterEmptyText,
   onMovePast,
   onMoveFuture,
@@ -109,7 +113,26 @@ export function MainPanel({
               const uncertified = todo.status === 'WAIT_CERTIFICATION';
               const accent = getTodoAccent(todo.status);
               return (
-                <Pressable key={todo.id} style={styles.todoRow}>
+                <Pressable
+                  key={todo.id}
+                  style={styles.todoRow}
+                  disabled={!uncertified || dateOffset < 0 || !currentGroupId}
+                  onPress={() => {
+                    if (!uncertified || dateOffset < 0 || !currentGroupId) {
+                      return;
+                    }
+
+                    router.push({
+                      pathname: '/certify',
+                      params: {
+                        todoId: String(todo.id),
+                        groupId: String(currentGroupId),
+                        date: queryDate,
+                        content: todo.content,
+                      },
+                    });
+                  }}
+                >
                   <View style={styles.todoLeft}>
                     {!uncertified ? (
                       <View style={[styles.todoStatusBadge, { backgroundColor: accent }]}>

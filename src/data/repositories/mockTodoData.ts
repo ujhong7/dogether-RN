@@ -31,6 +31,13 @@ export function getMockTodos(groupId: number, date: string) {
   return todos ?? [];
 }
 
+export function setMockTodos(groupId: number, date: string, todos: Todo[]) {
+  const todoMap = readTodoMap();
+  todoMap[buildKey(groupId, date)] = todos;
+  writeTodoMap(todoMap);
+  return todos;
+}
+
 export function saveMockTodos(groupId: number, date: string, contents: string[]) {
   const todoMap = readTodoMap();
   const key = buildKey(groupId, date);

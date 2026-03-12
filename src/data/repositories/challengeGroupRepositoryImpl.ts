@@ -38,4 +38,20 @@ export class ChallengeGroupRepositoryImpl implements ChallengeGroupRepository {
       status: 'WAIT_CERTIFICATION',
     }));
   }
+
+  async certifyTodo(
+    _groupId: number,
+    _date: string,
+    todoId: number,
+    content: string,
+    mediaUrl: string,
+  ): Promise<Todo | null> {
+    return {
+      id: todoId,
+      content,
+      status: 'WAIT_APPROVAL',
+      certificationContent: content,
+      certificationMediaUrl: mediaUrl,
+    };
+  }
 }
