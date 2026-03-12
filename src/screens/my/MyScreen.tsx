@@ -1,13 +1,49 @@
 import { Pressable, StyleSheet, Text } from 'react-native';
 import { router } from 'expo-router';
+import { AppAlertModal } from '../../components/AppAlertModal';
+import { FullScreenErrorState } from '../../components/FullScreenErrorState';
 import { Screen } from '../../components/Screen';
 import { useProfileQuery } from '../../queries/useProfileQuery';
+import { toAppError } from '../../services/errors/appError';
 import { useSessionStore } from '../../stores/sessionStore';
 import { colors } from '../../theme/colors';
 
 export function MyScreen() {
   const userName = useSessionStore((state) => state.userName);
+  const logout = useSessionStore((state) => state.logout);
   const profileQuery = useProfileQuery();
+
+  if (profileQuery.isError) {
+    const appError = toAppError(profileQuery.error);
+
+    if (appError.variant === 'alert') {
+      return (
+        <Screen>
+          <AppAlertModal
+            visible
+            error={appError}
+            onClose={() => {
+              logout();
+              router.replace('/onboarding');
+            }}
+          />
+        </Screen>
+      );
+    }
+
+    return (
+      <Screen>
+        <FullScreenErrorState
+          title={appError.title}
+          message={appError.message}
+          actionLabel={appError.actionLabel}
+          onRetry={() => {
+            void profileQuery.refetch();
+          }}
+        />
+      </Screen>
+    );
+  }
 
   return (
     <Screen>
