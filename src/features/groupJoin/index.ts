@@ -1,1 +1,0 @@
-export { GroupJoinScreen } from './GroupJoinScreen';

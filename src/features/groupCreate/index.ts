@@ -1,1 +1,0 @@
-export { GroupCreateScreen } from './GroupCreateScreen';
