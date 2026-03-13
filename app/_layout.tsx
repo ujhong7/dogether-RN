@@ -18,6 +18,7 @@ export default function RootLayout() {
         <Stack.Screen name="group-join" />
         <Stack.Screen name="complete" />
         <Stack.Screen name="todo-write" />
+        <Stack.Screen name="review" options={{ gestureEnabled: false }} />
         <Stack.Screen name="main" />
         <Stack.Screen name="ranking" />
         <Stack.Screen name="my" />

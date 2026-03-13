@@ -1,11 +1,13 @@
 import type { AppInfoRepository } from '../repositories/contracts/appInfoRepository';
 import type { GroupRepository } from '../repositories/contracts/groupRepository';
-export type LaunchRoute = 'update' | 'onboarding' | 'start' | 'main';
+import type { ReviewRepository } from '../repositories/contracts/reviewRepository';
+export type LaunchRoute = 'update' | 'onboarding' | 'start' | 'main' | 'review';
 
 export class AppLaunchUseCase {
   constructor(
     private readonly appInfoRepository: AppInfoRepository,
     private readonly groupRepository: GroupRepository,
+    private readonly reviewRepository: ReviewRepository,
   ) {}
 
   async launchDelay() {
@@ -26,6 +28,11 @@ export class AppLaunchUseCase {
     }
 
     const hasParticipatingGroup = await this.groupRepository.checkParticipating();
-    return hasParticipatingGroup ? 'main' : 'start';
+    if (!hasParticipatingGroup) {
+      return 'start';
+    }
+
+    const pendingReviews = await this.reviewRepository.getPendingReviews();
+    return pendingReviews.length > 0 ? 'review' : 'main';
   }
 }
