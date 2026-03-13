@@ -1,6 +1,6 @@
 import type { Todo } from '../../models/todo';
 import type { ChallengeGroupRepository } from './contracts/challengeGroupRepository';
-import { getMockDefaultTodos, getMockTodos, saveMockTodos, setMockTodos } from './mockTodoData';
+import { getMockDefaultTodosForDate, getMockTodos, saveMockTodos, setMockTodos } from './mockTodoData';
 
 export class MockChallengeGroupRepository implements ChallengeGroupRepository {
   async getMyTodos(groupId: number, date: string): Promise<Todo[]> {
@@ -9,12 +9,12 @@ export class MockChallengeGroupRepository implements ChallengeGroupRepository {
       return storedTodos;
     }
 
-    return getMockDefaultTodos(groupId);
+    return getMockDefaultTodosForDate(groupId, date);
   }
 
   async createTodos(groupId: number, date: string, contents: string[]): Promise<Todo[]> {
     const storedTodos = getMockTodos(groupId, date);
-    const baseTodos = storedTodos.length > 0 ? storedTodos : getMockDefaultTodos(groupId);
+    const baseTodos = storedTodos.length > 0 ? storedTodos : getMockDefaultTodosForDate(groupId, date);
     const lockedTodos = baseTodos.filter((todo) => todo.status !== 'WAIT_CERTIFICATION');
     const editableTodos = saveMockTodos(groupId, date, contents);
     const mergedTodos = [...editableTodos, ...lockedTodos];
@@ -30,7 +30,7 @@ export class MockChallengeGroupRepository implements ChallengeGroupRepository {
     mediaUrl: string,
   ): Promise<Todo | null> {
     const storedTodos = getMockTodos(groupId, date);
-    const baseTodos = storedTodos.length > 0 ? storedTodos : getMockDefaultTodos(groupId);
+    const baseTodos = storedTodos.length > 0 ? storedTodos : getMockDefaultTodosForDate(groupId, date);
     const updatedTodos = baseTodos.map((todo) =>
       todo.id === todoId
         ? {

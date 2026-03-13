@@ -1,4 +1,5 @@
 import type { Todo } from '../../models/todo';
+import type { TodoStatus } from '../../models/todo';
 import { storage } from '../../lib/storage';
 
 const TODOS_KEY = 'mockTodosByGroupDate';
@@ -135,6 +136,19 @@ function buildKey(groupId: number, date: string) {
   return `${groupId}:${date}`;
 }
 
+function getTodayDateLabel() {
+  return formatDate(new Date());
+}
+
+function buildHistoricalTodos(todos: Todo[]) {
+  return todos.map((todo, index): Todo => ({
+    ...todo,
+    id: Number(`9${todo.id}${index}`),
+    status: (index % 2 === 0 ? 'APPROVED' : 'REJECTED') as TodoStatus,
+    reviewFeedback: index % 2 === 0 ? '인증 완료' : '인증 실패',
+  }));
+}
+
 export function getMockTodos(groupId: number, date: string) {
   const todos = readTodoMap()[buildKey(groupId, date)];
   return todos ?? [];
@@ -142,6 +156,19 @@ export function getMockTodos(groupId: number, date: string) {
 
 export function getMockDefaultTodos(groupId: number) {
   return seededCurrentTodosByGroupId[groupId] ?? [];
+}
+
+export function getMockDefaultTodosForDate(groupId: number, date: string) {
+  if (date === getTodayDateLabel()) {
+    return getMockDefaultTodos(groupId);
+  }
+
+  const todaysTodos = getMockDefaultTodos(groupId);
+  if (todaysTodos.length === 0) {
+    return [];
+  }
+
+  return buildHistoricalTodos(todaysTodos);
 }
 
 export function setMockTodos(groupId: number, date: string, todos: Todo[]) {
