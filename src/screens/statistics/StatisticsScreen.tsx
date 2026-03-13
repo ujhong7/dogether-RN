@@ -64,16 +64,17 @@ export function StatisticsScreen() {
 
     const totalDays = Math.max(currentGroup.duration, 1);
     const currentDay = getCurrentGroupDay(currentGroup.startDate, totalDays);
-    const firstVisibleDay = Math.max(1, currentDay - 3);
-    const visibleDays = Array.from({ length: currentDay - firstVisibleDay + 1 }, (_, index) => firstVisibleDay + index);
+    const firstVisibleDay = currentDay <= 4 ? 1 : currentDay - 3;
+    const visibleDays = Array.from({ length: 4 }, (_, index) => firstVisibleDay + index);
     const certifiedDays = Math.min(Math.max(Math.round(totalDays * 0.2), 1), totalDays);
     const achievementPercent = Math.round((certifiedDays / totalDays) * 100);
     const chartValues = visibleDays.map((day) => ({
       day,
       label: `${day}일차`,
       total: MAX_TODOS_PER_DAY,
-      value: getMockWrittenTodoCount(currentGroup.id, day),
+      value: day <= currentDay ? getMockWrittenTodoCount(currentGroup.id, day) : 0,
       isCurrent: day === currentDay,
+      isFuture: day > currentDay,
     }));
 
     return {
@@ -194,10 +195,6 @@ export function StatisticsScreen() {
           <Text style={styles.cardTitle}>인증한 기간</Text>
         </View>
 
-        <View style={styles.badge}>
-          <Text style={styles.badgeText}>{summary?.achievementPercent ?? 0}% 달성중</Text>
-        </View>
-
         <View style={styles.chartArea}>
           <View style={styles.axisColumn}>
             {[10, 8, 6, 4, 2, 0].map((value) => (
@@ -209,22 +206,38 @@ export function StatisticsScreen() {
           <View style={styles.barRow}>
             {summary?.chartValues.map((item) => (
               <View key={item.label} style={styles.barColumn}>
+                <View style={styles.barTopArea}>
+                  {item.isCurrent ? (
+                    <>
+                      <View style={styles.badge}>
+                        <Text numberOfLines={1} style={styles.badgeText}>
+                          {summary?.achievementPercent ?? 0}% 달성중
+                        </Text>
+                      </View>
+                      <View style={styles.badgePointer} />
+                      <View style={styles.currentDot} />
+                    </>
+                  ) : (
+                    <View style={styles.currentDotPlaceholder} />
+                  )}
+                </View>
                 <View style={styles.barTrack}>
                   <View style={styles.barStripeWrap}>
                     {Array.from({ length: 8 }, (_, index) => (
                       <View key={index} style={[styles.barStripe, { left: index * 18 - 12 }]} />
                     ))}
                   </View>
-                  <View
-                    style={[
-                      styles.barFill,
-                      item.isCurrent ? styles.barFillCurrent : undefined,
-                      { height: `${(item.value / item.total) * 100}%` },
-                    ]}
-                  />
+                  {item.value > 0 ? (
+                    <View
+                      style={[
+                        styles.barFill,
+                        item.isCurrent ? styles.barFillCurrent : undefined,
+                        { height: `${(item.value / item.total) * 100}%` },
+                      ]}
+                    />
+                  ) : null}
                 </View>
-                {item.isCurrent ? <View style={styles.currentDot} /> : <View style={styles.currentDotPlaceholder} />}
-                <Text style={styles.barLabel}>{item.label}</Text>
+                <Text style={[styles.barLabel, item.isFuture ? styles.barLabelFuture : undefined]}>{item.label}</Text>
               </View>
             ))}
           </View>
@@ -435,17 +448,30 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   badge: {
-    alignSelf: 'flex-end',
+    minWidth: 106,
     backgroundColor: colors.primary,
     borderRadius: 999,
-    paddingHorizontal: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 14,
     paddingVertical: 6,
-    marginBottom: 10,
   },
   badgeText: {
     color: colors.text,
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '800',
+  },
+  badgePointer: {
+    width: 0,
+    height: 0,
+    borderLeftWidth: 7,
+    borderRightWidth: 7,
+    borderTopWidth: 9,
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+    borderTopColor: colors.primary,
+    marginTop: -1,
+    marginBottom: 2,
   },
   chartArea: {
     flexDirection: 'row',
@@ -475,6 +501,11 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     gap: 6,
+  },
+  barTopArea: {
+    minHeight: 58,
+    alignItems: 'center',
+    justifyContent: 'flex-end',
   },
   barTrack: {
     width: '100%',
@@ -513,6 +544,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#5B9DF0',
     borderWidth: 3,
     borderColor: '#F4F7FF',
+    marginBottom: -9,
+    zIndex: 1,
   },
   currentDotPlaceholder: {
     width: 18,
@@ -522,6 +555,9 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontSize: 12,
     fontWeight: '700',
+  },
+  barLabelFuture: {
+    color: '#8C91A7',
   },
   summaryRow: {
     flexDirection: 'row',

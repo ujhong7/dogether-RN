@@ -1,4 +1,5 @@
 import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { Group } from '../models/group';
 import { colors } from '../theme/colors';
 
@@ -23,21 +24,36 @@ export function GroupSelectBottomSheet({
   onSelectGroup,
   footerAction,
 }: Props) {
+  const insets = useSafeAreaInsets();
   const rowHeight = 40;
   const rowGap = 8;
-  const headerHeight = 54;
-  const footerHeight = footerAction ? 58 : 0;
+  const titleHeight = 24;
+  const titleMarginBottom = 18;
+  const topPadding = 20;
+  const bottomPadding = 12 + insets.bottom;
+  const footerHeight = footerAction ? 70 : 0;
   const listHeight =
     groups.length === 0 ? 0 : Math.min(groups.length * rowHeight + Math.max(groups.length - 1, 0) * rowGap, 220);
-  const sheetHeight = Math.max(footerAction ? 198 : 154, headerHeight + listHeight + footerHeight);
+  const sheetHeight = Math.max(
+    footerAction ? 198 : 170,
+    topPadding + titleHeight + titleMarginBottom + listHeight + footerHeight + bottomPadding,
+  );
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View style={styles.overlay}>
         <Pressable style={styles.backdrop} onPress={onClose} />
-        <View style={[styles.sheet, { height: sheetHeight }]}>
+        <View style={[styles.sheet, { height: sheetHeight, paddingBottom: bottomPadding }]}>
           <Text style={styles.title}>그룹 선택</Text>
-          <ScrollView style={styles.scroll} contentContainerStyle={styles.list} showsVerticalScrollIndicator={false}>
+          <ScrollView
+            style={styles.scroll}
+            contentContainerStyle={[
+              styles.list,
+              footerAction ? styles.listWithFooter : undefined,
+              !footerAction ? styles.listWithoutFooter : undefined,
+            ]}
+            showsVerticalScrollIndicator={false}
+          >
             {groups.map((group) => {
               const selected = currentGroupId === group.id;
 
@@ -105,6 +121,12 @@ const styles = StyleSheet.create({
   },
   list: {
     gap: 8,
+  },
+  listWithFooter: {
+    paddingBottom: 8,
+  },
+  listWithoutFooter: {
+    paddingBottom: 24,
   },
   row: {
     minHeight: 40,
