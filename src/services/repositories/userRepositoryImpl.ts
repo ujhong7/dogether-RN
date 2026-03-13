@@ -3,6 +3,7 @@ import { endpoints } from '../api/endpoints';
 import type { ApiEnvelope } from '../../types/api';
 import type { Profile } from '../../models/profile';
 import type { Ranking } from '../../models/ranking';
+import type { CertificationListData, CertificationListSort } from '../../models/certificationList';
 import type { UserRepository } from './contracts/userRepository';
 import { toAppError } from '../errors/appError';
 
@@ -32,5 +33,16 @@ export class UserRepositoryImpl implements UserRepository {
     } catch (error) {
       throw toAppError(error);
     }
+  }
+
+  async getCertificationList(_: CertificationListSort): Promise<CertificationListData> {
+    return {
+      summary: {
+        achievementCount: 0,
+        approvedCount: 0,
+        rejectedCount: 0,
+      },
+      sections: [],
+    };
   }
 }
