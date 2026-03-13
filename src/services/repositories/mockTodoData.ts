@@ -199,3 +199,11 @@ export function getAllMockTodoEntries() {
       return right.date.localeCompare(left.date);
     });
 }
+
+export function removeMockTodosByGroup(groupId: number) {
+  const todoMap = readTodoMap();
+  const nextTodoMap = Object.fromEntries(
+    Object.entries(todoMap).filter(([key]) => !key.startsWith(`${groupId}:`)),
+  );
+  writeTodoMap(nextTodoMap);
+}
