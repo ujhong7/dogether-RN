@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect } from 'react';
 import type { Group } from '../models/group';
-import type { Todo, TodoStatus } from '../models/todo';
+import type { Todo } from '../models/todo';
 import { useMainStore, type TodoFilter } from '../stores/mainStore';
 import { useGroupsQuery } from '../queries/useGroupsQuery';
 import { useMyTodosQuery } from '../queries/useMyTodosQuery';
@@ -55,31 +55,6 @@ function getPastOffsetLimit(group: Group | undefined) {
   const groupStart = startOfDay(startDate);
   const diff = Math.floor((today.getTime() - groupStart.getTime()) / (1000 * 60 * 60 * 24));
   return Math.max(0, diff);
-}
-
-function getMockTodosForDate(group: Group | undefined, dateOffset: number, todos: Todo[]) {
-  if (!group) {
-    return [];
-  }
-
-  if (dateOffset === 0) {
-    return todos;
-  }
-
-  if (dateOffset < 0) {
-    if (group.id === 2) {
-      return [];
-    }
-
-    return todos.map((todo, index): Todo => ({
-      ...todo,
-      id: Number(`${Math.abs(dateOffset)}${todo.id}`),
-      status: (index % 2 === 0 ? 'APPROVED' : 'REJECTED') as TodoStatus,
-      reviewFeedback: index % 2 === 0 ? '인증 완료' : '인증 실패',
-    }));
-  }
-
-  return [];
 }
 
 function getSheetStatus(group: Group | undefined, dateOffset: number, todos: Todo[]): MainSheetStatus {
@@ -151,7 +126,7 @@ export function useMainScreen() {
     date: getDateByOffset(dateOffset),
   });
 
-  const visibleTodos = getMockTodosForDate(currentGroup, dateOffset, todosQuery.data ?? []);
+  const visibleTodos = todosQuery.data ?? [];
 
   const filteredTodos = visibleTodos.filter((todo) => {
     if (filter === 'all') {

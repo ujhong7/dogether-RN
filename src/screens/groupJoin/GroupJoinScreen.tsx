@@ -1,21 +1,25 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, Text, TextInput, View } from 'react-native';
 import { router } from 'expo-router';
+import { useQueryClient } from '@tanstack/react-query';
 import { AppAlertModal } from '../../components/AppAlertModal';
 import { Screen } from '../../components/Screen';
 import { getAppError, type AppErrorCode } from '../../models/error';
-import { joinMockGroupByCode } from '../../services/repositories/mockGroupData';
+import { createGroupRepository } from '../../services/repositories';
+import { GroupUseCase } from '../../services/usecases/groupUseCase';
 import { useMainStore } from '../../stores/mainStore';
 import { useStartFlowStore } from '../../stores/startFlowStore';
 import { GroupJoinHeader } from './components/GroupJoinHeader';
 import { groupJoinStyles as styles } from './styles';
 
 export function GroupJoinScreen() {
+  const queryClient = useQueryClient();
   const [joinCode, setJoinCode] = useState('');
   const [errorCode, setErrorCode] = useState<AppErrorCode | null>(null);
   const [isFocused, setIsFocused] = useState(false);
   const setCompletePayload = useStartFlowStore((state) => state.setCompletePayload);
   const setSelectedGroupId = useMainStore((state) => state.setSelectedGroupId);
+  const groupUseCase = useMemo(() => new GroupUseCase(createGroupRepository()), []);
 
   const normalizedCode = joinCode.trim().toUpperCase();
   const canSubmit = normalizedCode.length >= 8;
@@ -42,12 +46,13 @@ export function GroupJoinScreen() {
         <Pressable
           style={[styles.button, !canSubmit ? styles.buttonDisabled : undefined]}
           disabled={!canSubmit}
-          onPress={() => {
-            const result = joinMockGroupByCode(normalizedCode);
+          onPress={async () => {
+            const result = await groupUseCase.joinGroupByCode(normalizedCode);
             if (!result.ok) {
               setErrorCode(result.code);
               return;
             }
+            await queryClient.invalidateQueries({ queryKey: ['groups'] });
             setSelectedGroupId(result.group.id);
             setCompletePayload({
               kind: 'join',

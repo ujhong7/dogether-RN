@@ -1,8 +1,10 @@
 import { useMemo, useState } from 'react';
 import { KeyboardAvoidingView, Platform } from 'react-native';
 import { router } from 'expo-router';
+import { useQueryClient } from '@tanstack/react-query';
 import { Screen } from '../../components/Screen';
-import { createMockGroup } from '../../services/repositories/mockGroupData';
+import { createGroupRepository } from '../../services/repositories';
+import { GroupUseCase } from '../../services/usecases/groupUseCase';
 import { useMainStore } from '../../stores/mainStore';
 import { useStartFlowStore } from '../../stores/startFlowStore';
 import { GroupCreateHeader } from './components/GroupCreateHeader';
@@ -16,6 +18,7 @@ import type { DurationOption, StartOption } from './types';
 import { buildJoinCode, buildSchedule } from './utils';
 
 export function GroupCreateScreen() {
+  const queryClient = useQueryClient();
   const [groupName, setGroupName] = useState('');
   const [memberCount, setMemberCount] = useState(10);
   const [step, setStep] = useState<1 | 2 | 3>(1);
@@ -25,14 +28,15 @@ export function GroupCreateScreen() {
   const [isGroupNameFocused, setIsGroupNameFocused] = useState(false);
   const setCompletePayload = useStartFlowStore((state) => state.setCompletePayload);
   const setSelectedGroupId = useMainStore((state) => state.setSelectedGroupId);
+  const groupUseCase = useMemo(() => new GroupUseCase(createGroupRepository()), []);
 
   const normalizedName = groupName.trim();
   const joinCode = useMemo(() => buildJoinCode(normalizedName), [normalizedName]);
   const schedule = useMemo(() => buildSchedule(startOption, duration), [startOption, duration]);
   const canGoStepOne = normalizedName.length >= 2;
 
-  const completeGroupCreate = () => {
-    const createdGroup = createMockGroup({
+  const completeGroupCreate = async () => {
+    const createdGroup = await groupUseCase.createGroup({
       name: normalizedName,
       memberCount,
       durationDays: schedule.durationDays,
@@ -40,6 +44,7 @@ export function GroupCreateScreen() {
       endDateLabel: schedule.endLabel,
       joinCode,
     });
+    await queryClient.invalidateQueries({ queryKey: ['groups'] });
     setSelectedGroupId(createdGroup.id);
     setCompletePayload({
       kind: 'create',
@@ -111,7 +116,7 @@ export function GroupCreateScreen() {
               setDuplicateModalVisible(true);
               return;
             }
-            completeGroupCreate();
+            void completeGroupCreate();
           }}
         />
       </KeyboardAvoidingView>
@@ -121,7 +126,7 @@ export function GroupCreateScreen() {
         onClose={() => setDuplicateModalVisible(false)}
         onConfirm={() => {
           setDuplicateModalVisible(false);
-          completeGroupCreate();
+          void completeGroupCreate();
         }}
       />
     </Screen>
