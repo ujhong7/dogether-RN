@@ -1,6 +1,15 @@
 import type { Profile } from '../../models/profile';
 import type { Ranking } from '../../models/ranking';
+import type {
+  CertificationListData,
+  CertificationListFilter,
+  CertificationListItem,
+  CertificationListSection,
+  CertificationListSort,
+} from '../../models/certificationList';
 import type { UserRepository } from './contracts/userRepository';
+import { getMockJoinedGroups } from './mockGroupData';
+import { getAllMockTodoEntries } from './mockTodoData';
 
 const mockRanking: Ranking[] = [
   { memberId: 1, rank: 1, name: '승용차', achievementRate: 100 },
@@ -15,6 +24,121 @@ const mockProfile: Profile = {
   name: 'RN Learner',
 };
 
+const KOREAN_WEEK_DAYS = ['일', '월', '화', '수', '목', '금', '토'];
+
+function parseDate(value: string) {
+  if (value.includes('-')) {
+    const [year, month, day] = value.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  }
+
+  const [year, month, day] = value.split('.').map(Number);
+  return new Date(2000 + year, month - 1, day);
+}
+
+function formatSectionDate(value: string) {
+  const date = parseDate(value);
+  const weekDay = KOREAN_WEEK_DAYS[date.getDay()];
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}.${month}.${day} (${weekDay})`;
+}
+
+function buildMockCertificationList(sort: CertificationListSort): CertificationListData {
+  const groups = getMockJoinedGroups();
+  if (groups.length === 0) {
+    return {
+      summary: {
+        achievementCount: 0,
+        approvedCount: 0,
+        rejectedCount: 0,
+      },
+      sections: [],
+    };
+  }
+
+  const groupMap = new Map(groups.map((group) => [group.id, group]));
+  const items: CertificationListItem[] = getAllMockTodoEntries()
+    .filter((entry) => groupMap.has(entry.groupId))
+    .flatMap((entry) => {
+      const group = groupMap.get(entry.groupId);
+      if (!group) {
+        return [];
+      }
+
+      return entry.todos
+        .filter((todo): todo is typeof todo & { certificationMediaUrl: string; status: 'WAIT_APPROVAL' | 'APPROVED' | 'REJECTED' } => {
+          if (todo.status === 'WAIT_CERTIFICATION') {
+            return false;
+          }
+
+          return Boolean(todo.certificationMediaUrl);
+        })
+        .map((todo) => ({
+          todoId: todo.id,
+          groupId: group.id,
+          groupName: group.name,
+          groupStartDate: group.startDate,
+          date: entry.date,
+          content: todo.content,
+          status: todo.status,
+          certificationMediaUrl: todo.certificationMediaUrl,
+          certificationContent: todo.certificationContent,
+          reviewFeedback: todo.reviewFeedback,
+        }));
+    });
+
+  const sortedItems = [...items].sort((left, right) => {
+    if (sort === 'TODO_COMPLETION_DATE') {
+      if (left.date === right.date) {
+        return right.todoId - left.todoId;
+      }
+      return right.date.localeCompare(left.date);
+    }
+
+    const groupDateDiff = parseDate(right.groupStartDate).getTime() - parseDate(left.groupStartDate).getTime();
+    if (groupDateDiff !== 0) {
+      return groupDateDiff;
+    }
+    if (left.groupId !== right.groupId) {
+      return right.groupId - left.groupId;
+    }
+    if (left.date === right.date) {
+      return right.todoId - left.todoId;
+    }
+    return right.date.localeCompare(left.date);
+  });
+
+  const sectionsMap = new Map<string, CertificationListSection>();
+
+  sortedItems.forEach((item) => {
+    const sectionKey = sort === 'TODO_COMPLETION_DATE' ? `date:${item.date}` : `group:${item.groupId}`;
+    const sectionTitle = sort === 'TODO_COMPLETION_DATE' ? formatSectionDate(item.date) : item.groupName;
+    const existingSection = sectionsMap.get(sectionKey);
+
+    if (existingSection) {
+      existingSection.items.push(item);
+      return;
+    }
+
+    sectionsMap.set(sectionKey, {
+      key: sectionKey,
+      title: sectionTitle,
+      items: [item],
+    });
+  });
+
+  return {
+    summary: {
+      achievementCount: items.length,
+      approvedCount: items.filter((item) => item.status === 'APPROVED').length,
+      rejectedCount: items.filter((item) => item.status === 'REJECTED').length,
+    },
+    sections: Array.from(sectionsMap.values()),
+  };
+}
+
 export class MockUserRepository implements UserRepository {
   async getRanking(): Promise<Ranking[]> {
     return mockRanking;
@@ -22,5 +146,9 @@ export class MockUserRepository implements UserRepository {
 
   async getMyProfile(): Promise<Profile> {
     return mockProfile;
+  }
+
+  async getCertificationList(sort: CertificationListSort): Promise<CertificationListData> {
+    return buildMockCertificationList(sort);
   }
 }
