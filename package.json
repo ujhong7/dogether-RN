@@ -4,8 +4,17 @@
   "main": "expo-router/entry",
   "scripts": {
     "start": "expo start",
+    "start:mock": "APP_ENV=mock EXPO_PUBLIC_APP_ENV=mock EXPO_PUBLIC_API_BASE_URL=https://api-dev.dogether.site EXPO_PUBLIC_USE_MOCK_API=true EXPO_PUBLIC_APP_VERSION=$npm_package_version EXPO_PUBLIC_APP_STORE_URL=https://apps.apple.com expo start",
+    "start:dev": "APP_ENV=dev EXPO_PUBLIC_APP_ENV=dev EXPO_PUBLIC_API_BASE_URL=https://api-dev.dogether.site EXPO_PUBLIC_USE_MOCK_API=false EXPO_PUBLIC_APP_VERSION=$npm_package_version EXPO_PUBLIC_APP_STORE_URL=https://apps.apple.com expo start",
+    "start:prod": "APP_ENV=prod EXPO_PUBLIC_APP_ENV=prod EXPO_PUBLIC_API_BASE_URL=https://api.dogether.site EXPO_PUBLIC_USE_MOCK_API=false EXPO_PUBLIC_APP_VERSION=$npm_package_version EXPO_PUBLIC_APP_STORE_URL=https://apps.apple.com expo start",
     "android": "expo run:android",
+    "android:mock": "APP_ENV=mock EXPO_PUBLIC_APP_ENV=mock EXPO_PUBLIC_API_BASE_URL=https://api-dev.dogether.site EXPO_PUBLIC_USE_MOCK_API=true EXPO_PUBLIC_APP_VERSION=$npm_package_version EXPO_PUBLIC_APP_STORE_URL=https://apps.apple.com expo run:android",
+    "android:dev": "APP_ENV=dev EXPO_PUBLIC_APP_ENV=dev EXPO_PUBLIC_API_BASE_URL=https://api-dev.dogether.site EXPO_PUBLIC_USE_MOCK_API=false EXPO_PUBLIC_APP_VERSION=$npm_package_version EXPO_PUBLIC_APP_STORE_URL=https://apps.apple.com expo run:android",
+    "android:prod": "APP_ENV=prod EXPO_PUBLIC_APP_ENV=prod EXPO_PUBLIC_API_BASE_URL=https://api.dogether.site EXPO_PUBLIC_USE_MOCK_API=false EXPO_PUBLIC_APP_VERSION=$npm_package_version EXPO_PUBLIC_APP_STORE_URL=https://apps.apple.com expo run:android",
     "ios": "expo run:ios",
+    "ios:mock": "APP_ENV=mock EXPO_PUBLIC_APP_ENV=mock EXPO_PUBLIC_API_BASE_URL=https://api-dev.dogether.site EXPO_PUBLIC_USE_MOCK_API=true EXPO_PUBLIC_APP_VERSION=$npm_package_version EXPO_PUBLIC_APP_STORE_URL=https://apps.apple.com expo run:ios",
+    "ios:dev": "APP_ENV=dev EXPO_PUBLIC_APP_ENV=dev EXPO_PUBLIC_API_BASE_URL=https://api-dev.dogether.site EXPO_PUBLIC_USE_MOCK_API=false EXPO_PUBLIC_APP_VERSION=$npm_package_version EXPO_PUBLIC_APP_STORE_URL=https://apps.apple.com expo run:ios",
+    "ios:prod": "APP_ENV=prod EXPO_PUBLIC_APP_ENV=prod EXPO_PUBLIC_API_BASE_URL=https://api.dogether.site EXPO_PUBLIC_USE_MOCK_API=false EXPO_PUBLIC_APP_VERSION=$npm_package_version EXPO_PUBLIC_APP_STORE_URL=https://apps.apple.com expo run:ios",
     "web": "expo start --web"
   },
   "dependencies": {
