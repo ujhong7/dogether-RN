@@ -207,3 +207,7 @@ export function removeMockTodosByGroup(groupId: number) {
   );
   writeTodoMap(nextTodoMap);
 }
+
+export function resetMockTodos() {
+  storage.remove(TODOS_KEY);
+}
