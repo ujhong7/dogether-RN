@@ -2,7 +2,8 @@ import { apiClient } from '../api/client';
 import { endpoints } from '../api/endpoints';
 import type { ApiEnvelope } from '../../types/api';
 import type { Group } from '../../models/group';
-import type { GroupRepository } from './contracts/groupRepository';
+import { getAppError } from '../../models/error';
+import type { CreateGroupInput, GroupRepository, JoinGroupResult } from './contracts/groupRepository';
 import { toAppError } from '../errors/appError';
 
 function mapGroup(raw: any): Group {
@@ -41,6 +42,14 @@ export class GroupRepositoryImpl implements GroupRepository {
     } catch (error) {
       throw toAppError(error);
     }
+  }
+
+  async createGroup(_: CreateGroupInput): Promise<Group> {
+    throw getAppError('COMMON');
+  }
+
+  async joinGroupByCode(_: string): Promise<JoinGroupResult> {
+    throw getAppError('COMMON');
   }
 
   async leaveGroup(_: number): Promise<Group[]> {
