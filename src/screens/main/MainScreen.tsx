@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { router } from 'expo-router';
 import { AppAlertModal } from '../../components/AppAlertModal';
+import { GroupSelectBottomSheet } from '../../components/GroupSelectBottomSheet';
 import { Screen } from '../../components/Screen';
 import { FullScreenErrorState } from '../../components/FullScreenErrorState';
 import { useMainScreen } from '../../hooks/useMainScreen';
@@ -10,7 +11,6 @@ import { useSessionStore } from '../../stores/sessionStore';
 import { getProgressMeta } from './utils';
 import { MainHeader } from './components/MainHeader';
 import { MainPanel } from './components/MainPanel';
-import { GroupSelectSheet } from './components/GroupSelectSheet';
 
 export function MainScreen() {
   const {
@@ -99,12 +99,19 @@ export function MainScreen() {
         onSetFilter={setFilter}
       />
 
-      <GroupSelectSheet
+      <GroupSelectBottomSheet
         visible={groupSheetVisible}
         groups={groupsQuery.data ?? []}
         currentGroupId={currentGroup?.id}
         onClose={() => setGroupSheetVisible(false)}
         onSelectGroup={setSelectedGroupId}
+        footerAction={{
+          label: '새 그룹 추가하기',
+          icon: '⊕',
+          onPress: () => {
+            router.push('/group-add');
+          },
+        }}
       />
     </Screen>
   );
