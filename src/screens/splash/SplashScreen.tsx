@@ -28,6 +28,11 @@ export function SplashScreen() {
       return;
     }
 
+    if (data === 'review') {
+      router.replace('/review');
+      return;
+    }
+
     if (data === 'onboarding') {
       router.replace('/onboarding');
       return;
