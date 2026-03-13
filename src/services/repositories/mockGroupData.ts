@@ -144,3 +144,9 @@ export function resetMockJoinedGroups() {
   storage.remove(JOINED_GROUPS_KEY);
   storage.remove(NEXT_GROUP_ID_KEY);
 }
+
+export function leaveMockGroup(groupId: number) {
+  const nextGroups = readGroups().filter((group) => group.id !== groupId);
+  writeGroups(nextGroups);
+  return nextGroups;
+}

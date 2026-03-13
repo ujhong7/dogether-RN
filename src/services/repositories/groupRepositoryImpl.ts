@@ -42,4 +42,8 @@ export class GroupRepositoryImpl implements GroupRepository {
       throw toAppError(error);
     }
   }
+
+  async leaveGroup(_: number): Promise<Group[]> {
+    return this.getGroups();
+  }
 }

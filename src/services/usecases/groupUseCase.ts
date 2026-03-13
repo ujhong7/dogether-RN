@@ -6,4 +6,8 @@ export class GroupUseCase {
   async getGroups() {
     return this.groupRepository.getGroups();
   }
+
+  async leaveGroup(groupId: number) {
+    return this.groupRepository.leaveGroup(groupId);
+  }
 }
