@@ -196,6 +196,37 @@ npm install
 npx expo run:ios --device "iPhone 15"
 ```
 
+### 환경별 실행
+
+현재 프로젝트는 `mock / dev / prod` 환경을 `EXPO_PUBLIC_*` 기반으로 분리합니다.
+
+- `npm run start:mock`
+- `npm run start:dev`
+- `npm run start:prod`
+- `npm run ios:mock`
+- `npm run ios:dev`
+- `npm run ios:prod`
+
+핵심 런타임 환경값은 [`/Users/yujaehong/Desktop/dogether-RN/src/config/env.ts`](/Users/yujaehong/Desktop/dogether-RN/src/config/env.ts) 에서 읽습니다.
+
+- `EXPO_PUBLIC_APP_ENV`
+- `EXPO_PUBLIC_API_BASE_URL`
+- `EXPO_PUBLIC_USE_MOCK_API`
+- `EXPO_PUBLIC_APP_VERSION`
+- `EXPO_PUBLIC_APP_STORE_URL`
+
+예시 값은 [`/Users/yujaehong/Desktop/dogether-RN/.env.example`](/Users/yujaehong/Desktop/dogether-RN/.env.example) 에 정리했습니다.
+
+### 환경 분리 방식
+
+이 프로젝트는 iOS의 DIManager처럼 거대한 단일 객체를 두기보다,
+
+- `app.config.ts` 에서 앱 설정을 환경별로 분기하고
+- `src/config/env.ts` 에서 런타임 환경 객체를 만들고
+- `src/services/repositories/index.ts` 에서 mock / real repository를 선택하는
+
+RN 스타일의 `config + factory` 구조를 사용합니다.
+
 ## 참고 문서
 
 - `docs/IOS_TO_RN_ANALYSIS.md`
