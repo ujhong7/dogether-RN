@@ -3,6 +3,7 @@ export type AppErrorCode =
   | 'ATF-0002'
   | 'ATF-0003'
   | 'ATF-0004'
+  | 'ATF-0005'
   | 'CGF-0002'
   | 'CGF-0003'
   | 'CGF-0004'
@@ -44,6 +45,14 @@ const APP_ERROR_PRESETS: Record<AppErrorCode, AppError> = {
     code: 'ATF-0004',
     title: 'Apple 로그인을 사용할 수 없어요',
     message: '현재 기기 또는 환경에서는 Apple 로그인을 지원하지 않아요.',
+    actionLabel: '확인',
+    variant: 'alert',
+  },
+  'ATF-0005': {
+    code: 'ATF-0005',
+    title: 'Apple 로그인을 완료할 수 없어요',
+    message:
+      '시뮬레이터의 Apple ID 로그인 상태나 기기 환경을 확인한 뒤 다시 시도해주세요. 문제가 계속되면 실제 기기에서 다시 확인해보세요.',
     actionLabel: '확인',
     variant: 'alert',
   },
