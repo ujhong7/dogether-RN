@@ -7,6 +7,8 @@ const KNOWN_ERROR_CODES: AppErrorCode[] = [
   'ATF-0003',
   'ATF-0004',
   'ATF-0005',
+  'ATF-0006',
+  'ATF-0007',
   'CGF-0002',
   'CGF-0003',
   'CGF-0004',
