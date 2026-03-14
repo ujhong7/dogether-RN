@@ -6,15 +6,20 @@ type RuntimeEnv = {
   appVersion: string;
   appStoreUrl: string;
   useMockApi: boolean;
+  useMockAppInfo: boolean;
+  useMockAuth: boolean;
+  useMockGroups: boolean;
+  useMockChallengeGroups: boolean;
+  useMockUser: boolean;
+  useMockReview: boolean;
   isMock: boolean;
   isDevelopment: boolean;
   isProduction: boolean;
 };
 
-const DEFAULT_ENV_BY_APP_ENV: Record<
-  AppEnv,
-  Omit<RuntimeEnv, 'appEnv' | 'appVersion' | 'isMock' | 'isDevelopment' | 'isProduction'>
-> = {
+type RuntimeEnvDefaults = Pick<RuntimeEnv, 'apiBaseUrl' | 'appStoreUrl' | 'useMockApi'>;
+
+const DEFAULT_ENV_BY_APP_ENV: Record<AppEnv, RuntimeEnvDefaults> = {
   mock: {
     apiBaseUrl: 'https://api-dev.dogether.site',
     appStoreUrl: 'https://apps.apple.com',
@@ -55,6 +60,15 @@ function parseBoolean(value: string | undefined, fallback: boolean) {
 const appEnv = normalizeAppEnv(process.env.EXPO_PUBLIC_APP_ENV);
 const defaults = DEFAULT_ENV_BY_APP_ENV[appEnv];
 const useMockApi = parseBoolean(process.env.EXPO_PUBLIC_USE_MOCK_API, defaults.useMockApi);
+const useMockAppInfo = parseBoolean(process.env.EXPO_PUBLIC_USE_MOCK_APP_INFO, useMockApi);
+const useMockAuth = parseBoolean(process.env.EXPO_PUBLIC_USE_MOCK_AUTH, useMockApi);
+const useMockGroups = parseBoolean(process.env.EXPO_PUBLIC_USE_MOCK_GROUPS, useMockApi);
+const useMockChallengeGroups = parseBoolean(
+  process.env.EXPO_PUBLIC_USE_MOCK_CHALLENGE_GROUPS,
+  useMockApi,
+);
+const useMockUser = parseBoolean(process.env.EXPO_PUBLIC_USE_MOCK_USER, useMockApi);
+const useMockReview = parseBoolean(process.env.EXPO_PUBLIC_USE_MOCK_REVIEW, useMockApi);
 
 export const env: RuntimeEnv = {
   appEnv,
@@ -62,6 +76,12 @@ export const env: RuntimeEnv = {
   appVersion: process.env.EXPO_PUBLIC_APP_VERSION ?? '1.0.0',
   appStoreUrl: process.env.EXPO_PUBLIC_APP_STORE_URL ?? defaults.appStoreUrl,
   useMockApi,
+  useMockAppInfo,
+  useMockAuth,
+  useMockGroups,
+  useMockChallengeGroups,
+  useMockUser,
+  useMockReview,
   isMock: appEnv === 'mock',
   isDevelopment: appEnv === 'dev',
   isProduction: appEnv === 'prod',
