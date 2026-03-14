@@ -20,9 +20,9 @@ export class MockAuthRepository implements AuthRepository {
 
   async loginWithApple(payload: AppleLoginPayload): Promise<AuthSession> {
     return buildMockSession({
-      userName: payload.userName ?? 'Apple User',
+      userName: payload.name ?? 'Apple User',
       loginType: 'apple',
-      appleUserIdentifier: payload.appleUserIdentifier,
+      appleUserIdentifier: payload.appleUserIdentifier ?? null,
     });
   }
 

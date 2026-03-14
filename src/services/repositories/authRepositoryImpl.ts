@@ -4,6 +4,7 @@ import type { AppleLoginPayload, AuthSession, RefreshSessionPayload } from '../.
 import { getAppError } from '../../models/error';
 import { apiClient } from '../api/client';
 import type { AuthRepository } from './contracts/authRepository';
+import { toAppError } from '../errors/appError';
 
 export class AuthRepositoryImpl implements AuthRepository {
   async loginDemo(): Promise<AuthSession> {
@@ -15,23 +16,24 @@ export class AuthRepositoryImpl implements AuthRepository {
       const response = await apiClient.post<
         ApiEnvelope<{
           accessToken: string;
-          refreshToken?: string | null;
-          userName?: string | null;
-          appleUserIdentifier?: string | null;
+          name: string;
         }>
-      >(endpoints.auth.appleLogin, payload);
+      >(endpoints.auth.login, {
+        loginType: 'APPLE',
+        providerId: payload.providerId,
+        name: payload.name,
+      });
 
       return {
         accessToken: response.data.data?.accessToken ?? '',
-        refreshToken: response.data.data?.refreshToken ?? null,
-        userName: response.data.data?.userName ?? payload.userName ?? 'Apple User',
+        refreshToken: null,
+        userName: response.data.data?.name ?? payload.name ?? 'Apple User',
         loginType: 'apple',
-        appleUserIdentifier:
-          response.data.data?.appleUserIdentifier ?? payload.appleUserIdentifier,
+        appleUserIdentifier: payload.appleUserIdentifier ?? null,
         hasCompletedStartFlow: false,
       };
-    } catch {
-      throw getAppError('COMMON');
+    } catch (error) {
+      throw toAppError(error);
     }
   }
 
@@ -45,8 +47,8 @@ export class AuthRepositoryImpl implements AuthRepository {
         accessToken: response.data.data?.accessToken ?? '',
         refreshToken: response.data.data?.refreshToken ?? refreshToken,
       };
-    } catch {
-      throw getAppError('COMMON');
+    } catch (error) {
+      throw toAppError(error);
     }
   }
 }

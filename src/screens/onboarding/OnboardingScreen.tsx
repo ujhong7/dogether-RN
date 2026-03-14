@@ -1,11 +1,20 @@
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
+import * as AppleAuthentication from 'expo-apple-authentication';
+import { AppAlertModal } from '../../components/AppAlertModal';
 import { Screen } from '../../components/Screen';
 import { useOnboarding } from '../../hooks/useOnboarding';
 import { colors } from '../../theme/colors';
 
 export function OnboardingScreen() {
-  const loginMutation = useOnboarding();
+  const {
+    demoLoginMutation,
+    appleLoginMutation,
+    isAppleLoginAvailable,
+    loginError,
+    clearLoginError,
+  } = useOnboarding();
+  const isPending = demoLoginMutation.isPending || appleLoginMutation.isPending;
 
   return (
     <Screen>
@@ -13,15 +22,34 @@ export function OnboardingScreen() {
       <Text style={styles.description}>학습 단계에서는 데모 로그인으로 메인 플로우를 바로 경험할 수 있어요.</Text>
 
       <Pressable
-        style={[styles.button, styles.primary]}
-        onPress={() => loginMutation.mutate(undefined, { onSuccess: () => router.replace('/start') })}
+        style={[styles.button, styles.primary, isPending ? styles.buttonDisabled : undefined]}
+        disabled={isPending}
+        onPress={() => demoLoginMutation.mutate(undefined, { onSuccess: () => router.replace('/start') })}
       >
         <Text style={styles.buttonText}>Demo 로그인</Text>
       </Pressable>
 
-      <Pressable style={[styles.button, styles.ghost]}>
-        <Text style={styles.ghostText}>Apple 로그인 (추가 예정)</Text>
-      </Pressable>
+      {isAppleLoginAvailable ? (
+        <View style={styles.appleButtonWrapper}>
+          <AppleAuthentication.AppleAuthenticationButton
+            buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+            buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.WHITE}
+            cornerRadius={12}
+            style={styles.appleButton}
+            onPress={() => appleLoginMutation.mutate(undefined, { onSuccess: () => router.replace('/start') })}
+          />
+        </View>
+      ) : (
+        <Pressable style={[styles.button, styles.ghost, styles.buttonDisabled]} disabled>
+          <Text style={styles.ghostText}>Apple 로그인을 사용할 수 없는 환경입니다</Text>
+        </Pressable>
+      )}
+
+      <AppAlertModal
+        visible={Boolean(loginError)}
+        error={loginError ?? { code: 'ATF-0003', title: '', message: '', variant: 'alert' }}
+        onClose={clearLoginError}
+      />
     </Screen>
   );
 }
@@ -46,10 +74,20 @@ const styles = StyleSheet.create({
   primary: {
     backgroundColor: colors.primary,
   },
+  buttonDisabled: {
+    opacity: 0.55,
+  },
   ghost: {
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.surface,
+  },
+  appleButtonWrapper: {
+    marginTop: 6,
+  },
+  appleButton: {
+    width: '100%',
+    height: 50,
   },
   buttonText: {
     color: '#04210E',

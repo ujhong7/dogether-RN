@@ -10,10 +10,10 @@ export type AuthSession = {
 };
 
 export type AppleLoginPayload = {
-  identityToken: string;
-  authorizationCode: string;
-  userName?: string | null;
-  appleUserIdentifier: string;
+  providerId: string;
+  name: string;
+  authorizationCode?: string | null;
+  appleUserIdentifier?: string | null;
 };
 
 export type RefreshSessionPayload = {

@@ -5,6 +5,7 @@ import { getAppError, isAppError, type AppError, type AppErrorCode } from '../..
 const KNOWN_ERROR_CODES: AppErrorCode[] = [
   'ATF-0002',
   'ATF-0003',
+  'ATF-0004',
   'CGF-0002',
   'CGF-0003',
   'CGF-0004',

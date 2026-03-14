@@ -2,6 +2,7 @@ export type AppErrorCode =
   | 'COMMON'
   | 'ATF-0002'
   | 'ATF-0003'
+  | 'ATF-0004'
   | 'CGF-0002'
   | 'CGF-0003'
   | 'CGF-0004'
@@ -36,6 +37,13 @@ const APP_ERROR_PRESETS: Record<AppErrorCode, AppError> = {
     code: 'ATF-0003',
     title: '로그인 정보가 만료됐어요',
     message: '다시 로그인해 주세요.',
+    actionLabel: '확인',
+    variant: 'alert',
+  },
+  'ATF-0004': {
+    code: 'ATF-0004',
+    title: 'Apple 로그인을 사용할 수 없어요',
+    message: '현재 기기 또는 환경에서는 Apple 로그인을 지원하지 않아요.',
     actionLabel: '확인',
     variant: 'alert',
   },

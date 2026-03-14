@@ -4,7 +4,7 @@ export const endpoints = {
   },
   auth: {
     login: '/api/v1/auth/login',
-    appleLogin: '/api/v1/auth/apple',
+    withdraw: '/api/v1/auth/withdraw',
     refresh: '/api/v1/auth/refresh',
   },
   groups: {
