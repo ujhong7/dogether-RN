@@ -1,10 +1,15 @@
-import type { AppleLoginPayload, AuthSession, RefreshSessionPayload } from '../../models/auth';
+import type {
+  AppleLoginPayload,
+  AuthSession,
+  KakaoLoginPayload,
+  RefreshSessionPayload,
+} from '../../models/auth';
 import type { AuthRepository } from './contracts/authRepository';
 
 function buildMockSession(overrides?: Partial<AuthSession>): AuthSession {
   return {
-    accessToken: `mock-token-${Date.now()}`,
-    refreshToken: `mock-refresh-${Date.now()}`,
+    accessToken: 'mock-token-' + Date.now(),
+    refreshToken: 'mock-refresh-' + Date.now(),
     userName: 'RN Learner',
     loginType: 'demo',
     appleUserIdentifier: null,
@@ -20,15 +25,22 @@ export class MockAuthRepository implements AuthRepository {
 
   async loginWithApple(payload: AppleLoginPayload): Promise<AuthSession> {
     return buildMockSession({
-      userName: payload.name ?? 'Apple User',
+      userName: payload.name || 'Apple User',
       loginType: 'apple',
       appleUserIdentifier: payload.appleUserIdentifier ?? null,
     });
   }
 
+  async loginWithKakao(payload: KakaoLoginPayload): Promise<AuthSession> {
+    return buildMockSession({
+      userName: payload.name || 'Kakao User',
+      loginType: 'kakao',
+    });
+  }
+
   async refreshSession(refreshToken: string): Promise<RefreshSessionPayload> {
     return {
-      accessToken: `mock-token-${Date.now()}`,
+      accessToken: 'mock-token-' + Date.now(),
       refreshToken,
     };
   }

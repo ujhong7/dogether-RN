@@ -5,6 +5,7 @@ type RuntimeEnv = {
   apiBaseUrl: string;
   appVersion: string;
   appStoreUrl: string;
+  kakaoNativeAppKey: string | null;
   useMockApi: boolean;
   useMockAppInfo: boolean;
   useMockAuth: boolean;
@@ -15,6 +16,7 @@ type RuntimeEnv = {
   isMock: boolean;
   isDevelopment: boolean;
   isProduction: boolean;
+  hasKakaoNativeAppKey: boolean;
 };
 
 type RuntimeEnvDefaults = Pick<RuntimeEnv, 'apiBaseUrl' | 'appStoreUrl' | 'useMockApi'>;
@@ -69,12 +71,14 @@ const useMockChallengeGroups = parseBoolean(
 );
 const useMockUser = parseBoolean(process.env.EXPO_PUBLIC_USE_MOCK_USER, useMockApi);
 const useMockReview = parseBoolean(process.env.EXPO_PUBLIC_USE_MOCK_REVIEW, useMockApi);
+const kakaoNativeAppKey = process.env.EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY?.trim() || null;
 
 export const env: RuntimeEnv = {
   appEnv,
   apiBaseUrl: process.env.EXPO_PUBLIC_API_BASE_URL ?? defaults.apiBaseUrl,
   appVersion: process.env.EXPO_PUBLIC_APP_VERSION ?? '1.0.0',
   appStoreUrl: process.env.EXPO_PUBLIC_APP_STORE_URL ?? defaults.appStoreUrl,
+  kakaoNativeAppKey,
   useMockApi,
   useMockAppInfo,
   useMockAuth,
@@ -85,4 +89,5 @@ export const env: RuntimeEnv = {
   isMock: appEnv === 'mock',
   isDevelopment: appEnv === 'dev',
   isProduction: appEnv === 'prod',
+  hasKakaoNativeAppKey: Boolean(kakaoNativeAppKey),
 };

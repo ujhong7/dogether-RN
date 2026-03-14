@@ -1,4 +1,4 @@
-export type LoginType = 'apple' | 'demo';
+export type LoginType = 'apple' | 'kakao' | 'demo';
 
 export type AuthSession = {
   accessToken: string;
@@ -14,6 +14,11 @@ export type AppleLoginPayload = {
   name: string;
   authorizationCode?: string | null;
   appleUserIdentifier?: string | null;
+};
+
+export type KakaoLoginPayload = {
+  providerId: string;
+  name: string;
 };
 
 export type RefreshSessionPayload = {

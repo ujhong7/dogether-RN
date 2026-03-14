@@ -1,12 +1,14 @@
 import { useMutation } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
 import * as AppleAuthentication from 'expo-apple-authentication';
+import { getProfile, login as loginWithKakaoTalk, type KakaoProfile } from '@react-native-seoul/kakao-login';
 import { AuthUseCase } from '../services/usecases/authUseCase';
 import { createAuthRepository } from '../services/repositories';
 import { useSessionStore } from '../stores/sessionStore';
 import { getAppError, type AppError } from '../models/error';
 import { toAppError } from '../services/errors/appError';
 import { toAppleAuthAppError } from '../services/errors/appleAuthError';
+import { toKakaoAuthAppError } from '../services/errors/kakaoAuthError';
 import { env } from '../config/env';
 
 function toDisplayName(
@@ -36,19 +38,26 @@ function toFallbackDisplayName(
   return 'Apple User';
 }
 
+function toKakaoDisplayName(profile: KakaoProfile) {
+  return profile.name || profile.nickname || profile.email || 'Kakao User';
+}
+
 export function useOnboarding() {
   const loginStore = useSessionStore((state) => state.login);
   const authUseCase = useMemo(() => new AuthUseCase(createAuthRepository()), []);
   const [loginError, setLoginError] = useState<AppError | null>(null);
   const [isAppleLoginAvailable, setIsAppleLoginAvailable] = useState(false);
+  const [isKakaoLoginAvailable, setIsKakaoLoginAvailable] = useState(false);
 
   useEffect(() => {
-    if (env.useMockApi) {
+    if (env.useMockAuth) {
       setIsAppleLoginAvailable(true);
+      setIsKakaoLoginAvailable(true);
       return;
     }
 
     let mounted = true;
+    setIsKakaoLoginAvailable(env.hasKakaoNativeAppKey);
 
     AppleAuthentication.isAvailableAsync()
       .then((available) => {
@@ -81,14 +90,54 @@ export function useOnboarding() {
     },
   });
 
+  const kakaoLoginMutation = useMutation({
+    mutationFn: async () => {
+      if (env.useMockAuth) {
+        return authUseCase.loginWithKakao({
+          providerId: 'mock-kakao-user-' + Date.now(),
+          name: 'Kakao User',
+        });
+      }
+
+      if (!env.hasKakaoNativeAppKey) {
+        throw getAppError('ATF-0006');
+      }
+
+      await loginWithKakaoTalk();
+      const profile = (await getProfile()) as KakaoProfile;
+
+      if (!profile?.id) {
+        throw getAppError('ATF-0007');
+      }
+
+      return authUseCase.loginWithKakao({
+        providerId: String(profile.id),
+        name: toKakaoDisplayName(profile),
+      });
+    },
+    onSuccess: (data) => {
+      loginStore(data);
+    },
+    onError: (error) => {
+      console.error('[KakaoLogin] sign in failed', error);
+
+      const appError = toKakaoAuthAppError(error);
+      if (!appError) {
+        return;
+      }
+
+      setLoginError(appError);
+    },
+  });
+
   const appleLoginMutation = useMutation({
     mutationFn: async () => {
-      if (env.useMockApi) {
+      if (env.useMockAuth) {
         return authUseCase.loginWithApple({
-          providerId: `mock-apple-token-${Date.now()}`,
+          providerId: 'mock-apple-token-' + Date.now(),
           name: 'Apple User',
-          authorizationCode: `mock-authorization-code-${Date.now()}`,
-          appleUserIdentifier: `mock-apple-user-${Date.now()}`,
+          authorizationCode: 'mock-authorization-code-' + Date.now(),
+          appleUserIdentifier: 'mock-apple-user-' + Date.now(),
         });
       }
 
@@ -132,8 +181,10 @@ export function useOnboarding() {
 
   return {
     demoLoginMutation,
+    kakaoLoginMutation,
     appleLoginMutation,
     isAppleLoginAvailable,
+    isKakaoLoginAvailable,
     loginError,
     clearLoginError: () => setLoginError(null),
   };
