@@ -13,25 +13,27 @@ import { MockReviewRepository } from './mockReviewRepository';
 import { MockUserRepository } from './mockUserRepository';
 
 export function createAppInfoRepository() {
-  return env.useMockApi ? new MockAppInfoRepository() : new AppInfoRepositoryImpl();
+  return env.useMockAppInfo ? new MockAppInfoRepository() : new AppInfoRepositoryImpl();
 }
 
 export function createAuthRepository() {
-  return env.useMockApi ? new MockAuthRepository() : new AuthRepositoryImpl();
+  return env.useMockAuth ? new MockAuthRepository() : new AuthRepositoryImpl();
 }
 
 export function createGroupRepository() {
-  return env.useMockApi ? new MockGroupRepository() : new GroupRepositoryImpl();
+  return env.useMockGroups ? new MockGroupRepository() : new GroupRepositoryImpl();
 }
 
 export function createChallengeGroupRepository() {
-  return env.useMockApi ? new MockChallengeGroupRepository() : new ChallengeGroupRepositoryImpl();
+  return env.useMockChallengeGroups
+    ? new MockChallengeGroupRepository()
+    : new ChallengeGroupRepositoryImpl();
 }
 
 export function createUserRepository() {
-  return env.useMockApi ? new MockUserRepository() : new UserRepositoryImpl();
+  return env.useMockUser ? new MockUserRepository() : new UserRepositoryImpl();
 }
 
 export function createReviewRepository() {
-  return env.useMockApi ? new MockReviewRepository() : new ReviewRepositoryImpl();
+  return env.useMockReview ? new MockReviewRepository() : new ReviewRepositoryImpl();
 }
