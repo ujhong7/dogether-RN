@@ -7,6 +7,7 @@ import { useSessionStore } from '../stores/sessionStore';
 import { getAppError, type AppError } from '../models/error';
 import { toAppError } from '../services/errors/appError';
 import { toAppleAuthAppError } from '../services/errors/appleAuthError';
+import { env } from '../config/env';
 
 function toDisplayName(
   fullName: AppleAuthentication.AppleAuthenticationCredential['fullName'],
@@ -42,6 +43,11 @@ export function useOnboarding() {
   const [isAppleLoginAvailable, setIsAppleLoginAvailable] = useState(false);
 
   useEffect(() => {
+    if (env.useMockApi) {
+      setIsAppleLoginAvailable(true);
+      return;
+    }
+
     let mounted = true;
 
     AppleAuthentication.isAvailableAsync()
@@ -77,6 +83,15 @@ export function useOnboarding() {
 
   const appleLoginMutation = useMutation({
     mutationFn: async () => {
+      if (env.useMockApi) {
+        return authUseCase.loginWithApple({
+          providerId: `mock-apple-token-${Date.now()}`,
+          name: 'Apple User',
+          authorizationCode: `mock-authorization-code-${Date.now()}`,
+          appleUserIdentifier: `mock-apple-user-${Date.now()}`,
+        });
+      }
+
       const isAvailable = await AppleAuthentication.isAvailableAsync();
       if (!isAvailable) {
         throw getAppError('ATF-0004');
