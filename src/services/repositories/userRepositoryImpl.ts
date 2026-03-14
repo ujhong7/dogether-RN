@@ -10,7 +10,7 @@ import { toAppError } from '../errors/appError';
 export class UserRepositoryImpl implements UserRepository {
   async getRanking(groupId: number): Promise<Ranking[]> {
     try {
-      const res = await apiClient.get<ApiEnvelope<{ ranking: any[] }>>(endpoints.ranking(groupId));
+      const res = await apiClient.get<ApiEnvelope<{ ranking: any[] }>>(endpoints.groups.ranking(groupId));
       return (res.data.data?.ranking ?? []).map((raw, index) => ({
         memberId: Number(raw.memberId ?? index + 1),
         rank: Number(raw.rank ?? index + 1),
@@ -25,7 +25,7 @@ export class UserRepositoryImpl implements UserRepository {
 
   async getMyProfile(): Promise<Profile> {
     try {
-      const res = await apiClient.get<ApiEnvelope<{ name: string; profileImageUrl?: string }>>(endpoints.profile);
+      const res = await apiClient.get<ApiEnvelope<{ name: string; profileImageUrl?: string }>>(endpoints.my.profile);
       return {
         name: String(res.data.data?.name ?? 'RN Learner'),
         imageUrl: res.data.data?.profileImageUrl,
