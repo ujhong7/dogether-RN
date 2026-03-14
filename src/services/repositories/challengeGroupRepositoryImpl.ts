@@ -19,7 +19,7 @@ function mapTodo(raw: any): Todo {
 export class ChallengeGroupRepositoryImpl implements ChallengeGroupRepository {
   async getMyTodos(groupId: number, date: string): Promise<Todo[]> {
     try {
-      const res = await apiClient.get<ApiEnvelope<{ todos: any[] }>>(endpoints.myTodos(groupId), {
+      const res = await apiClient.get<ApiEnvelope<{ todos: any[] }>>(endpoints.challengeGroups.myTodos(groupId), {
         params: { date },
       });
       return (res.data.data?.todos ?? []).map(mapTodo);

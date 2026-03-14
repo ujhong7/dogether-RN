@@ -6,6 +6,7 @@ import { GroupRepositoryImpl } from './groupRepositoryImpl';
 import { ReviewRepositoryImpl } from './reviewRepositoryImpl';
 import { UserRepositoryImpl } from './userRepositoryImpl';
 import { MockAppInfoRepository } from './mockAppInfoRepository';
+import { MockAuthRepository } from './mockAuthRepository';
 import { MockChallengeGroupRepository } from './mockChallengeGroupRepository';
 import { MockGroupRepository } from './mockGroupRepository';
 import { MockReviewRepository } from './mockReviewRepository';
@@ -16,7 +17,7 @@ export function createAppInfoRepository() {
 }
 
 export function createAuthRepository() {
-  return new AuthRepositoryImpl();
+  return env.useMockApi ? new MockAuthRepository() : new AuthRepositoryImpl();
 }
 
 export function createGroupRepository() {

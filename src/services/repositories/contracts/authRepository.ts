@@ -1,3 +1,7 @@
+import type { AppleLoginPayload, AuthSession, RefreshSessionPayload } from '../../../models/auth';
+
 export interface AuthRepository {
-  loginDemo(): Promise<{ userName: string; accessToken: string }>;
+  loginDemo(): Promise<AuthSession>;
+  loginWithApple(payload: AppleLoginPayload): Promise<AuthSession>;
+  refreshSession(refreshToken: string): Promise<RefreshSessionPayload>;
 }

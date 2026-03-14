@@ -1,14 +1,17 @@
 import { create } from 'zustand';
 import { clearSession, readSession, saveSession } from '../lib/sessionStorage';
+import type { AuthSession, LoginType } from '../models/auth';
 
 type SessionState = {
   hydrated: boolean;
   accessToken: string | null;
+  refreshToken: string | null;
   userName: string | null;
-  loginType: 'apple' | 'demo' | null;
+  loginType: LoginType | null;
+  appleUserIdentifier: string | null;
   hasCompletedStartFlow: boolean;
   hydrate: () => void;
-  login: (payload: { accessToken: string; userName: string; loginType: 'apple' | 'demo' }) => void;
+  login: (payload: Omit<AuthSession, 'hasCompletedStartFlow'>) => void;
   completeStartFlow: () => void;
   logout: () => void;
 };
@@ -16,21 +19,33 @@ type SessionState = {
 export const useSessionStore = create<SessionState>((set) => ({
   hydrated: false,
   accessToken: null,
+  refreshToken: null,
   userName: null,
   loginType: null,
+  appleUserIdentifier: null,
   hasCompletedStartFlow: false,
   hydrate: () => {
     const session = readSession();
     if (!session) {
-      set({ hydrated: true, accessToken: null, userName: null, loginType: null, hasCompletedStartFlow: false });
+      set({
+        hydrated: true,
+        accessToken: null,
+        refreshToken: null,
+        userName: null,
+        loginType: null,
+        appleUserIdentifier: null,
+        hasCompletedStartFlow: false,
+      });
       return;
     }
 
     set({
       hydrated: true,
       accessToken: session.accessToken,
+      refreshToken: session.refreshToken ?? null,
       userName: session.userName,
       loginType: session.loginType,
+      appleUserIdentifier: session.appleUserIdentifier ?? null,
       hasCompletedStartFlow: session.hasCompletedStartFlow,
     });
   },
@@ -47,8 +62,10 @@ export const useSessionStore = create<SessionState>((set) => ({
 
       const session = {
         accessToken: state.accessToken,
+        refreshToken: state.refreshToken,
         userName: state.userName,
         loginType: state.loginType,
+        appleUserIdentifier: state.appleUserIdentifier,
         hasCompletedStartFlow: true,
       };
       saveSession(session);
@@ -56,6 +73,13 @@ export const useSessionStore = create<SessionState>((set) => ({
     }),
   logout: () => {
     clearSession();
-    set({ accessToken: null, userName: null, loginType: null, hasCompletedStartFlow: false });
+    set({
+      accessToken: null,
+      refreshToken: null,
+      userName: null,
+      loginType: null,
+      appleUserIdentifier: null,
+      hasCompletedStartFlow: false,
+    });
   },
 }));

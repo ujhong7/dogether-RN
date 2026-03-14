@@ -24,7 +24,7 @@ function mapGroup(raw: any): Group {
 export class GroupRepositoryImpl implements GroupRepository {
   async checkParticipating(): Promise<boolean> {
     try {
-      const res = await apiClient.get<ApiEnvelope<{ checkParticipating: boolean }>>(endpoints.checkParticipating);
+      const res = await apiClient.get<ApiEnvelope<{ checkParticipating: boolean }>>(endpoints.groups.checkParticipating);
       return Boolean(res.data.data?.checkParticipating);
     } catch (error) {
       throw toAppError(error);
@@ -33,7 +33,7 @@ export class GroupRepositoryImpl implements GroupRepository {
 
   async getGroups(): Promise<Group[]> {
     try {
-      const res = await apiClient.get<ApiEnvelope<{ joiningChallengeGroups: any[] }>>(endpoints.groupsMy);
+      const res = await apiClient.get<ApiEnvelope<{ joiningChallengeGroups: any[] }>>(endpoints.groups.my);
       const groups = (res.data.data?.joiningChallengeGroups ?? []).map(mapGroup);
       if (groups.length === 0) {
         return [];
