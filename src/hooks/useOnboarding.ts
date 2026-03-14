@@ -1,22 +1,17 @@
 import { useMutation } from '@tanstack/react-query';
+import { useMemo } from 'react';
 import { AuthUseCase } from '../services/usecases/authUseCase';
 import { createAuthRepository } from '../services/repositories';
 import { useSessionStore } from '../stores/sessionStore';
 
 export function useOnboarding() {
   const loginStore = useSessionStore((state) => state.login);
+  const authUseCase = useMemo(() => new AuthUseCase(createAuthRepository()), []);
 
   return useMutation({
-    mutationFn: async () => {
-      const useCase = new AuthUseCase(createAuthRepository());
-      return useCase.loginDemo();
-    },
+    mutationFn: () => authUseCase.loginDemo(),
     onSuccess: (data) => {
-      loginStore({
-        accessToken: data.accessToken,
-        userName: data.userName,
-        loginType: 'demo',
-      });
+      loginStore(data);
     },
   });
 }
