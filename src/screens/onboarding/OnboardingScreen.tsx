@@ -9,12 +9,15 @@ import { colors } from '../../theme/colors';
 export function OnboardingScreen() {
   const {
     demoLoginMutation,
+    kakaoLoginMutation,
     appleLoginMutation,
     isAppleLoginAvailable,
+    isKakaoLoginAvailable,
     loginError,
     clearLoginError,
   } = useOnboarding();
-  const isPending = demoLoginMutation.isPending || appleLoginMutation.isPending;
+  const isPending =
+    demoLoginMutation.isPending || kakaoLoginMutation.isPending || appleLoginMutation.isPending;
 
   return (
     <Screen>
@@ -28,6 +31,20 @@ export function OnboardingScreen() {
       >
         <Text style={styles.buttonText}>Demo 로그인</Text>
       </Pressable>
+
+      {isKakaoLoginAvailable ? (
+        <Pressable
+          style={[styles.button, styles.kakao, isPending ? styles.buttonDisabled : undefined]}
+          disabled={isPending}
+          onPress={() => kakaoLoginMutation.mutate(undefined, { onSuccess: () => router.replace('/start') })}
+        >
+          <Text style={styles.kakaoText}>카카오로 시작하기</Text>
+        </Pressable>
+      ) : (
+        <Pressable style={[styles.button, styles.ghost, styles.buttonDisabled]} disabled>
+          <Text style={styles.ghostText}>카카오 로그인을 사용할 수 없는 환경입니다</Text>
+        </Pressable>
+      )}
 
       {isAppleLoginAvailable ? (
         <View style={styles.appleButtonWrapper}>
@@ -74,6 +91,9 @@ const styles = StyleSheet.create({
   primary: {
     backgroundColor: colors.primary,
   },
+  kakao: {
+    backgroundColor: '#FEE500',
+  },
   buttonDisabled: {
     opacity: 0.55,
   },
@@ -91,6 +111,10 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#04210E',
+    fontWeight: '700',
+  },
+  kakaoText: {
+    color: '#181600',
     fontWeight: '700',
   },
   ghostText: {
