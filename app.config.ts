@@ -29,6 +29,7 @@ export default {
     },
     ios: {
       supportsTablet: true,
+      usesAppleSignIn: true,
       bundleIdentifier: `com.ujhong7.dogether${bundleSuffix}`,
     },
     android: {
@@ -44,7 +45,7 @@ export default {
     web: {
       favicon: './assets/favicon.png',
     },
-    plugins: ['expo-router'],
+    plugins: ['expo-router', 'expo-apple-authentication'],
     extra: {
       appEnv,
     },
