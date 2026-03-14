@@ -6,6 +6,7 @@ import { createAuthRepository } from '../services/repositories';
 import { useSessionStore } from '../stores/sessionStore';
 import { getAppError, type AppError } from '../models/error';
 import { toAppError } from '../services/errors/appError';
+import { toAppleAuthAppError } from '../services/errors/appleAuthError';
 
 function toDisplayName(
   fullName: AppleAuthentication.AppleAuthenticationCredential['fullName'],
@@ -103,16 +104,14 @@ export function useOnboarding() {
       loginStore(data);
     },
     onError: (error) => {
-      if (
-        error &&
-        typeof error === 'object' &&
-        'code' in error &&
-        (error as { code?: string }).code === 'ERR_REQUEST_CANCELED'
-      ) {
+      console.error('[AppleLogin] sign in failed', error);
+
+      const appError = toAppleAuthAppError(error);
+      if (!appError) {
         return;
       }
 
-      setLoginError(toAppError(error));
+      setLoginError(appError);
     },
   });
 
