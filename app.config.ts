@@ -14,10 +14,12 @@ const appDisplayName =
   appEnv === 'prod' ? 'dogether-RN' : appEnv === 'dev' ? 'dogether-RN Dev' : 'dogether-RN Mock';
 const bundleSuffix = appEnv === 'prod' ? '' : '.' + appEnv;
 const kakaoNativeAppKey = process.env.EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY?.trim();
-const plugins: (string | [string, Record<string, unknown>])[] = [
-  'expo-router',
-  'expo-apple-authentication',
-];
+const enableAppleSignIn = process.env.EXPO_PUBLIC_ENABLE_APPLE_SIGN_IN === 'true';
+const plugins: (string | [string, Record<string, unknown>])[] = ['expo-router'];
+
+if (enableAppleSignIn) {
+  plugins.push('expo-apple-authentication');
+}
 
 if (kakaoNativeAppKey) {
   plugins.push([
@@ -51,7 +53,7 @@ export default {
     },
     ios: {
       supportsTablet: true,
-      usesAppleSignIn: true,
+      usesAppleSignIn: enableAppleSignIn,
       bundleIdentifier: 'com.ujhong7.dogether' + bundleSuffix,
     },
     android: {

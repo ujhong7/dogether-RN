@@ -17,6 +17,7 @@ type RuntimeEnv = {
   isDevelopment: boolean;
   isProduction: boolean;
   hasKakaoNativeAppKey: boolean;
+  enableAppleSignIn: boolean;
 };
 
 type RuntimeEnvDefaults = Pick<RuntimeEnv, 'apiBaseUrl' | 'appStoreUrl' | 'useMockApi'>;
@@ -72,6 +73,7 @@ const useMockChallengeGroups = parseBoolean(
 const useMockUser = parseBoolean(process.env.EXPO_PUBLIC_USE_MOCK_USER, useMockApi);
 const useMockReview = parseBoolean(process.env.EXPO_PUBLIC_USE_MOCK_REVIEW, useMockApi);
 const kakaoNativeAppKey = process.env.EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY?.trim() || null;
+const enableAppleSignIn = parseBoolean(process.env.EXPO_PUBLIC_ENABLE_APPLE_SIGN_IN, false);
 
 export const env: RuntimeEnv = {
   appEnv,
@@ -90,4 +92,5 @@ export const env: RuntimeEnv = {
   isDevelopment: appEnv === 'dev',
   isProduction: appEnv === 'prod',
   hasKakaoNativeAppKey: Boolean(kakaoNativeAppKey),
+  enableAppleSignIn,
 };

@@ -51,13 +51,20 @@ export function useOnboarding() {
 
   useEffect(() => {
     if (env.useMockAuth) {
-      setIsAppleLoginAvailable(true);
+      setIsAppleLoginAvailable(env.enableAppleSignIn);
       setIsKakaoLoginAvailable(true);
       return;
     }
 
     let mounted = true;
     setIsKakaoLoginAvailable(env.hasKakaoNativeAppKey);
+
+    if (!env.enableAppleSignIn) {
+      setIsAppleLoginAvailable(false);
+      return () => {
+        mounted = false;
+      };
+    }
 
     AppleAuthentication.isAvailableAsync()
       .then((available) => {
