@@ -2,8 +2,11 @@ import { useMemo, useState } from 'react';
 import { KeyboardAvoidingView, Platform } from 'react-native';
 import { router } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
+import { AppAlertModal } from '../../components/AppAlertModal';
 import { Screen } from '../../components/Screen';
+import type { AppError } from '../../models/error';
 import { createGroupRepository } from '../../services/repositories';
+import { toAppError } from '../../services/errors/appError';
 import { GroupUseCase } from '../../services/usecases/groupUseCase';
 import { useMainStore } from '../../stores/mainStore';
 import { useStartFlowStore } from '../../stores/startFlowStore';
@@ -15,7 +18,7 @@ import { GroupCreateFooter } from './components/GroupCreateFooter';
 import { GroupCreateDuplicateModal } from './components/GroupCreateDuplicateModal';
 import { groupCreateStyles as styles } from './styles';
 import type { DurationOption, StartOption } from './types';
-import { buildJoinCode, buildSchedule } from './utils';
+import { buildSchedule } from './utils';
 
 export function GroupCreateScreen() {
   const queryClient = useQueryClient();
@@ -26,37 +29,39 @@ export function GroupCreateScreen() {
   const [startOption, setStartOption] = useState<StartOption>('오늘 시작');
   const [duplicateModalVisible, setDuplicateModalVisible] = useState(false);
   const [isGroupNameFocused, setIsGroupNameFocused] = useState(false);
+  const [submitError, setSubmitError] = useState<AppError | null>(null);
   const setCompletePayload = useStartFlowStore((state) => state.setCompletePayload);
   const setSelectedGroupId = useMainStore((state) => state.setSelectedGroupId);
   const groupUseCase = useMemo(() => new GroupUseCase(createGroupRepository()), []);
 
   const normalizedName = groupName.trim();
-  const joinCode = useMemo(() => buildJoinCode(normalizedName), [normalizedName]);
   const schedule = useMemo(() => buildSchedule(startOption, duration), [startOption, duration]);
   const canGoStepOne = normalizedName.length >= 2;
 
   const completeGroupCreate = async () => {
-    const createdGroup = await groupUseCase.createGroup({
-      name: normalizedName,
-      memberCount,
-      durationDays: schedule.durationDays,
-      startDateLabel: schedule.startLabel,
-      endDateLabel: schedule.endLabel,
-      joinCode,
-    });
-    await queryClient.invalidateQueries({ queryKey: ['groups'] });
-    setSelectedGroupId(createdGroup.id);
-    setCompletePayload({
-      kind: 'create',
-      targetGroupId: createdGroup.id,
-      groupName: normalizedName,
-      joinCode,
-      durationLabel: duration,
-      memberCountLabel: `총 ${memberCount}명`,
-      startDateLabel: schedule.startLabel,
-      endDateLabel: schedule.endLabel,
-    });
-    router.replace('/complete');
+    try {
+      const createdGroup = await groupUseCase.createGroup({
+        name: normalizedName,
+        memberCount,
+        durationDays: schedule.durationDays,
+        startAt: schedule.startAt,
+      });
+      await queryClient.invalidateQueries({ queryKey: ['groups'] });
+      setSelectedGroupId(createdGroup.id);
+      setCompletePayload({
+        kind: 'create',
+        targetGroupId: createdGroup.id,
+        groupName: createdGroup.name,
+        joinCode: createdGroup.joinCode,
+        durationLabel: duration,
+        memberCountLabel: `총 ${memberCount}명`,
+        startDateLabel: createdGroup.startDate,
+        endDateLabel: createdGroup.endDate,
+      });
+      router.replace('/complete');
+    } catch (error) {
+      setSubmitError(toAppError(error));
+    }
   };
 
   return (
@@ -129,6 +134,10 @@ export function GroupCreateScreen() {
           void completeGroupCreate();
         }}
       />
+
+      {submitError ? (
+        <AppAlertModal visible error={submitError} onClose={() => setSubmitError(null)} />
+      ) : null}
     </Screen>
   );
 }
