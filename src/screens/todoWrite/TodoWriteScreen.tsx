@@ -2,11 +2,14 @@ import { useEffect, useMemo, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
+import { AppAlertModal } from '../../components/AppAlertModal';
 import { Screen } from '../../components/Screen';
 import { useMainStore } from '../../stores/mainStore';
 import { createChallengeGroupRepository, createGroupRepository } from '../../services/repositories';
+import { toAppError } from '../../services/errors/appError';
 import { ChallengeGroupUseCase } from '../../services/usecases/challengeGroupUseCase';
 import { GroupUseCase } from '../../services/usecases/groupUseCase';
+import type { AppError } from '../../models/error';
 import type { Todo } from '../../models/todo';
 import { todoWriteStyles as styles } from './styles';
 import { MAX_TODO_COUNT, toQueryDate } from './utils';
@@ -36,6 +39,7 @@ export function TodoWriteScreen() {
   const [isFocused, setIsFocused] = useState(false);
   const [confirmVisible, setConfirmVisible] = useState(false);
   const [isBootstrapping, setIsBootstrapping] = useState(true);
+  const [submitError, setSubmitError] = useState<AppError | null>(null);
 
   const trimmedDraft = draft.trim();
   const canAdd = trimmedDraft.length > 0 && todos.length < MAX_TODO_COUNT;
@@ -88,23 +92,28 @@ export function TodoWriteScreen() {
   };
 
   const handleSaveTodos = async () => {
-    const groups = await groupUseCase.getGroups();
-    const fallbackGroupId = groups[0]?.id;
-    const groupId = selectedGroupId ?? fallbackGroupId;
-    if (!groupId) {
+    try {
+      const groups = await groupUseCase.getGroups();
+      const fallbackGroupId = groups[0]?.id;
+      const groupId = selectedGroupId ?? fallbackGroupId;
+      if (!groupId) {
+        setConfirmVisible(false);
+        router.back();
+        return;
+      }
+
+      await challengeGroupUseCase.createTodos(
+        groupId,
+        toQueryDate(),
+        todos.filter((todo) => !todo.locked).map((todo) => todo.content),
+      );
+      await queryClient.invalidateQueries({ queryKey: ['todos'] });
       setConfirmVisible(false);
       router.back();
-      return;
+    } catch (error) {
+      setConfirmVisible(false);
+      setSubmitError(toAppError(error));
     }
-
-    await challengeGroupUseCase.createTodos(
-      groupId,
-      toQueryDate(),
-      todos.filter((todo) => !todo.locked).map((todo) => todo.content),
-    );
-    await queryClient.invalidateQueries({ queryKey: ['todos'] });
-    setConfirmVisible(false);
-    router.back();
   };
 
   return (
@@ -155,6 +164,10 @@ export function TodoWriteScreen() {
           onCancel={() => setConfirmVisible(false)}
           onConfirm={handleSaveTodos}
         />
+
+        {submitError ? (
+          <AppAlertModal visible error={submitError} onClose={() => setSubmitError(null)} />
+        ) : null}
       </KeyboardAvoidingView>
     </Screen>
   );

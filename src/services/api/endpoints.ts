@@ -18,6 +18,10 @@ export const endpoints = {
   challengeGroups: {
     createTodos: (groupId: number) => `/api/v1/challenge-groups/${groupId}/todos`,
     myTodos: (groupId: number) => `/api/v1/challenge-groups/${groupId}/my-todos`,
+    certifyTodo: (todoId: number) => `/api/v1/todos/${todoId}/certify`,
+  },
+  s3: {
+    presignedUrls: '/api/v1/s3/presigned-urls',
   },
   my: {
     profile: '/api/v1/my/profile',

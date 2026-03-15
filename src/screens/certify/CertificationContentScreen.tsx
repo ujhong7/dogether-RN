@@ -2,12 +2,15 @@ import { useMemo, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, Text, TextInput, View } from 'react-native';
 import { router } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
+import { AppAlertModal } from '../../components/AppAlertModal';
 import { Screen } from '../../components/Screen';
 import { CertificationHeader } from './components/CertificationHeader';
 import { certificationStyles as styles } from './styles';
 import { useCertificationDraftStore } from '../../stores/certificationDraftStore';
 import { ChallengeGroupUseCase } from '../../services/usecases/challengeGroupUseCase';
 import { createChallengeGroupRepository } from '../../services/repositories';
+import { toAppError } from '../../services/errors/appError';
+import type { AppError } from '../../models/error';
 import { colors } from '../../theme/colors';
 
 const MAX_CONTENT_LENGTH = 60;
@@ -23,6 +26,7 @@ export function CertificationContentScreen() {
   const clearDraft = useCertificationDraftStore((state) => state.clearDraft);
   const [focused, setFocused] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<AppError | null>(null);
 
   const contentLength = draft.content.length;
   const canSubmit =
@@ -50,6 +54,8 @@ export function CertificationContentScreen() {
       await queryClient.invalidateQueries({ queryKey: ['todos'] });
       clearDraft();
       router.replace('/main');
+    } catch (error) {
+      setSubmitError(toAppError(error));
     } finally {
       setSubmitting(false);
     }
@@ -89,6 +95,10 @@ export function CertificationContentScreen() {
         >
           <Text style={styles.footerButtonText}>인증하기</Text>
         </Pressable>
+
+        {submitError ? (
+          <AppAlertModal visible error={submitError} onClose={() => setSubmitError(null)} />
+        ) : null}
       </KeyboardAvoidingView>
     </Screen>
   );
