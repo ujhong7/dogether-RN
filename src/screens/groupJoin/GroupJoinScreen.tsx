@@ -4,7 +4,8 @@ import { router } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { AppAlertModal } from '../../components/AppAlertModal';
 import { Screen } from '../../components/Screen';
-import { getAppError, type AppErrorCode } from '../../models/error';
+import { getAppError, type AppError, type AppErrorCode } from '../../models/error';
+import { toAppError } from '../../services/errors/appError';
 import { createGroupRepository } from '../../services/repositories';
 import { GroupUseCase } from '../../services/usecases/groupUseCase';
 import { useMainStore } from '../../stores/mainStore';
@@ -16,6 +17,7 @@ export function GroupJoinScreen() {
   const queryClient = useQueryClient();
   const [joinCode, setJoinCode] = useState('');
   const [errorCode, setErrorCode] = useState<AppErrorCode | null>(null);
+  const [submitError, setSubmitError] = useState<AppError | null>(null);
   const [isFocused, setIsFocused] = useState(false);
   const setCompletePayload = useStartFlowStore((state) => state.setCompletePayload);
   const setSelectedGroupId = useMainStore((state) => state.setSelectedGroupId);
@@ -47,24 +49,28 @@ export function GroupJoinScreen() {
           style={[styles.button, !canSubmit ? styles.buttonDisabled : undefined]}
           disabled={!canSubmit}
           onPress={async () => {
-            const result = await groupUseCase.joinGroupByCode(normalizedCode);
-            if (!result.ok) {
-              setErrorCode(result.code);
-              return;
+            try {
+              const result = await groupUseCase.joinGroupByCode(normalizedCode);
+              if (!result.ok) {
+                setErrorCode(result.code);
+                return;
+              }
+              await queryClient.invalidateQueries({ queryKey: ['groups'] });
+              setSelectedGroupId(result.group.id);
+              setCompletePayload({
+                kind: 'join',
+                targetGroupId: result.group.id,
+                groupName: result.group.name,
+                joinCode: result.group.joinCode,
+                durationLabel: `${result.group.duration}일`,
+                memberCountLabel: `총 ${result.group.currentMember}명`,
+                startDateLabel: result.group.startDate,
+                endDateLabel: result.group.endDate,
+              });
+              router.replace('/complete');
+            } catch (error) {
+              setSubmitError(toAppError(error));
             }
-            await queryClient.invalidateQueries({ queryKey: ['groups'] });
-            setSelectedGroupId(result.group.id);
-            setCompletePayload({
-              kind: 'join',
-              targetGroupId: result.group.id,
-              groupName: result.group.name,
-              joinCode: normalizedCode,
-              durationLabel: `${result.group.duration}일`,
-              memberCountLabel: `총 ${result.group.currentMember}명`,
-              startDateLabel: result.group.startDate,
-              endDateLabel: result.group.endDate,
-            });
-            router.replace('/complete');
           }}
         >
           <Text style={styles.buttonText}>가입하기</Text>
@@ -76,6 +82,10 @@ export function GroupJoinScreen() {
         error={getAppError(errorCode ?? 'CGF-0005')}
         onClose={() => setErrorCode(null)}
       />
+
+      {submitError ? (
+        <AppAlertModal visible error={submitError} onClose={() => setSubmitError(null)} />
+      ) : null}
     </Screen>
   );
 }

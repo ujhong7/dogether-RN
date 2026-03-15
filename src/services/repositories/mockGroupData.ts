@@ -87,22 +87,28 @@ export function createMockGroup(input: {
   name: string;
   memberCount: number;
   durationDays: number;
-  startDateLabel: string;
-  endDateLabel: string;
-  joinCode: string;
+  startAt: 'TODAY' | 'TOMORROW';
 }) {
+  const startDate = new Date();
+  if (input.startAt === 'TOMORROW') {
+    startDate.setDate(startDate.getDate() + 1);
+  }
+  const endDate = new Date(startDate);
+  endDate.setDate(startDate.getDate() + input.durationDays - 1);
+  const joinCodeBase = input.name.replace(/[^a-zA-Z0-9가-힣]/g, '').slice(0, 3);
+  const joinCode = `${joinCodeBase || '두게더'}011210`;
   const nextId = readNextGroupId();
   const group: Group = {
     id: nextId,
     name: input.name,
     currentMember: 1,
     maximumMember: input.memberCount,
-    joinCode: input.joinCode,
-    status: input.endDateLabel === formatDate(new Date()) ? 'dDay' : 'running',
+    joinCode,
+    status: formatDate(endDate) === formatDate(new Date()) ? 'dDay' : 'running',
     duration: input.durationDays,
     progress: 0,
-    startDate: input.startDateLabel,
-    endDate: input.endDateLabel,
+    startDate: formatDate(startDate),
+    endDate: formatDate(endDate),
   };
 
   writeGroups([group, ...readGroups()]);

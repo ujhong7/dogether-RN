@@ -1,10 +1,5 @@
 import type { DurationOption, StartOption } from './types';
 
-export function buildJoinCode(name: string) {
-  const base = name.replace(/[^a-zA-Z0-9가-힣]/g, '').slice(0, 3);
-  return `${base || '두게더'}011210`;
-}
-
 export function buildSchedule(label: StartOption, duration: DurationOption) {
   const start = new Date();
   if (label === '내일 시작') {
@@ -22,5 +17,10 @@ export function buildSchedule(label: StartOption, duration: DurationOption) {
       date.getDate(),
     ).padStart(2, '0')}`;
 
-  return { startLabel: format(start), endLabel: format(end), durationDays };
+  return {
+    startAt: label === '내일 시작' ? ('TOMORROW' as const) : ('TODAY' as const),
+    startLabel: format(start),
+    endLabel: format(end),
+    durationDays,
+  };
 }
