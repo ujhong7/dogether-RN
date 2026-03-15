@@ -5,9 +5,7 @@ export type CreateGroupInput = {
   name: string;
   memberCount: number;
   durationDays: number;
-  startDateLabel: string;
-  endDateLabel: string;
-  joinCode: string;
+  startAt: 'TODAY' | 'TOMORROW';
 };
 
 export type JoinGroupResult =

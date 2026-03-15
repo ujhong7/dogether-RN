@@ -8,8 +8,11 @@ export const endpoints = {
     refresh: '/api/v1/auth/refresh',
   },
   groups: {
+    create: '/api/v1/groups',
+    join: '/api/v1/groups/join',
     checkParticipating: '/api/v1/groups/participating',
     my: '/api/v1/groups/my',
+    leave: (groupId: number) => `/api/v1/groups/${groupId}/leave`,
     ranking: (groupId: number) => `/api/v1/groups/${groupId}/ranking`,
   },
   challengeGroups: {
