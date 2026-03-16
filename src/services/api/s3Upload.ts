@@ -1,4 +1,3 @@
-import * as FileSystem from 'expo-file-system/legacy';
 import { apiClient } from './client';
 import { endpoints } from './endpoints';
 import type { ApiEnvelope } from '../../types/api';
@@ -51,15 +50,22 @@ async function requestPresignedUrl() {
 
 export async function uploadImageToS3(localUri: string) {
   const presignedUrl = await requestPresignedUrl();
-  const uploadResult = await FileSystem.uploadAsync(presignedUrl, localUri, {
-    httpMethod: 'PUT',
-    uploadType: FileSystem.FileSystemUploadType.BINARY_CONTENT,
+  const localFileResponse = await fetch(localUri);
+  if (!localFileResponse.ok) {
+    throw getAppError('COMMON');
+  }
+
+  const imageBlob = await localFileResponse.blob();
+  const uploadResponse = await fetch(presignedUrl, {
+    method: 'PUT',
     headers: {
       'Content-Type': getContentType(localUri),
     },
+    body: imageBlob,
   });
 
-  if (uploadResult.status < 200 || uploadResult.status >= 300) {
+  if (!uploadResponse.ok) {
+    console.warn('[S3Upload] upload failed', uploadResponse.status, uploadResponse.statusText);
     throw getAppError('COMMON');
   }
 
