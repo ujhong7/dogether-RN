@@ -17,5 +17,6 @@ export interface GroupRepository {
   getGroups(): Promise<Group[]>;
   createGroup(input: CreateGroupInput): Promise<Group>;
   joinGroupByCode(code: string): Promise<JoinGroupResult>;
+  saveLastSelectedGroup(groupId: number): Promise<void>;
   leaveGroup(groupId: number): Promise<Group[]>;
 }

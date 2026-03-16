@@ -20,6 +20,10 @@ export class MockGroupRepository implements GroupRepository {
     return joinMockGroupByCode(code);
   }
 
+  async saveLastSelectedGroup(_groupId: number): Promise<void> {
+    return;
+  }
+
   async leaveGroup(groupId: number): Promise<Group[]> {
     removeMockTodosByGroup(groupId);
     return leaveMockGroup(groupId);

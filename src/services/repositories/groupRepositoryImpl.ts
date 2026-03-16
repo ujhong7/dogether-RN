@@ -126,6 +126,16 @@ export class GroupRepositoryImpl implements GroupRepository {
     }
   }
 
+  async saveLastSelectedGroup(groupId: number): Promise<void> {
+    try {
+      await apiClient.post<ApiEnvelope<null>>(endpoints.groups.lastSelected, {
+        groupId: String(groupId),
+      });
+    } catch (error) {
+      throw toAppError(error);
+    }
+  }
+
   async leaveGroup(groupId: number): Promise<Group[]> {
     try {
       await apiClient.delete<ApiEnvelope<null>>(endpoints.groups.leave(groupId));

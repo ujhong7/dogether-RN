@@ -6,4 +6,5 @@ export const storageKeys = {
   appleUserIdentifier: 'appleUserIdentifier',
   hasCompletedStartFlow: 'hasCompletedStartFlow',
   lastAccessVersion: 'lastAccessVersion',
+  lastSelectedGroupId: 'lastSelectedGroupId',
 };
