@@ -27,7 +27,7 @@ export function OnboardingScreen() {
       <Pressable
         style={[styles.button, styles.primary, isPending ? styles.buttonDisabled : undefined]}
         disabled={isPending}
-        onPress={() => demoLoginMutation.mutate(undefined, { onSuccess: () => router.replace('/start') })}
+        onPress={() => demoLoginMutation.mutate(undefined, { onSuccess: () => router.replace('/splash') })}
       >
         <Text style={styles.buttonText}>Demo 로그인</Text>
       </Pressable>
@@ -36,7 +36,7 @@ export function OnboardingScreen() {
         <Pressable
           style={[styles.button, styles.kakao, isPending ? styles.buttonDisabled : undefined]}
           disabled={isPending}
-          onPress={() => kakaoLoginMutation.mutate(undefined, { onSuccess: () => router.replace('/start') })}
+          onPress={() => kakaoLoginMutation.mutate(undefined, { onSuccess: () => router.replace('/splash') })}
         >
           <Text style={styles.kakaoText}>카카오로 시작하기</Text>
         </Pressable>
@@ -53,7 +53,7 @@ export function OnboardingScreen() {
             buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.WHITE}
             cornerRadius={12}
             style={styles.appleButton}
-            onPress={() => appleLoginMutation.mutate(undefined, { onSuccess: () => router.replace('/start') })}
+            onPress={() => appleLoginMutation.mutate(undefined, { onSuccess: () => router.replace('/splash') })}
           />
         </View>
       ) : (
