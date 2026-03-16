@@ -52,6 +52,8 @@ export function CertificationContentScreen() {
         draft.imageUri,
       );
       await queryClient.invalidateQueries({ queryKey: ['todos'] });
+      await queryClient.invalidateQueries({ queryKey: ['certification-list'] });
+      await queryClient.invalidateQueries({ queryKey: ['statistics'] });
       clearDraft();
       router.replace('/main');
     } catch (error) {

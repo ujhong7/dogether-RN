@@ -32,7 +32,7 @@ export function CertificationDetailScreen() {
   });
 
   const orderedTodos = useMemo(() => {
-    const todos = context.todos.length > 0 ? context.todos : (todosQuery.data ?? []);
+    const todos = todosQuery.data && todosQuery.data.length > 0 ? todosQuery.data : context.todos;
     if (!context.todoIds.length) {
       return todos;
     }
