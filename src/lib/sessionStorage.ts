@@ -1,6 +1,7 @@
 import { storage } from './storage';
 import { storageKeys } from './storageKeys';
 import type { AuthSession } from '../models/auth';
+import { clearLastSelectedGroupId } from './selectedGroupStorage';
 
 export function saveSession(payload: AuthSession) {
   storage.set(storageKeys.accessToken, payload.accessToken);
@@ -26,6 +27,7 @@ export function clearSession() {
   storage.remove(storageKeys.loginType);
   storage.remove(storageKeys.appleUserIdentifier);
   storage.remove(storageKeys.hasCompletedStartFlow);
+  clearLastSelectedGroupId();
 }
 
 export function readSession() {
