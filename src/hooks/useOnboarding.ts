@@ -40,7 +40,22 @@ function toFallbackDisplayName(
 }
 
 function toKakaoDisplayName(profile: KakaoProfile) {
-  return profile.name || profile.nickname || profile.email || 'Kakao User';
+  const normalizedName = profile.name?.trim();
+  if (normalizedName) {
+    return normalizedName;
+  }
+
+  const normalizedNickname = profile.nickname?.trim();
+  if (normalizedNickname) {
+    return normalizedNickname;
+  }
+
+  const normalizedEmail = profile.email?.trim();
+  if (normalizedEmail) {
+    return normalizedEmail.split('@')[0] || normalizedEmail;
+  }
+
+  return 'Kakao User';
 }
 
 export function useOnboarding() {
