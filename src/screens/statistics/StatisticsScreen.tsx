@@ -15,6 +15,7 @@ import { useSessionStore } from '../../stores/sessionStore';
 import { colors } from '../../theme/colors';
 
 const MAX_TODOS_PER_DAY = 10;
+const BAR_MAX_HEIGHT = 176;
 
 function parseGroupDate(dateLabel: string | undefined) {
   if (!dateLabel) {
@@ -74,15 +75,24 @@ export function StatisticsScreen() {
     const firstVisibleDay = currentDay <= 4 ? 1 : currentDay - 3;
     const visibleDays = Array.from({ length: 4 }, (_, index) => firstVisibleDay + index);
     const achievementMap = new Map(statisticsQuery.data.achievements.map((item) => [item.day, item]));
-    const achievementPercent = achievementMap.get(currentDay)?.certificationRate ?? 0;
-    const chartValues = visibleDays.map((day) => ({
-      day,
-      label: `${day}일차`,
-      total: MAX_TODOS_PER_DAY,
-      value: achievementMap.get(day)?.createdCount ?? 0,
-      isCurrent: day === currentDay,
-      isFuture: day > currentDay,
-    }));
+    const chartValues = visibleDays.map((day) => {
+      const achievement = achievementMap.get(day);
+      const createdCount = Math.min(achievement?.createdCount ?? 0, MAX_TODOS_PER_DAY);
+      const certificatedCount = Math.min(achievement?.certificatedCount ?? 0, createdCount);
+
+      return {
+        day,
+        label: `${day}일차`,
+        total: MAX_TODOS_PER_DAY,
+        createdCount,
+        certificatedCount,
+        certificationRate: achievement?.certificationRate ?? 0,
+        isCurrent: day === currentDay,
+        isFuture: day > currentDay,
+      };
+    });
+
+    const achievementPercent = chartValues.find((item) => item.isCurrent)?.certificationRate ?? 0;
 
     return {
       achievementPercent,
@@ -239,9 +249,16 @@ export function StatisticsScreen() {
           <View style={styles.barRow}>
             {summary?.chartValues.map((item) => (
               <View key={item.label} style={styles.barColumn}>
-                <View style={styles.barTopArea}>
-                  {item.isCurrent ? (
-                    <>
+                <View style={styles.barVisualArea}>
+                  {item.isCurrent && !item.isFuture ? (
+                    <View
+                      style={[
+                        styles.currentIndicator,
+                        {
+                          bottom: Math.max((item.createdCount / item.total) * BAR_MAX_HEIGHT + 10, 10),
+                        },
+                      ]}
+                    >
                       <View style={styles.badge}>
                         <Text numberOfLines={1} style={styles.badgeText}>
                           {summary?.achievementPercent ?? 0}% 달성중
@@ -249,26 +266,38 @@ export function StatisticsScreen() {
                       </View>
                       <View style={styles.badgePointer} />
                       <View style={styles.currentDot} />
-                    </>
-                  ) : (
-                    <View style={styles.currentDotPlaceholder} />
-                  )}
-                </View>
-                <View style={styles.barTrack}>
-                  <View style={styles.barStripeWrap}>
-                    {Array.from({ length: 8 }, (_, index) => (
-                      <View key={index} style={[styles.barStripe, { left: index * 18 - 12 }]} />
-                    ))}
-                  </View>
-                  {item.value > 0 ? (
+                    </View>
+                  ) : null}
+
+                  {item.createdCount > 0 ? (
                     <View
                       style={[
-                        styles.barFill,
-                        item.isCurrent ? styles.barFillCurrent : undefined,
-                        { height: `${(item.value / item.total) * 100}%` },
+                        styles.barTrack,
+                        {
+                          height: (item.createdCount / item.total) * BAR_MAX_HEIGHT,
+                        },
                       ]}
-                    />
-                  ) : null}
+                    >
+                      <View style={styles.barStripeWrap}>
+                        {Array.from({ length: 8 }, (_, index) => (
+                          <View key={index} style={[styles.barStripe, { left: index * 18 - 12 }]} />
+                        ))}
+                      </View>
+                      {item.certificatedCount > 0 ? (
+                        <View
+                          style={[
+                            styles.barFill,
+                            item.isCurrent ? styles.barFillCurrent : undefined,
+                            {
+                              height: `${(item.certificatedCount / item.createdCount) * 100}%`,
+                            },
+                          ]}
+                        />
+                      ) : null}
+                    </View>
+                  ) : (
+                    <View style={styles.barTrackPlaceholder} />
+                  )}
                 </View>
                 <Text style={[styles.barLabel, item.isFuture ? styles.barLabelFuture : undefined]}>{item.label}</Text>
               </View>
@@ -513,15 +542,13 @@ const styles = StyleSheet.create({
   },
   chartArea: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'flex-end',
     gap: 8,
   },
   axisColumn: {
     width: 18,
-    height: 206,
+    height: BAR_MAX_HEIGHT,
     justifyContent: 'space-between',
-    paddingTop: 8,
-    paddingBottom: 28,
   },
   axisText: {
     color: '#8C91A7',
@@ -540,19 +567,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 6,
   },
-  barTopArea: {
-    minHeight: 58,
-    alignItems: 'center',
+  barVisualArea: {
+    width: '100%',
+    height: BAR_MAX_HEIGHT,
+    position: 'relative',
     justifyContent: 'flex-end',
   },
   barTrack: {
     width: '100%',
-    height: 176,
     borderRadius: 12,
     backgroundColor: '#2A2B31',
     overflow: 'hidden',
     justifyContent: 'flex-end',
-    position: 'relative',
+    position: 'absolute',
+    bottom: 0,
+  },
+  barTrackPlaceholder: {
+    width: '100%',
+    height: 0,
   },
   barStripeWrap: {
     ...StyleSheet.absoluteFillObject,
@@ -570,10 +602,16 @@ const styles = StyleSheet.create({
     width: '100%',
     borderRadius: 12,
     backgroundColor: '#92B8E8',
-    minHeight: 12,
   },
   barFillCurrent: {
     backgroundColor: '#5B9DF0',
+  },
+  currentIndicator: {
+    position: 'absolute',
+    left: '50%',
+    transform: [{ translateX: -53 }],
+    alignItems: 'center',
+    zIndex: 2,
   },
   currentDot: {
     width: 18,
@@ -584,10 +622,6 @@ const styles = StyleSheet.create({
     borderColor: '#F4F7FF',
     marginBottom: -9,
     zIndex: 1,
-  },
-  currentDotPlaceholder: {
-    width: 18,
-    height: 18,
   },
   barLabel: {
     color: colors.text,
