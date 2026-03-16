@@ -6,23 +6,7 @@ import { getAppError } from '../../models/error';
 type PresignedUrlResponse = {
   presignedUrls: string[];
 };
-
-function getContentType(uri: string) {
-  const normalized = uri.toLowerCase();
-  if (normalized.endsWith('.png')) {
-    return 'image/png';
-  }
-
-  if (normalized.endsWith('.heic')) {
-    return 'image/heic';
-  }
-
-  if (normalized.endsWith('.webp')) {
-    return 'image/webp';
-  }
-
-  return 'image/jpeg';
-}
+const UPLOAD_CONTENT_TYPE = 'image/png';
 
 function stripQueryString(url: string) {
   try {
@@ -52,6 +36,7 @@ export async function uploadImageToS3(localUri: string) {
   const presignedUrl = await requestPresignedUrl();
   const localFileResponse = await fetch(localUri);
   if (!localFileResponse.ok) {
+    console.warn('[S3Upload] local file read failed', localUri);
     throw getAppError('COMMON');
   }
 
@@ -59,13 +44,18 @@ export async function uploadImageToS3(localUri: string) {
   const uploadResponse = await fetch(presignedUrl, {
     method: 'PUT',
     headers: {
-      'Content-Type': getContentType(localUri),
+      'Content-Type': UPLOAD_CONTENT_TYPE,
     },
     body: imageBlob,
   });
 
   if (!uploadResponse.ok) {
-    console.warn('[S3Upload] upload failed', uploadResponse.status, uploadResponse.statusText);
+    console.warn('[S3Upload] upload failed', {
+      localUri,
+      status: uploadResponse.status,
+      statusText: uploadResponse.statusText,
+      contentType: UPLOAD_CONTENT_TYPE,
+    });
     throw getAppError('COMMON');
   }
 
