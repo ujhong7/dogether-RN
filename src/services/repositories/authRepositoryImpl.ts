@@ -70,10 +70,16 @@ export class AuthRepositoryImpl implements AuthRepository {
         name: payload.name,
       });
 
+      const responseName = response.data.data?.name?.trim() ?? '';
+      const shouldPreferPayloadName =
+        payload.appLoginType === 'kakao' &&
+        payload.name.trim().length > 0 &&
+        (responseName.length === 0 || responseName === 'Kakao User');
+
       return {
         accessToken: response.data.data?.accessToken ?? '',
         refreshToken: null,
-        userName: response.data.data?.name ?? payload.name,
+        userName: shouldPreferPayloadName ? payload.name : responseName || payload.name,
         loginType: payload.appLoginType,
         appleUserIdentifier: payload.appleUserIdentifier ?? null,
         hasCompletedStartFlow: false,
