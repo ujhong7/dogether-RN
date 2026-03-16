@@ -90,6 +90,19 @@ export const rankingStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 10,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  avatarPlainRing: {
+    backgroundColor: 'transparent',
+  },
+  avatarUnreadRing: {
+    backgroundColor: '#FF5C92',
+    borderColor: '#FF5C92',
+  },
+  avatarReadRing: {
+    backgroundColor: '#646A7A',
+    borderColor: '#646A7A',
   },
   avatarFace: {
     width: 48,
@@ -98,6 +111,19 @@ export const rankingStyles = StyleSheet.create({
     backgroundColor: '#5B9DF0',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  avatarImage: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#1B1E27',
+  },
+  avatarUnreadOverlay: {
+    position: 'absolute',
+    top: -12,
+    right: 6,
+    color: '#58A6FF',
+    fontSize: 32,
   },
   avatarEyeRow: {
     flexDirection: 'row',
