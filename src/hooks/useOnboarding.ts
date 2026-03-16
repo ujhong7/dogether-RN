@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
 import * as AppleAuthentication from 'expo-apple-authentication';
+import { Platform } from 'react-native';
 import { getProfile, login as loginWithKakaoTalk, type KakaoProfile } from '@react-native-seoul/kakao-login';
 import { AuthUseCase } from '../services/usecases/authUseCase';
 import { createAuthRepository } from '../services/repositories';
@@ -57,7 +58,7 @@ export function useOnboarding() {
     }
 
     let mounted = true;
-    setIsKakaoLoginAvailable(env.hasKakaoNativeAppKey);
+    setIsKakaoLoginAvailable(Platform.OS === 'ios' || Platform.OS === 'android');
 
     if (!env.enableAppleSignIn) {
       setIsAppleLoginAvailable(false);
@@ -104,10 +105,6 @@ export function useOnboarding() {
           providerId: 'mock-kakao-user-' + Date.now(),
           name: 'Kakao User',
         });
-      }
-
-      if (!env.hasKakaoNativeAppKey) {
-        throw getAppError('ATF-0006');
       }
 
       await loginWithKakaoTalk();
