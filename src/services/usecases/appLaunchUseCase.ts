@@ -27,8 +27,10 @@ export class AppLaunchUseCase {
       return 'onboarding';
     }
 
-    const hasParticipatingGroup = await this.groupRepository.checkParticipating();
-    if (!hasParticipatingGroup) {
+    // Use the actual joined group list as the source of truth for launch routing.
+    // The participating flag can be temporarily stale on the dev server.
+    const joinedGroups = await this.groupRepository.getGroups();
+    if (joinedGroups.length === 0) {
       return 'start';
     }
 
