@@ -9,7 +9,10 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import { router } from 'expo-router';
+import { useQueryClient } from '@tanstack/react-query';
 import { Screen } from '../../components/Screen';
+import { createChallengeGroupRepository } from '../../services/repositories';
+import { ChallengeGroupUseCase } from '../../services/usecases/challengeGroupUseCase';
 import { useCertificationViewerStore } from '../../stores/certificationViewerStore';
 import { useMyTodosQuery } from '../../queries/useMyTodosQuery';
 import { certificationDetailStyles as styles } from './styles';
@@ -23,8 +26,14 @@ export function CertificationDetailScreen() {
   const { context, selectedIndex, setSelectedIndex } = useCertificationViewerStore();
   const thumbListRef = useRef<FlatList>(null);
   const mediaScrollRef = useRef<ScrollView>(null);
+  const readTodoIdsRef = useRef<Set<number>>(new Set());
   const { width } = useWindowDimensions();
   const mediaCardWidth = Math.max(width - 32, 0);
+  const queryClient = useQueryClient();
+  const challengeGroupUseCase = useMemo(
+    () => new ChallengeGroupUseCase(createChallengeGroupRepository()),
+    [],
+  );
 
   const todosQuery = useMyTodosQuery({
     groupId: context.groupId ?? undefined,
@@ -45,6 +54,25 @@ export function CertificationDetailScreen() {
 
   const safeIndex = orderedTodos.length === 0 ? 0 : Math.min(selectedIndex, orderedTodos.length - 1);
   const currentTodo = orderedTodos[safeIndex];
+
+  useEffect(() => {
+    if (context.source !== 'ranking' || !currentTodo?.id || readTodoIdsRef.current.has(currentTodo.id)) {
+      return;
+    }
+
+    readTodoIdsRef.current.add(currentTodo.id);
+
+    void challengeGroupUseCase
+      .readTodo(currentTodo.id)
+      .then(() => {
+        if (context.groupId) {
+          void queryClient.invalidateQueries({ queryKey: ['ranking', context.groupId] });
+        }
+      })
+      .catch(() => {
+        readTodoIdsRef.current.delete(currentTodo.id);
+      });
+  }, [challengeGroupUseCase, context.groupId, context.source, currentTodo?.id, queryClient]);
 
   useEffect(() => {
     if (orderedTodos.length === 0) {
@@ -84,7 +112,7 @@ export function CertificationDetailScreen() {
           <Pressable onPress={() => router.back()}>
             <Text style={styles.navBack}>‹</Text>
           </Pressable>
-          <Text style={styles.navTitle}>내 인증 정보</Text>
+          <Text style={styles.navTitle}>{context.title}</Text>
           <View style={styles.navSpacer} />
         </View>
 

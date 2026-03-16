@@ -7,6 +7,14 @@ export class ChallengeGroupUseCase {
     return this.challengeGroupRepository.getMyTodos(groupId, date);
   }
 
+  async getMemberTodos(groupId: number, memberId: number) {
+    return this.challengeGroupRepository.getMemberTodos(groupId, memberId);
+  }
+
+  async readTodo(todoId: number) {
+    return this.challengeGroupRepository.readTodo(todoId);
+  }
+
   async createTodos(groupId: number, date: string, contents: string[]) {
     return this.challengeGroupRepository.createTodos(groupId, date, contents);
   }

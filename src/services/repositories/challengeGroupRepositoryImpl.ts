@@ -3,7 +3,7 @@ import { endpoints } from '../api/endpoints';
 import { uploadImageToS3 } from '../api/s3Upload';
 import type { ApiEnvelope } from '../../types/api';
 import type { Todo } from '../../models/todo';
-import type { ChallengeGroupRepository } from './contracts/challengeGroupRepository';
+import type { ChallengeGroupRepository, MemberTodosResult } from './contracts/challengeGroupRepository';
 import { toAppError } from '../errors/appError';
 
 function mapTodoStatus(value: unknown): Todo['status'] {
@@ -36,6 +36,11 @@ function mapTodo(raw: any): Todo {
   };
 }
 
+type MemberTodosResponse = {
+  currentTodoHistoryToReadIndex?: number;
+  todos?: any[];
+};
+
 export class ChallengeGroupRepositoryImpl implements ChallengeGroupRepository {
   async getMyTodos(groupId: number, date: string): Promise<Todo[]> {
     try {
@@ -43,6 +48,29 @@ export class ChallengeGroupRepositoryImpl implements ChallengeGroupRepository {
         params: { date },
       });
       return (res.data.data?.todos ?? []).map(mapTodo);
+    } catch (error) {
+      throw toAppError(error);
+    }
+  }
+
+  async getMemberTodos(groupId: number, memberId: number): Promise<MemberTodosResult> {
+    try {
+      const res = await apiClient.get<ApiEnvelope<MemberTodosResponse>>(
+        endpoints.challengeGroups.memberTodos(groupId, memberId),
+      );
+
+      return {
+        selectedIndex: Number(res.data.data?.currentTodoHistoryToReadIndex ?? 0),
+        todos: (res.data.data?.todos ?? []).map(mapTodo),
+      };
+    } catch (error) {
+      throw toAppError(error);
+    }
+  }
+
+  async readTodo(todoId: number): Promise<void> {
+    try {
+      await apiClient.post<ApiEnvelope<null>>(endpoints.challengeGroups.readTodo(todoId));
     } catch (error) {
       throw toAppError(error);
     }

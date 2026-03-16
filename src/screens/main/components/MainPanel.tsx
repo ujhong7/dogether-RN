@@ -126,6 +126,8 @@ export function MainPanel({
                   }
 
                   openViewer({
+                    source: 'mine',
+                    title: '내 인증 정보',
                     groupId: currentGroupId,
                     date: queryDate,
                     todoIds: filteredTodos.map((item) => item.id),

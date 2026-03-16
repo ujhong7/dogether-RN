@@ -63,6 +63,8 @@ export function CertificationListScreen() {
     }));
 
     openViewer({
+      source: 'mine',
+      title: '내 인증 정보',
       groupId: item.groupId,
       date: item.date,
       todoIds: viewerTodos.map((entry) => entry.id),

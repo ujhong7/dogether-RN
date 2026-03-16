@@ -16,7 +16,7 @@ export function useMyTodosQuery({ groupId, date }: Params) {
 
   return useQuery({
     queryKey: ['todos', groupId, date],
-    enabled: Boolean(groupId),
+    enabled: Boolean(groupId && date),
     queryFn: () => challengeGroupUseCase.getMyTodos(groupId!, date),
   });
 }

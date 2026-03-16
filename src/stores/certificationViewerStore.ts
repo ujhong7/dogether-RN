@@ -2,6 +2,8 @@ import { create } from 'zustand';
 import type { Todo } from '../models/todo';
 
 type CertificationViewerContext = {
+  source: 'mine' | 'ranking';
+  title: string;
   groupId: number | null;
   date: string;
   todoIds: number[];
@@ -11,12 +13,16 @@ type CertificationViewerContext = {
 type CertificationViewerState = {
   context: CertificationViewerContext;
   selectedIndex: number;
-  openViewer: (input: Omit<CertificationViewerContext, 'todos'> & { selectedIndex: number; todos?: Todo[] }) => void;
+  openViewer: (
+    input: Omit<CertificationViewerContext, 'todos'> & { selectedIndex: number; todos?: Todo[] }
+  ) => void;
   setSelectedIndex: (index: number) => void;
   clearContext: () => void;
 };
 
 const initialContext: CertificationViewerContext = {
+  source: 'mine',
+  title: '내 인증 정보',
   groupId: null,
   date: '',
   todoIds: [],
@@ -26,9 +32,9 @@ const initialContext: CertificationViewerContext = {
 export const useCertificationViewerStore = create<CertificationViewerState>((set) => ({
   context: initialContext,
   selectedIndex: 0,
-  openViewer: ({ groupId, date, todoIds, todos = [], selectedIndex }) =>
+  openViewer: ({ source, title, groupId, date, todoIds, todos = [], selectedIndex }) =>
     set({
-      context: { groupId, date, todoIds, todos },
+      context: { source, title, groupId, date, todoIds, todos },
       selectedIndex,
     }),
   setSelectedIndex: (selectedIndex) => set({ selectedIndex }),

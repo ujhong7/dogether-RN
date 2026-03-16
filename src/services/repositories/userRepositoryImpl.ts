@@ -2,7 +2,7 @@ import { apiClient } from '../api/client';
 import { endpoints } from '../api/endpoints';
 import type { ApiEnvelope } from '../../types/api';
 import type { Profile } from '../../models/profile';
-import type { Ranking } from '../../models/ranking';
+import type { Ranking, RankingHistoryReadStatus } from '../../models/ranking';
 import type { CertificationListData, CertificationListSort } from '../../models/certificationList';
 import type { StatisticsData } from '../../models/statistics';
 import type { UserRepository } from './contracts/userRepository';
@@ -20,6 +20,7 @@ type RankingResponse = {
     name?: string;
     achievementRate?: number;
     profileImageUrl?: string;
+    historyReadStatus?: string | null;
   }>;
 };
 
@@ -102,6 +103,17 @@ function formatGroupDate(value: unknown) {
   return raw;
 }
 
+function mapHistoryReadStatus(value: unknown): RankingHistoryReadStatus {
+  const normalized = String(value ?? '').toUpperCase();
+  if (normalized === 'READ_YET') {
+    return 'READ_YET';
+  }
+  if (normalized === 'READ_ALL') {
+    return 'READ_ALL';
+  }
+  return null;
+}
+
 export class UserRepositoryImpl implements UserRepository {
   async getRanking(groupId: number): Promise<Ranking[]> {
     try {
@@ -112,6 +124,7 @@ export class UserRepositoryImpl implements UserRepository {
         name: String(raw.name ?? `Member ${index + 1}`),
         achievementRate: Number(raw.achievementRate ?? 0),
         profileImageUrl: raw.profileImageUrl,
+        historyReadStatus: mapHistoryReadStatus(raw.historyReadStatus),
       }));
     } catch (error) {
       throw toAppError(error);
