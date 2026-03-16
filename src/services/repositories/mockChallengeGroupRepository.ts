@@ -1,5 +1,5 @@
 import type { Todo } from '../../models/todo';
-import type { ChallengeGroupRepository } from './contracts/challengeGroupRepository';
+import type { ChallengeGroupRepository, MemberTodosResult } from './contracts/challengeGroupRepository';
 import { getMockDefaultTodosForDate, getMockTodos, saveMockTodos, setMockTodos } from './mockTodoData';
 
 export class MockChallengeGroupRepository implements ChallengeGroupRepository {
@@ -11,6 +11,18 @@ export class MockChallengeGroupRepository implements ChallengeGroupRepository {
 
     return getMockDefaultTodosForDate(groupId, date);
   }
+
+  async getMemberTodos(groupId: number, _memberId: number): Promise<MemberTodosResult> {
+    const date = new Date().toISOString().slice(0, 10);
+    const todos = getMockTodos(groupId, date);
+
+    return {
+      selectedIndex: 0,
+      todos: todos.filter((todo) => todo.status !== 'WAIT_CERTIFICATION'),
+    };
+  }
+
+  async readTodo(_todoId: number): Promise<void> {}
 
   async createTodos(groupId: number, date: string, contents: string[]): Promise<Todo[]> {
     const storedTodos = getMockTodos(groupId, date);
