@@ -6,6 +6,7 @@ import { FullScreenErrorState } from '../../components/FullScreenErrorState';
 import { Screen } from '../../components/Screen';
 import { SelectionBottomSheet } from '../../components/SelectionBottomSheet';
 import type { CertificationListFilter, CertificationListItem, CertificationListSort } from '../../models/certificationList';
+import type { Todo } from '../../models/todo';
 import { useCertificationListQuery } from '../../queries/useCertificationListQuery';
 import { toAppError } from '../../services/errors/appError';
 import { useCertificationViewerStore } from '../../stores/certificationViewerStore';
@@ -46,13 +47,26 @@ export function CertificationListScreen() {
   const openCertificationDetail = (item: CertificationListItem) => {
     const relatedItems = sections
       .flatMap((section) => section.items)
-      .filter((entry) => entry.groupId === item.groupId && entry.date === item.date);
+      .filter((entry) =>
+        sort === 'TODO_COMPLETION_DATE'
+          ? entry.groupId === item.groupId && entry.date === item.date
+          : entry.groupName === item.groupName,
+      );
     const selectedIndex = relatedItems.findIndex((entry) => entry.todoId === item.todoId);
+    const viewerTodos: Todo[] = relatedItems.map((entry) => ({
+      id: entry.todoId,
+      content: entry.content,
+      status: entry.status,
+      certificationMediaUrl: entry.certificationMediaUrl,
+      certificationContent: entry.certificationContent,
+      reviewFeedback: entry.reviewFeedback,
+    }));
 
     openViewer({
       groupId: item.groupId,
       date: item.date,
-      todoIds: relatedItems.map((entry) => entry.todoId),
+      todoIds: viewerTodos.map((entry) => entry.id),
+      todos: viewerTodos,
       selectedIndex: selectedIndex < 0 ? 0 : selectedIndex,
     });
     router.push('/certification');

@@ -1,11 +1,12 @@
 import { useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { AppAlertModal } from '../../components/AppAlertModal';
 import { FullScreenErrorState } from '../../components/FullScreenErrorState';
 import { GroupSelectBottomSheet } from '../../components/GroupSelectBottomSheet';
 import { Screen } from '../../components/Screen';
 import { useGroupsQuery } from '../../queries/useGroupsQuery';
+import { useStatisticsQuery } from '../../queries/useStatisticsQuery';
 import { toAppError } from '../../services/errors/appError';
 import { useMainStore } from '../../stores/mainStore';
 import { useSessionStore } from '../../stores/sessionStore';
@@ -43,10 +44,6 @@ function getCurrentGroupDay(startDateLabel: string | undefined, duration: number
   return Math.min(Math.max(diff, 1), Math.max(duration, 1));
 }
 
-function getMockWrittenTodoCount(groupId: number, day: number) {
-  return Math.min(MAX_TODOS_PER_DAY, ((groupId + day) % 3) + 2);
-}
-
 export function StatisticsScreen() {
   const groupsQuery = useGroupsQuery();
   const selectedGroupId = useMainStore((state) => state.selectedGroupId);
@@ -56,39 +53,38 @@ export function StatisticsScreen() {
 
   const groups = groupsQuery.data ?? [];
   const currentGroup = groups.find((group) => group.id === selectedGroupId) ?? groups[0];
+  const statisticsQuery = useStatisticsQuery(currentGroup?.id);
 
   const summary = useMemo(() => {
-    if (!currentGroup) {
+    if (!currentGroup || !statisticsQuery.data) {
       return null;
     }
 
-    const totalDays = Math.max(currentGroup.duration, 1);
-    const currentDay = getCurrentGroupDay(currentGroup.startDate, totalDays);
+    const currentDay = getCurrentGroupDay(currentGroup.startDate, Math.max(currentGroup.duration, 1));
     const firstVisibleDay = currentDay <= 4 ? 1 : currentDay - 3;
     const visibleDays = Array.from({ length: 4 }, (_, index) => firstVisibleDay + index);
-    const certifiedDays = Math.min(Math.max(Math.round(totalDays * 0.2), 1), totalDays);
-    const achievementPercent = Math.round((certifiedDays / totalDays) * 100);
+    const achievementMap = new Map(statisticsQuery.data.achievements.map((item) => [item.day, item]));
+    const achievementPercent = achievementMap.get(currentDay)?.certificationRate ?? 0;
     const chartValues = visibleDays.map((day) => ({
       day,
       label: `${day}일차`,
       total: MAX_TODOS_PER_DAY,
-      value: day <= currentDay ? getMockWrittenTodoCount(currentGroup.id, day) : 0,
+      value: achievementMap.get(day)?.createdCount ?? 0,
       isCurrent: day === currentDay,
       isFuture: day > currentDay,
     }));
 
     return {
       achievementPercent,
-      certifiedDays,
       currentDay,
       chartValues,
-      rank: Math.min(currentGroup.currentMember, 5),
-      totalMembers: currentGroup.currentMember + 4,
-      approvedCount: certifiedDays * 5,
-      waitCount: Math.max(totalDays - certifiedDays, 0) * 2 + 3,
-      rejectedCount: Math.max(totalDays - certifiedDays, 0) + 1,
+      rank: statisticsQuery.data.myRank,
+      totalMembers: statisticsQuery.data.totalMembers,
+      certificatedCount: statisticsQuery.data.certificatedCount,
+      approvedCount: statisticsQuery.data.approvedCount,
+      rejectedCount: statisticsQuery.data.rejectedCount,
     };
-  }, [currentGroup]);
+  }, [currentGroup, statisticsQuery.data]);
 
   if (groupsQuery.isError) {
     const appError = toAppError(groupsQuery.error);
@@ -142,6 +138,33 @@ export function StatisticsScreen() {
           <Pressable style={styles.primaryButton} onPress={() => router.push('/group-create')}>
             <Text style={styles.primaryButtonText}>그룹 만들기</Text>
           </Pressable>
+        </View>
+      </Screen>
+    );
+  }
+
+  if (statisticsQuery.isError) {
+    const appError = toAppError(statisticsQuery.error);
+
+    return (
+      <Screen>
+        <FullScreenErrorState
+          title={appError.title}
+          message={appError.message}
+          actionLabel={appError.actionLabel}
+          onRetry={() => {
+            void statisticsQuery.refetch();
+          }}
+        />
+      </Screen>
+    );
+  }
+
+  if (groupsQuery.isLoading || statisticsQuery.isLoading || !summary) {
+    return (
+      <Screen>
+        <View style={styles.loadingWrap}>
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       </Screen>
     );
@@ -261,11 +284,11 @@ export function StatisticsScreen() {
           </View>
           <View style={styles.summaryItem}>
             <Text style={styles.summaryBullet}>✔</Text>
-            <Text style={styles.summaryItemText}>달성 {summary?.approvedCount ?? 0}개</Text>
+            <Text style={styles.summaryItemText}>달성 {summary?.certificatedCount ?? 0}개</Text>
           </View>
           <View style={styles.summaryItem}>
             <Text style={styles.summaryBullet}>◔</Text>
-            <Text style={styles.summaryItemText}>인정 {summary?.waitCount ?? 0}개</Text>
+            <Text style={styles.summaryItemText}>인정 {summary?.approvedCount ?? 0}개</Text>
           </View>
           <View style={styles.summaryItem}>
             <Text style={styles.summaryBullet}>✿</Text>
@@ -310,6 +333,11 @@ const styles = StyleSheet.create({
   },
   headerSpacer: {
     width: 32,
+  },
+  loadingWrap: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   emptyWrap: {
     flex: 1,
