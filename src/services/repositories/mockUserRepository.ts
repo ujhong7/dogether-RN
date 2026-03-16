@@ -2,11 +2,11 @@ import type { Profile } from '../../models/profile';
 import type { Ranking } from '../../models/ranking';
 import type {
   CertificationListData,
-  CertificationListFilter,
   CertificationListItem,
   CertificationListSection,
   CertificationListSort,
 } from '../../models/certificationList';
+import type { StatisticsData } from '../../models/statistics';
 import type { UserRepository } from './contracts/userRepository';
 import { getMockJoinedGroups } from './mockGroupData';
 import { getAllMockTodoEntries } from './mockTodoData';
@@ -43,6 +43,76 @@ function formatSectionDate(value: string) {
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
   return `${year}.${month}.${day} (${weekDay})`;
+}
+
+function parseGroupDate(dateLabel: string | undefined) {
+  if (!dateLabel) {
+    return null;
+  }
+
+  const [year, month, day] = dateLabel.split('.').map(Number);
+  if (!year || !month || !day) {
+    return null;
+  }
+
+  return new Date(2000 + year, month - 1, day);
+}
+
+function startOfDay(date: Date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function getCurrentGroupDay(startDateLabel: string | undefined, duration: number) {
+  const startDate = parseGroupDate(startDateLabel);
+  if (!startDate) {
+    return 1;
+  }
+
+  const today = startOfDay(new Date());
+  const startDateAtMidnight = startOfDay(startDate);
+  const diff = Math.floor((today.getTime() - startDateAtMidnight.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+
+  return Math.min(Math.max(diff, 1), Math.max(duration, 1));
+}
+
+function getMockWrittenTodoCount(groupId: number, day: number) {
+  return Math.min(10, ((groupId + day) % 3) + 2);
+}
+
+function buildMockStatistics(groupId: number): StatisticsData {
+  const group = getMockJoinedGroups().find((item) => item.id === groupId) ?? getMockJoinedGroups()[0];
+  if (!group) {
+    return {
+      achievements: [],
+      totalMembers: 0,
+      myRank: 0,
+      certificatedCount: 0,
+      approvedCount: 0,
+      rejectedCount: 0,
+    };
+  }
+
+  const currentDay = getCurrentGroupDay(group.startDate, group.duration);
+  const achievements = Array.from({ length: currentDay }, (_, index) => {
+    const day = index + 1;
+    const createdCount = getMockWrittenTodoCount(group.id, day);
+    const certificatedCount = Math.max(createdCount - 1, 0);
+    return {
+      day,
+      createdCount,
+      certificatedCount,
+      certificationRate: createdCount === 0 ? 0 : Math.round((certificatedCount / createdCount) * 100),
+    };
+  });
+
+  return {
+    achievements,
+    totalMembers: group.currentMember + 4,
+    myRank: Math.min(group.currentMember, 5),
+    certificatedCount: achievements.reduce((total, item) => total + item.certificatedCount, 0),
+    approvedCount: achievements.reduce((total, item) => total + Math.max(item.certificatedCount - 1, 0), 0),
+    rejectedCount: achievements.length,
+  };
 }
 
 function buildMockCertificationList(sort: CertificationListSort): CertificationListData {
@@ -146,6 +216,10 @@ export class MockUserRepository implements UserRepository {
 
   async getMyProfile(): Promise<Profile> {
     return mockProfile;
+  }
+
+  async getStatistics(groupId: number): Promise<StatisticsData> {
+    return buildMockStatistics(groupId);
   }
 
   async getCertificationList(sort: CertificationListSort): Promise<CertificationListData> {
