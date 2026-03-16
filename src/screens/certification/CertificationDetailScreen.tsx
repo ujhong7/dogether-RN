@@ -32,7 +32,7 @@ export function CertificationDetailScreen() {
   });
 
   const orderedTodos = useMemo(() => {
-    const todos = todosQuery.data ?? [];
+    const todos = context.todos.length > 0 ? context.todos : (todosQuery.data ?? []);
     if (!context.todoIds.length) {
       return todos;
     }
@@ -41,7 +41,7 @@ export function CertificationDetailScreen() {
     return context.todoIds
       .map((id) => todoMap.get(id))
       .filter((todo): todo is NonNullable<typeof todo> => Boolean(todo));
-  }, [context.todoIds, todosQuery.data]);
+  }, [context.todoIds, context.todos, todosQuery.data]);
 
   const safeIndex = orderedTodos.length === 0 ? 0 : Math.min(selectedIndex, orderedTodos.length - 1);
   const currentTodo = orderedTodos[safeIndex];
@@ -64,7 +64,9 @@ export function CertificationDetailScreen() {
     });
   }, [mediaCardWidth, orderedTodos.length, safeIndex]);
 
-  if (!context.groupId || !context.date || orderedTodos.length === 0 || !currentTodo) {
+  const hasViewerTodos = context.todos.length > 0;
+
+  if ((!context.groupId && !hasViewerTodos) || (!context.date && !hasViewerTodos) || orderedTodos.length === 0 || !currentTodo) {
     return (
       <Screen>
         <View style={styles.emptyState}>
@@ -180,7 +182,7 @@ export function CertificationDetailScreen() {
           </ScrollView>
         </ScrollView>
 
-        {currentTodo.status === 'WAIT_CERTIFICATION' ? (
+        {currentTodo.status === 'WAIT_CERTIFICATION' && context.groupId && context.date ? (
           <Pressable
             style={styles.primaryButton}
             onPress={() =>

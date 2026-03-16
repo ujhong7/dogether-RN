@@ -12,6 +12,10 @@ export class UserUseCase {
     return this.userRepository.getMyProfile();
   }
 
+  async getStatistics(groupId: number) {
+    return this.userRepository.getStatistics(groupId);
+  }
+
   async getCertificationList(sort: CertificationListSort) {
     return this.userRepository.getCertificationList(sort);
   }

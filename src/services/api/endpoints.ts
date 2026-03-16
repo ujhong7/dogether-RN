@@ -25,5 +25,12 @@ export const endpoints = {
   },
   my: {
     profile: '/api/v1/my/profile',
+    certifications: '/api/v2/my/certifications',
+    certificationStats: '/api/v2/my/certification-stats',
+    groupActivity: (groupId: number) => `/api/v2/my/groups/${groupId}/activity-summary`,
+  },
+  todoCertifications: {
+    pendingReview: '/api/v1/todo-certifications/pending-review',
+    review: (todoId: number) => `/api/v1/todo-certifications/${todoId}/review`,
   },
 };
