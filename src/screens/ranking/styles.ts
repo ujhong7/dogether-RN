@@ -2,6 +2,29 @@ import { StyleSheet } from 'react-native';
 import { colors } from '../../theme/colors';
 
 export const rankingStyles = StyleSheet.create({
+  loadingWrap: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emptyWrap: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+  },
+  emptyTitle: {
+    color: colors.text,
+    fontSize: 24,
+    fontWeight: '800',
+    marginBottom: 8,
+  },
+  emptyDescription: {
+    color: colors.muted,
+    fontSize: 15,
+    fontWeight: '500',
+    textAlign: 'center',
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -128,6 +151,12 @@ export const rankingStyles = StyleSheet.create({
   listContent: {
     gap: 14,
     paddingBottom: 16,
+  },
+  emptyListWrap: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 48,
+    paddingHorizontal: 24,
   },
   row: {
     flexDirection: 'row',
