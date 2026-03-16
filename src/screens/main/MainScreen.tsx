@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { AppAlertModal } from '../../components/AppAlertModal';
@@ -6,7 +6,9 @@ import { GroupSelectBottomSheet } from '../../components/GroupSelectBottomSheet'
 import { Screen } from '../../components/Screen';
 import { FullScreenErrorState } from '../../components/FullScreenErrorState';
 import { useMainScreen } from '../../hooks/useMainScreen';
+import { createGroupRepository } from '../../services/repositories';
 import { toAppError } from '../../services/errors/appError';
+import { GroupUseCase } from '../../services/usecases/groupUseCase';
 import { useMainStore } from '../../stores/mainStore';
 import { useReviewToastStore } from '../../stores/reviewToastStore';
 import { useSessionStore } from '../../stores/sessionStore';
@@ -40,6 +42,14 @@ export function MainScreen() {
   const toastMessage = useReviewToastStore((state) => state.message);
   const clearToast = useReviewToastStore((state) => state.clearToast);
   const progressMeta = getProgressMeta(currentGroup);
+  const groupUseCase = useMemo(() => new GroupUseCase(createGroupRepository()), []);
+
+  const handleSelectGroup = (groupId: number) => {
+    setSelectedGroupId(groupId);
+    void groupUseCase.saveLastSelectedGroup(groupId).catch((error: unknown) => {
+      console.error('[GroupSelect] failed to save last selected group', error);
+    });
+  };
 
   useEffect(() => {
     if (!toastMessage) {
@@ -121,7 +131,7 @@ export function MainScreen() {
         groups={groupsQuery.data ?? []}
         currentGroupId={currentGroup?.id}
         onClose={() => setGroupSheetVisible(false)}
-        onSelectGroup={setSelectedGroupId}
+        onSelectGroup={handleSelectGroup}
         footerAction={{
           label: '새 그룹 추가하기',
           icon: '⊕',

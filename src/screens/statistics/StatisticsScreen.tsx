@@ -7,7 +7,9 @@ import { GroupSelectBottomSheet } from '../../components/GroupSelectBottomSheet'
 import { Screen } from '../../components/Screen';
 import { useGroupsQuery } from '../../queries/useGroupsQuery';
 import { useStatisticsQuery } from '../../queries/useStatisticsQuery';
+import { createGroupRepository } from '../../services/repositories';
 import { toAppError } from '../../services/errors/appError';
+import { GroupUseCase } from '../../services/usecases/groupUseCase';
 import { useMainStore } from '../../stores/mainStore';
 import { useSessionStore } from '../../stores/sessionStore';
 import { colors } from '../../theme/colors';
@@ -50,10 +52,18 @@ export function StatisticsScreen() {
   const setSelectedGroupId = useMainStore((state) => state.setSelectedGroupId);
   const logout = useSessionStore((state) => state.logout);
   const [sheetVisible, setSheetVisible] = useState(false);
+  const groupUseCase = useMemo(() => new GroupUseCase(createGroupRepository()), []);
 
   const groups = groupsQuery.data ?? [];
   const currentGroup = groups.find((group) => group.id === selectedGroupId) ?? groups[0];
   const statisticsQuery = useStatisticsQuery(currentGroup?.id);
+
+  const handleSelectGroup = (groupId: number) => {
+    setSelectedGroupId(groupId);
+    void groupUseCase.saveLastSelectedGroup(groupId).catch((error: unknown) => {
+      console.error('[Statistics] failed to save last selected group', error);
+    });
+  };
 
   const summary = useMemo(() => {
     if (!currentGroup || !statisticsQuery.data) {
@@ -302,7 +312,7 @@ export function StatisticsScreen() {
         groups={groups}
         currentGroupId={currentGroup?.id}
         onClose={() => setSheetVisible(false)}
-        onSelectGroup={setSelectedGroupId}
+        onSelectGroup={handleSelectGroup}
       />
     </Screen>
   );

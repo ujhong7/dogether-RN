@@ -12,6 +12,7 @@ export const endpoints = {
     join: '/api/v1/groups/join',
     checkParticipating: '/api/v1/groups/participating',
     my: '/api/v1/groups/my',
+    lastSelected: '/api/v1/groups/last-selected',
     leave: (groupId: number) => `/api/v1/groups/${groupId}/leave`,
     ranking: (groupId: number) => `/api/v1/groups/${groupId}/ranking`,
   },

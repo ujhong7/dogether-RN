@@ -16,6 +16,10 @@ export class GroupUseCase {
     return this.groupRepository.joinGroupByCode(code);
   }
 
+  async saveLastSelectedGroup(groupId: number) {
+    return this.groupRepository.saveLastSelectedGroup(groupId);
+  }
+
   async leaveGroup(groupId: number) {
     return this.groupRepository.leaveGroup(groupId);
   }
