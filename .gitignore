@@ -42,3 +42,12 @@ yarn-error.*
 
 # local git backup
 .git.backup-*/
+
+# Claude Code
+.claude/
+
+# docs (local notes, not tracked)
+docs/
+
+# watchman
+.watchman-cookie-*
