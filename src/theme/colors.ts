@@ -6,6 +6,7 @@ export const colors = {
   surfacePanel: '#1E1F24',
   surfaceCard: '#2A2B31',
   surfaceElevated: '#26272D',
+  surfaceOverlay: '#2A2F3A',
 
   // 텍스트
   text: '#F9FAFB',
