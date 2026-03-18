@@ -2,7 +2,7 @@
 
 ## 프로젝트 개요
 
-- **프로젝트 기간:** 2025.06 - 진행중
+- **프로젝트 기간:** 2025.03
 - **형태:** iOS 네이티브([dogether-iOS](https://github.com/ujhong7/dogether-iOS)) 기반 React Native 재구현 학습 프로젝트
 - **기술스택:** React Native · Expo · TypeScript · Expo Router · React Query · Zustand · MMKV · Axios · Zod
 
