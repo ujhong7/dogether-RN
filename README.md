@@ -47,70 +47,88 @@ export function createGroupRepository(): GroupRepository {
 }
 ```
 
-`npm run start:mock` 명령 하나로 서버 연동 없이 전체 플로우를 실행할 수 있어, 개발 초기부터 UI 검증이 가능한 환경을 구축했습니다.
+UseCase는 어느 구현체가 주입되는지 모르고, 화면은 어떻게 데이터를 가져오는지 모릅니다. 각 계층이 인접 계층의 인터페이스에만 의존하는 구조 덕분에, `npm run start:mock` 하나로 서버 없이 전체 플로우를 실행할 수 있고 이후 실제 API 연동 시에도 화면 코드를 건드리지 않았습니다.
 
 <br>
 
 ### 서버 상태 / 클라이언트 상태 책임 분리
 
-상태 종류에 따라 도구를 명확히 나눠 각 상태의 책임 범위를 좁혔습니다.
+초기에는 Zustand 하나로 서버 데이터까지 관리하려 했습니다. 그런데 API 응답을 Zustand에 담으면 로딩 상태, 에러 상태, 캐시 만료, 리패치 타이밍을 전부 직접 구현해야 해서 스토어가 빠르게 복잡해졌습니다.
+
+React Query를 도입한 뒤 상태를 성격에 따라 세 계층으로 분리했습니다.
 
 | 상태 종류 | 도구 | 예시 |
 |-----------|------|------|
-| 서버 상태 (API 응답) | React Query | 그룹 목록, 투두, 랭킹 |
+| 서버 상태 (원격 데이터) | React Query | 그룹 목록, 투두, 랭킹 |
 | 전역 UI 상태 | Zustand | 선택된 그룹 ID, 날짜 오프셋, 필터 |
 | 인증 세션 | Zustand + MMKV | 액세스 토큰, 로그인 타입 |
 | 화면 로컬 상태 | useState | 바텀시트 열림 여부 |
 
-React Query가 캐싱·로딩·에러·리패치를 자동으로 처리하므로, 화면 코드는 데이터를 구독하고 표현하는 역할에만 집중할 수 있었습니다.
+분리 후 화면 코드는 상태를 구독하고 표현하는 역할에만 집중하게 됐고, 캐싱·로딩·리패치는 React Query가 자동으로 처리합니다.
 
 <br>
 
-### iOS 아키텍처 계층을 RN 방식으로 재해석
+### Custom Hook을 ViewModel로 — 계층 간 책임 분리
 
-iOS에서 익숙한 계층 구조를 RN에서 자연스러운 방식으로 변환했습니다.
-
-| iOS (MVVM + Clean) | React Native |
-|--------------------|--------------|
-| ViewController / View | Screen + 컴포넌트 |
-| ViewModel | Custom Hook (`useMainScreen`) |
-| UseCase | UseCase (`services/usecases`) |
-| Repository Protocol | Repository Interface (`contracts/`) |
-| Entity | Model (`models/`) |
-
-ViewModel 역할을 하는 Custom Hook이 UseCase를 호출하고, 파생 상태와 핸들러를 화면에 제공하는 구조를 일관되게 적용했습니다.
-
-<br>
-
-### iOS → Android 크로스플랫폼 대응
-
-단일 코드베이스에서 플랫폼 차이로 인해 발생한 문제들을 직접 해결했습니다.
-
-**카카오 로그인 리다이렉트**
-iOS는 커스텀 URL 스킴이 자동 처리되지만, Android는 `AndroidManifest.xml`에 `intent-filter`를 별도 등록해야 합니다. 로그인 완료 후 앱으로 돌아오지 못하는 문제를 이 과정에서 파악하고 수정했습니다.
-
-**이미지 피커 권한 분기**
-Android는 OS 버전(API 33 이상/미만)에 따라 요청해야 하는 권한이 다릅니다. expo-image-picker의 권한 요청 결과를 OS 버전 기준으로 분기 처리해 정상 동작을 확인했습니다.
-
-**키보드 레이아웃**
-iOS와 Android의 키보드 동작 차이로 인해 `KeyboardAvoidingView`의 `behavior` 값을 플랫폼별로 다르게 설정해야 했습니다.
+iOS에서 ViewModel이 파생 상태 계산과 UseCase 호출을 담당하듯, RN에서는 Custom Hook이 그 역할을 합니다. 화면 컴포넌트가 데이터 로직을 직접 알지 못하도록 계층을 분리했습니다.
 
 ```ts
-<KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} />
+// useMainScreen.ts — ViewModel 역할
+export function useMainScreen() {
+  const { data: groups } = useGroupsQuery();
+  const { data: todos } = useMyTodosQuery();
+  const { dateOffset, filter } = useMainStore();
+
+  const currentGroup = groups?.find(...);
+  const filteredTodos = todos?.filter(...);
+  const formattedDate = formatDateByOffset(dateOffset);
+
+  return { currentGroup, filteredTodos, formattedDate, ... };
+}
+
+// MainScreen.tsx — 화면은 훅이 주는 값만 사용
+const { currentGroup, filteredTodos, formattedDate } = useMainScreen();
 ```
+
+초기에는 `MainScreen`이 UseCase 인스턴스를 직접 생성하는 구조였는데, ViewController가 UseCase를 직접 만드는 것과 같아 화면이 의존성 조립 책임까지 지고 있었습니다. 이를 `useGroupSelection` 훅으로 분리해 화면은 훅이 제공하는 함수만 호출하도록 정리했습니다.
 
 <br>
 
-### 코드 가독성 및 역할 분리 중심 리팩토링
+### variant 기반 에러 처리 전략
 
-기능 구현 이후, 처음 보는 사람도 구조를 파악할 수 있도록 리팩토링을 반복했습니다.
+서버 에러를 단순 알림으로 처리하지 않고, 에러 성격에 따라 사용자가 취할 수 있는 다음 행동이 보이도록 설계했습니다.
 
-- 두 곳에 흩어진 날짜 유틸 함수를 `dateUtils.ts`로 통합해 중복 제거
-- 480줄짜리 `styles.ts`를 컴포넌트별 StyleSheet로 분산해 파일 응집도 향상
-- `MainScreen`이 직접 UseCase를 생성하던 구조를 `useGroupSelection` 훅으로 분리
-- 스토리지 관련 파일을 `lib/storage/` 서브폴더로 그룹화하고 `index.ts`로 재export
-- Repository를 `impl/` `mock/` `mock/data/` 계층으로 분리해 탐색 비용 감소
-- toast UI + store 구독 + 타이머 로직을 `ReviewToast` 컴포넌트로 응집
+```ts
+export type AppError = {
+  code: AppErrorCode;
+  title: string;
+  message: string;
+  actionLabel?: string;
+  variant: 'fullScreen' | 'alert';  // 에러 표시 방식 결정
+};
+```
+
+- `fullScreen`: 화면 전체를 에러 상태로 교체 — 재시도가 필요한 네트워크 에러
+- `alert`: 모달로 안내 후 로그인 화면으로 이동 — 인증 만료, 잘못된 요청 등
+
+Axios 응답에서 서버 에러 코드(`ATF-*`, `CGF-*`)를 파싱해 미리 정의한 `AppError` 프리셋으로 변환하고, 화면은 `variant`만 보고 어떤 컴포넌트를 렌더링할지 결정합니다. iOS에서 NavigationCoordinator와 에러 처리를 연결하던 방식과 유사한 구조입니다.
+
+<br>
+
+### 역할 분리 중심 리팩토링
+
+기능 구현 후 "처음 보는 사람이 구조를 파악할 수 있는가"를 기준으로 리팩토링을 반복했습니다.
+
+**Before → After**
+
+| 문제 | 개선 |
+|------|------|
+| 날짜 유틸 함수가 두 파일에 중복 | `dateUtils.ts`로 통합 |
+| `styles.ts` 480줄 — 여러 컴포넌트 스타일이 혼재 | 컴포넌트별 StyleSheet로 분산 |
+| `MainScreen`이 UseCase를 직접 생성 | `useGroupSelection` 훅으로 분리 |
+| toast 로직(store 구독 + 타이머 + UI)이 화면에 산재 | `ReviewToast` 컴포넌트로 응집 |
+| 스토리지 파일 4개가 `lib/` 루트에 혼재 | `lib/storage/` 서브폴더 + `index.ts` 재export |
+| Repository 17개 파일이 flat 구조 | `impl/` `mock/` `mock/data/` 계층 분리 |
 
 <br>
 
