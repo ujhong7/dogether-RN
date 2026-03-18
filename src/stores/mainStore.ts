@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { readLastSelectedGroupId, saveLastSelectedGroupId } from '../lib/selectedGroupStorage';
+import { readLastSelectedGroupId, saveLastSelectedGroupId } from '../lib/storage';
 
 export type TodoFilter = 'all' | 'wait' | 'approve' | 'reject';
 

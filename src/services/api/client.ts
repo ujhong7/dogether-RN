@@ -1,7 +1,6 @@
 import axios, { type InternalAxiosRequestConfig } from 'axios';
 import { env } from '../../config/env';
-import { storage } from '../../lib/storage';
-import { storageKeys } from '../../lib/storageKeys';
+import { storage, storageKeys } from '../../lib/storage';
 
 function readAccessToken() {
   return storage.getString(storageKeys.accessToken);
