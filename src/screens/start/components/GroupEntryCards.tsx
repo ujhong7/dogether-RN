@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
-import { colors } from '../../theme/colors';
+import { colors } from '../../../theme/colors';
 
 export function GroupEntryCards() {
   return (

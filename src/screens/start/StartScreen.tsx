@@ -1,7 +1,7 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { Screen } from '../../components/Screen';
-import { GroupEntryCards } from './GroupEntryCards';
-import { colors } from '../../theme/colors';
+import { GroupEntryCards } from './components/GroupEntryCards';
+import { startStyles as styles } from './styles';
 
 export function StartScreen() {
   return (
@@ -17,27 +17,3 @@ export function StartScreen() {
     </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 22,
-  },
-  logo: {
-    color: colors.text,
-    fontSize: 17,
-    fontWeight: '700',
-  },
-  headerIcon: {
-    color: colors.text,
-    fontSize: 24,
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: colors.text,
-    lineHeight: 30,
-  },
-});

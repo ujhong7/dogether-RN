@@ -1,7 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { Screen } from '../../components/Screen';
-import { GroupEntryCards } from '../start/GroupEntryCards';
+import { GroupEntryCards } from '../start/components/GroupEntryCards';
 import { colors } from '../../theme/colors';
 
 export function GroupAddScreen() {
