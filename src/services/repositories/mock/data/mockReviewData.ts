@@ -1,5 +1,5 @@
-import type { PendingReview, ReviewResult } from '../../models/review';
-import { storage } from '../../lib/storage';
+import type { PendingReview, ReviewResult } from '../../../../models/review';
+import { storage } from '../../../../lib/storage';
 
 const PENDING_REVIEWS_KEY = 'mockPendingReviews';
 

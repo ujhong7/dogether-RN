@@ -3,8 +3,8 @@ import type {
   AuthSession,
   KakaoLoginPayload,
   RefreshSessionPayload,
-} from '../../models/auth';
-import type { AuthRepository } from './contracts/authRepository';
+} from '../../../models/auth';
+import type { AuthRepository } from '../contracts/authRepository';
 
 function buildMockSession(overrides?: Partial<AuthSession>): AuthSession {
   return {

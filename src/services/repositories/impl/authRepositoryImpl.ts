@@ -1,16 +1,16 @@
-import { endpoints } from '../api/endpoints';
-import type { ApiEnvelope } from '../../types/api';
+import { endpoints } from '../../api/endpoints';
+import type { ApiEnvelope } from '../../../types/api';
 import type {
   AppleLoginPayload,
   AuthSession,
   KakaoLoginPayload,
   LoginType,
   RefreshSessionPayload,
-} from '../../models/auth';
-import { getAppError } from '../../models/error';
-import { apiClient } from '../api/client';
-import type { AuthRepository } from './contracts/authRepository';
-import { toAppError } from '../errors/appError';
+} from '../../../models/auth';
+import { getAppError } from '../../../models/error';
+import { apiClient } from '../../api/client';
+import type { AuthRepository } from '../contracts/authRepository';
+import { toAppError } from '../../errors/appError';
 
 type AuthLoginResponse = ApiEnvelope<{
   accessToken: string;

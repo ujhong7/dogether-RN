@@ -1,16 +1,16 @@
 import { env } from '../../config/env';
-import { AppInfoRepositoryImpl } from './appInfoRepositoryImpl';
-import { AuthRepositoryImpl } from './authRepositoryImpl';
-import { ChallengeGroupRepositoryImpl } from './challengeGroupRepositoryImpl';
-import { GroupRepositoryImpl } from './groupRepositoryImpl';
-import { ReviewRepositoryImpl } from './reviewRepositoryImpl';
-import { UserRepositoryImpl } from './userRepositoryImpl';
-import { MockAppInfoRepository } from './mockAppInfoRepository';
-import { MockAuthRepository } from './mockAuthRepository';
-import { MockChallengeGroupRepository } from './mockChallengeGroupRepository';
-import { MockGroupRepository } from './mockGroupRepository';
-import { MockReviewRepository } from './mockReviewRepository';
-import { MockUserRepository } from './mockUserRepository';
+import { AppInfoRepositoryImpl } from './impl/appInfoRepositoryImpl';
+import { AuthRepositoryImpl } from './impl/authRepositoryImpl';
+import { ChallengeGroupRepositoryImpl } from './impl/challengeGroupRepositoryImpl';
+import { GroupRepositoryImpl } from './impl/groupRepositoryImpl';
+import { ReviewRepositoryImpl } from './impl/reviewRepositoryImpl';
+import { UserRepositoryImpl } from './impl/userRepositoryImpl';
+import { MockAppInfoRepository } from './mock/mockAppInfoRepository';
+import { MockAuthRepository } from './mock/mockAuthRepository';
+import { MockChallengeGroupRepository } from './mock/mockChallengeGroupRepository';
+import { MockGroupRepository } from './mock/mockGroupRepository';
+import { MockReviewRepository } from './mock/mockReviewRepository';
+import { MockUserRepository } from './mock/mockUserRepository';
 
 export function createAppInfoRepository() {
   return env.useMockAppInfo ? new MockAppInfoRepository() : new AppInfoRepositoryImpl();

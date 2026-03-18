@@ -1,15 +1,15 @@
-import type { Profile } from '../../models/profile';
-import type { Ranking } from '../../models/ranking';
+import type { Profile } from '../../../models/profile';
+import type { Ranking } from '../../../models/ranking';
 import type {
   CertificationListData,
   CertificationListItem,
   CertificationListSection,
   CertificationListSort,
-} from '../../models/certificationList';
-import type { StatisticsData } from '../../models/statistics';
-import type { UserRepository } from './contracts/userRepository';
-import { getMockJoinedGroups } from './mockGroupData';
-import { getAllMockTodoEntries } from './mockTodoData';
+} from '../../../models/certificationList';
+import type { StatisticsData } from '../../../models/statistics';
+import type { UserRepository } from '../contracts/userRepository';
+import { getMockJoinedGroups } from './data/mockGroupData';
+import { getAllMockTodoEntries } from './data/mockTodoData';
 
 const mockRanking: Ranking[] = [
   { memberId: 1, rank: 1, name: '승용차', achievementRate: 100, historyReadStatus: 'READ_YET' },
