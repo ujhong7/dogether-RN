@@ -4,6 +4,7 @@ import type { Todo } from '../models/todo';
 import { useMainStore, type TodoFilter } from '../stores/mainStore';
 import { useGroupsQuery } from '../queries/useGroupsQuery';
 import { useMyTodosQuery } from '../queries/useMyTodosQuery';
+import { parseDate, startOfDay, getDateByOffset, formatDateByOffset } from '../lib/dateUtils';
 
 export type MainSheetStatus = 'createTodo' | 'certificateTodo' | 'todoList' | 'emptyList' | 'done';
 
@@ -13,40 +14,8 @@ const FILTER_EMPTY_TEXT: Record<'wait' | 'approve' | 'reject', string> = {
   reject: '노인정 받은 투두가 없어요',
 };
 
-function getDateByOffset(offset: number): string {
-  const date = new Date();
-  date.setDate(date.getDate() + offset);
-  return date.toISOString().slice(0, 10);
-}
-
-function formatDateByOffset(offset: number) {
-  const date = new Date();
-  date.setDate(date.getDate() + offset);
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}.${month}.${day}`;
-}
-
-function parseGroupDate(dateLabel: string | undefined) {
-  if (!dateLabel) {
-    return null;
-  }
-
-  const [year, month, day] = dateLabel.split('.').map(Number);
-  if (!year || !month || !day) {
-    return null;
-  }
-
-  return new Date(2000 + year, month - 1, day);
-}
-
-function startOfDay(date: Date) {
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-}
-
 function getPastOffsetLimit(group: Group | undefined) {
-  const startDate = parseGroupDate(group?.startDate);
+  const startDate = parseDate(group?.startDate);
   if (!startDate) {
     return 0;
   }
