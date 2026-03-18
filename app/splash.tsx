@@ -1,3 +1,3 @@
-import { SplashScreen } from '../src/screens/splash/SplashScreen';
+import { SplashScreen } from '../src/screens/splash';
 
 export default SplashScreen;
