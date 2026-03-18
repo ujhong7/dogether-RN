@@ -370,18 +370,43 @@ UIKit에서는 Storyboard나 Xib로 레이아웃을 잡거나, 코드로 뷰 계
 
 ## 크로스플랫폼 개발, 직접 해보니
 
-### "한 번 작성하면 끝"은 절반만 맞는 말
+### iOS 개발자가 RN을 직접 써보니
 
-프로젝트 전에는 "RN으로 만들면 iOS/Android가 동시에 된다"고 단순하게 생각했습니다. 실제로는 비즈니스 로직과 상태 관리 코드는 정말로 한 번만 작성했지만, 플랫폼과 맞닿는 경계에서는 반드시 분기가 생겼습니다.
+iOS 네이티브를 먼저 경험한 상태에서 RN 개발을 시작했습니다. "비즈니스 로직 한 번으로 iOS/Android 동시 대응"이라는 말은 사실이었지만, 플랫폼과 맞닿는 경계에서는 반드시 분기가 생겼습니다.
+
+**화면 생명주기 — viewDidAppear의 RN 버전**
+
+그룹 참여 화면에 진입하면 초대 코드 입력 필드가 자동으로 포커스되고 키보드가 올라오도록 구현했습니다. iOS 네이티브였다면 `viewDidAppear`에 `becomeFirstResponder()`를 호출하면 끝입니다. RN에서는 `useFocusEffect`가 이에 해당하는데, 바로 `focus()`를 호출하면 iOS에서는 잘 동작하지만 Android에서는 화면 전환 애니메이션이 끝나기 전에 호출이 무시됩니다. `InteractionManager.runAfterInteractions()`으로 감싸서 애니메이션 완료 후 실행하도록 처리했습니다.
+
+```tsx
+// iOS: viewDidAppear + becomeFirstResponder() 에 해당
+useFocusEffect(
+  useCallback(() => {
+    // Android는 화면 전환 애니메이션 중 focus()가 무시됨
+    // InteractionManager로 애니메이션 완료 후 실행 보장
+    const task = InteractionManager.runAfterInteractions(() => {
+      inputRef.current?.focus();
+    });
+    return () => task.cancel();
+  }, []),
+);
+```
+
+**플랫폼별 처리가 필요했던 경계들**
 
 | 기능 | iOS | Android |
 |------|-----|---------|
+| 화면 진입 시 키보드 | `useFocusEffect` + `focus()` 즉시 호출 | `InteractionManager`로 애니메이션 완료 후 호출 |
+| 키보드 레이아웃 | `KeyboardAvoidingView behavior="padding"` | `behavior="height"` |
 | 카카오 로그인 복귀 | 커스텀 URL 스킴 자동 처리 | `AndroidManifest.xml`에 `intent-filter` 등록 필요 |
 | 이미지 피커 권한 | 단일 권한 요청 | OS 버전(API 33 기준)에 따라 요청 권한이 다름 |
-| 키보드 레이아웃 | `padding` 방식 | `height` 방식 |
 | 그림자 스타일 | `shadow*` 속성 | `elevation` 속성 |
 
-이 경험에서 배운 것은 "플랫폼을 모르고 RN만 아는 것"으로는 크로스플랫폼 앱을 제대로 만들 수 없다는 점입니다. iOS를 이미 알고 있었기 때문에 Android 차이를 빠르게 파악하고 대응할 수 있었고, 오히려 iOS 네이티브 경험이 RN 개발에 실질적인 도움이 됐습니다.
+**앱 생명주기 — 백그라운드/포그라운드**
+
+iOS에서는 `applicationDidBecomeActive` / `applicationDidEnterBackground`로 앱 상태 변화를 감지합니다. RN에서는 `AppState` API가 이에 대응하며, `'active'` / `'background'` / `'inactive'` 세 가지 상태를 구독할 수 있습니다. 구조는 동일하지만 Android는 `'inactive'` 상태 없이 `'active'` ↔ `'background'`로만 전환되는 차이가 있었습니다.
+
+이 경험에서 느낀 것은, RN은 플랫폼을 추상화하지만 없애지는 않는다는 점입니다. iOS를 먼저 알고 있었기 때문에 "iOS에서는 이렇게 동작하는데 Android는 어디가 다를까"라는 방향으로 접근할 수 있었고, 원인 파악과 대응이 훨씬 빨랐습니다. 네이티브 경험이 크로스플랫폼 개발의 기반이 된다는 걸 직접 확인했습니다.
 
 <br>
 
