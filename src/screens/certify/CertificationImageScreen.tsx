@@ -54,8 +54,15 @@ export function CertificationImageScreen() {
 
         const result = await ImagePicker.launchImageLibraryAsync({
           mediaTypes: ImagePicker.MediaTypeOptions.Images,
-          quality: 0.7,
-          allowsEditing: false,
+          quality: 1,
+          // iOS simulator's PHPicker can fail to load HEIC assets.
+          // Using the legacy picker path is more stable for certification uploads.
+          allowsEditing: Platform.OS === 'ios',
+          preferredAssetRepresentationMode:
+            Platform.OS === 'ios'
+              ? ImagePicker.UIImagePickerPreferredAssetRepresentationMode.Current
+              : undefined,
+          shouldDownloadFromNetwork: Platform.OS === 'ios',
         });
 
         if (!result.canceled) {

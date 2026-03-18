@@ -2,7 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { Platform } from 'react-native';
-import { getProfile, login as loginWithKakaoTalk, type KakaoProfile } from '@react-native-seoul/kakao-login';
+import { getProfile, login as loginWithKakao, type KakaoProfile } from '@react-native-seoul/kakao-login';
 import { AuthUseCase } from '../services/usecases/authUseCase';
 import { createAuthRepository } from '../services/repositories';
 import { useSessionStore } from '../stores/sessionStore';
@@ -122,7 +122,7 @@ export function useOnboarding() {
         });
       }
 
-      await loginWithKakaoTalk();
+      await loginWithKakao();
       const profile = (await getProfile()) as KakaoProfile;
 
       if (!profile?.id) {
