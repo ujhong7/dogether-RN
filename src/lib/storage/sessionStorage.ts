@@ -1,6 +1,6 @@
 import { storage } from './storage';
 import { storageKeys } from './storageKeys';
-import type { AuthSession } from '../models/auth';
+import type { AuthSession } from '../../models/auth';
 import { clearLastSelectedGroupId } from './selectedGroupStorage';
 
 export function saveSession(payload: AuthSession) {

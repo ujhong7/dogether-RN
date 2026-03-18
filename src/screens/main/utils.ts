@@ -1,5 +1,6 @@
 import type { Group } from '../../models/group';
 import type { TodoFilter } from '../../stores/mainStore';
+import { parseDate, startOfDay } from '../../lib/dateUtils';
 
 export const MAIN_FILTERS: Array<{
   key: TodoFilter;
@@ -39,31 +40,13 @@ export function getTodoLeading(status: string) {
   }
 }
 
-function parseGroupDate(value: string) {
-  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-    const [year, month, day] = value.split('-').map(Number);
-    return new Date(year, month - 1, day);
-  }
-
-  if (/^\d{2}\.\d{2}\.\d{2}$/.test(value)) {
-    const [yy, month, day] = value.split('.').map(Number);
-    return new Date(2000 + yy, month - 1, day);
-  }
-
-  return null;
-}
-
-function startOfDay(date: Date) {
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-}
-
 export function getProgressMeta(group?: Group) {
   if (!group) {
     return { dayLabel: '', progressPercent: 8 };
   }
 
-  const startDate = parseGroupDate(group.startDate);
-  const endDate = parseGroupDate(group.endDate);
+  const startDate = parseDate(group.startDate);
+  const endDate = parseDate(group.endDate);
   if (!startDate || !endDate) {
     return {
       dayLabel: `(${Math.max(1, group.duration)}일차)`,

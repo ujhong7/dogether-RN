@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { clearSession, readSession, saveSession } from '../lib/sessionStorage';
+import { clearSession, readSession, saveSession } from '../lib/storage';
 import type { AuthSession, LoginType } from '../models/auth';
 
 type SessionState = {

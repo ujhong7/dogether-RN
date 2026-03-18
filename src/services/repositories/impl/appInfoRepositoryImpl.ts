@@ -1,8 +1,8 @@
-import { apiClient } from '../api/client';
-import { endpoints } from '../api/endpoints';
-import type { ApiEnvelope } from '../../types/api';
-import type { AppInfoRepository } from './contracts/appInfoRepository';
-import { toAppError } from '../errors/appError';
+import { apiClient } from '../../api/client';
+import { endpoints } from '../../api/endpoints';
+import type { ApiEnvelope } from '../../../types/api';
+import type { AppInfoRepository } from '../contracts/appInfoRepository';
+import { toAppError } from '../../errors/appError';
 
 export class AppInfoRepositoryImpl implements AppInfoRepository {
   async checkForceUpdate(appVersion: string): Promise<boolean> {

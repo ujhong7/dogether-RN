@@ -42,6 +42,7 @@ export default {
   expo: {
     name: appDisplayName,
     slug: 'dogether-rn',
+    scheme: 'com.ujhong7.dogether' + bundleSuffix,
     version: appVersion,
     orientation: 'portrait',
     icon: './assets/icon.png',

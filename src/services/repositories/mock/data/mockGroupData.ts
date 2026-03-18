@@ -1,6 +1,6 @@
-import type { Group } from '../../models/group';
-import type { AppErrorCode } from '../../models/error';
-import { storage } from '../../lib/storage';
+import type { Group } from '../../../../models/group';
+import type { AppErrorCode } from '../../../../models/error';
+import { storage } from '../../../../lib/storage';
 
 const JOINED_GROUPS_KEY = 'mockJoinedGroups';
 const NEXT_GROUP_ID_KEY = 'mockNextGroupId';

@@ -1,3 +1,3 @@
-import { UpdateScreen } from '../src/screens/update/UpdateScreen';
+import { UpdateScreen } from '../src/screens/update';
 
 export default UpdateScreen;

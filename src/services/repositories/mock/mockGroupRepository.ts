@@ -1,7 +1,7 @@
-import type { Group } from '../../models/group';
-import type { CreateGroupInput, GroupRepository, JoinGroupResult } from './contracts/groupRepository';
-import { createMockGroup, getMockJoinedGroups, hasMockJoinedGroups, joinMockGroupByCode, leaveMockGroup } from './mockGroupData';
-import { removeMockTodosByGroup } from './mockTodoData';
+import type { Group } from '../../../models/group';
+import type { CreateGroupInput, GroupRepository, JoinGroupResult } from '../contracts/groupRepository';
+import { createMockGroup, getMockJoinedGroups, hasMockJoinedGroups, joinMockGroupByCode, leaveMockGroup } from './data/mockGroupData';
+import { removeMockTodosByGroup } from './data/mockTodoData';
 
 export class MockGroupRepository implements GroupRepository {
   async checkParticipating(): Promise<boolean> {

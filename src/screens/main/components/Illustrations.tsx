@@ -1,5 +1,4 @@
-import { View } from 'react-native';
-import { mainStyles as styles } from '../styles';
+import { StyleSheet, View } from 'react-native';
 
 export function EmptyIllustration({ tint = '#7F89A8' }: { tint?: string }) {
   return (
@@ -31,3 +30,56 @@ export function TodayIllustration() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  todayFigure: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 4,
+  },
+  todayChip: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+  },
+  emptyFigure: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  emptyCircle: {
+    width: 118,
+    height: 118,
+    borderRadius: 59,
+    borderWidth: 3,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  emptyEye: {
+    position: 'absolute',
+    top: 40,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  emptyMouth: {
+    marginTop: 20,
+    width: 30,
+    height: 14,
+    borderBottomWidth: 3,
+    borderRadius: 10,
+  },
+  doneFigure: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 8,
+  },
+  doneBlob: {
+    width: 88,
+    height: 88,
+    borderRadius: 32,
+    backgroundColor: '#5B9DF0',
+  },
+});

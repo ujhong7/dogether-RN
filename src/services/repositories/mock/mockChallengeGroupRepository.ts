@@ -1,6 +1,6 @@
-import type { Todo } from '../../models/todo';
-import type { ChallengeGroupRepository, MemberTodosResult } from './contracts/challengeGroupRepository';
-import { getMockDefaultTodosForDate, getMockTodos, saveMockTodos, setMockTodos } from './mockTodoData';
+import type { Todo } from '../../../models/todo';
+import type { ChallengeGroupRepository, MemberTodosResult } from '../contracts/challengeGroupRepository';
+import { getMockDefaultTodosForDate, getMockTodos, saveMockTodos, setMockTodos } from './data/mockTodoData';
 
 export class MockChallengeGroupRepository implements ChallengeGroupRepository {
   async getMyTodos(groupId: number, date: string): Promise<Todo[]> {

@@ -4,7 +4,7 @@ import { router } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { Screen } from '../../components/Screen';
 import { env } from '../../config/env';
-import { resetMockAppData } from '../../lib/resetMockAppData';
+import { resetMockAppData } from '../../services/repositories/mock/resetMockAppData';
 import { useMainStore } from '../../stores/mainStore';
 import { useSessionStore } from '../../stores/sessionStore';
 import { colors } from '../../theme/colors';

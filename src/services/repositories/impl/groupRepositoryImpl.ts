@@ -1,10 +1,10 @@
-import { apiClient } from '../api/client';
-import { endpoints } from '../api/endpoints';
-import type { ApiEnvelope } from '../../types/api';
-import type { Group } from '../../models/group';
-import { getAppError } from '../../models/error';
-import type { CreateGroupInput, GroupRepository, JoinGroupResult } from './contracts/groupRepository';
-import { toAppError } from '../errors/appError';
+import { apiClient } from '../../api/client';
+import { endpoints } from '../../api/endpoints';
+import type { ApiEnvelope } from '../../../types/api';
+import type { Group } from '../../../models/group';
+import { getAppError } from '../../../models/error';
+import type { CreateGroupInput, GroupRepository, JoinGroupResult } from '../contracts/groupRepository';
+import { toAppError } from '../../errors/appError';
 
 function formatGroupDate(value: unknown) {
   const raw = String(value ?? '').trim();

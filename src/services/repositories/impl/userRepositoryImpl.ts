@@ -1,12 +1,12 @@
-import { apiClient } from '../api/client';
-import { endpoints } from '../api/endpoints';
-import type { ApiEnvelope } from '../../types/api';
-import type { Profile } from '../../models/profile';
-import type { Ranking, RankingHistoryReadStatus } from '../../models/ranking';
-import type { CertificationListData, CertificationListSort } from '../../models/certificationList';
-import type { StatisticsData } from '../../models/statistics';
-import type { UserRepository } from './contracts/userRepository';
-import { toAppError } from '../errors/appError';
+import { apiClient } from '../../api/client';
+import { endpoints } from '../../api/endpoints';
+import type { ApiEnvelope } from '../../../types/api';
+import type { Profile } from '../../../models/profile';
+import type { Ranking, RankingHistoryReadStatus } from '../../../models/ranking';
+import type { CertificationListData, CertificationListSort } from '../../../models/certificationList';
+import type { StatisticsData } from '../../../models/statistics';
+import type { UserRepository } from '../contracts/userRepository';
+import { toAppError } from '../../errors/appError';
 
 type MyProfileResponse = {
   name: string;
