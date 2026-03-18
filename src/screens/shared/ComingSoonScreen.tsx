@@ -1,7 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
-import { Screen } from './Screen';
-import { colors } from '../theme/colors';
+import { Screen } from '../../components/Screen';
+import { colors } from '../../theme/colors';
 
 type Props = {
   title: string;
