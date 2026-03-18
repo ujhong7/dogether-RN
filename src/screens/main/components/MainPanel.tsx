@@ -3,10 +3,10 @@ import { router } from 'expo-router';
 import type { Todo } from '../../../models/todo';
 import type { MainSheetStatus } from '../../../hooks/useMainScreen';
 import type { TodoFilter } from '../../../stores/mainStore';
-import { useCertificationViewerStore } from '../../../stores/certificationViewerStore';
 import { mainStyles as styles } from '../styles';
-import { MAIN_FILTERS, getTodoAccent, getTodoLeading } from '../utils';
+import { MAIN_FILTERS } from '../utils';
 import { DoneIllustration, EmptyIllustration, TodayIllustration } from './Illustrations';
+import { TodoRow } from './TodoRow';
 
 type Props = {
   sheetStatus: MainSheetStatus;
@@ -41,7 +41,6 @@ export function MainPanel({
   onMoveFuture,
   onSetFilter,
 }: Props) {
-  const openViewer = useCertificationViewerStore((state) => state.openViewer);
   return (
     <View style={styles.panel}>
       <View style={styles.dateHeader}>
@@ -116,73 +115,17 @@ export function MainPanel({
             showsVerticalScrollIndicator={false}
           >
             {filteredTodos.length > 0 ? (
-              filteredTodos.map((todo) => {
-                const uncertified = todo.status === 'WAIT_CERTIFICATION';
-                const accent = getTodoAccent(todo.status);
-                const currentIndex = filteredTodos.findIndex((item) => item.id === todo.id);
-                const handleOpenViewer = () => {
-                  if (!currentGroupId) {
-                    return;
-                  }
-
-                  openViewer({
-                    source: 'mine',
-                    title: '내 인증 정보',
-                    groupId: currentGroupId,
-                    date: queryDate,
-                    todoIds: filteredTodos.map((item) => item.id),
-                    selectedIndex: currentIndex < 0 ? 0 : currentIndex,
-                  });
-                  router.push('/certification');
-                };
-
-                const handleGoCertify = () => {
-                  if (!currentGroupId || dateOffset < 0) {
-                    return;
-                  }
-
-                  router.push({
-                    pathname: '/certify',
-                    params: {
-                      todoId: String(todo.id),
-                      groupId: String(currentGroupId),
-                      date: queryDate,
-                      content: todo.content,
-                    },
-                  });
-                };
-
-                return (
-                  <View key={todo.id} style={styles.todoRow}>
-                    <Pressable style={styles.todoRowMain} disabled={!currentGroupId} onPress={handleOpenViewer}>
-                      <View style={styles.todoLeft}>
-                        {!uncertified ? (
-                          <View style={[styles.todoStatusBadge, { backgroundColor: accent }]}>
-                            <Text style={styles.todoStatusBadgeText}>{getTodoLeading(todo.status)}</Text>
-                          </View>
-                        ) : null}
-                        <Text style={[styles.todoContent, uncertified && dateOffset < 0 ? styles.todoDimmed : undefined]}>
-                          {todo.content}
-                        </Text>
-                      </View>
-
-                      {!uncertified ? <Text style={styles.rowChevron}>›</Text> : null}
-                    </Pressable>
-
-                    {uncertified ? (
-                      <Pressable
-                        style={[styles.certifyButton, dateOffset < 0 ? styles.certifyButtonDisabled : undefined]}
-                        disabled={dateOffset < 0 || !currentGroupId}
-                        onPress={handleGoCertify}
-                      >
-                        <Text style={[styles.certifyText, dateOffset < 0 ? styles.certifyTextDisabled : undefined]}>
-                          인증하기
-                        </Text>
-                      </Pressable>
-                    ) : null}
-                  </View>
-                );
-              })
+              filteredTodos.map((todo, index) => (
+                <TodoRow
+                  key={todo.id}
+                  todo={todo}
+                  dateOffset={dateOffset}
+                  currentGroupId={currentGroupId}
+                  queryDate={queryDate}
+                  todoIds={filteredTodos.map((item) => item.id)}
+                  selectedIndex={index}
+                />
+              ))
             ) : (
               <View style={styles.emptyFilterState}>
                 <EmptyIllustration tint={filter === 'wait' ? '#E8C95F' : filter === 'reject' ? '#FF4F7A' : '#7F89A8'} />
