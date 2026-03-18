@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, Text, TextInput, View } from 'react-native';
-import { router } from 'expo-router';
+import { useCallback, useMemo, useRef, useState } from 'react';
+import { InteractionManager, KeyboardAvoidingView, Platform, Pressable, Text, TextInput, View } from 'react-native';
+import { router, useFocusEffect } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { AppAlertModal } from '../../components/AppAlertModal';
 import { Screen } from '../../components/Screen';
@@ -19,7 +19,20 @@ export function GroupJoinScreen() {
   const [errorCode, setErrorCode] = useState<AppErrorCode | null>(null);
   const [submitError, setSubmitError] = useState<AppError | null>(null);
   const [isFocused, setIsFocused] = useState(false);
+  const inputRef = useRef<TextInput>(null);
   const setCompletePayload = useStartFlowStore((state) => state.setCompletePayload);
+
+  // iOS의 viewDidAppear에 해당하는 화면 진입 시점에 TextInput 포커스
+  // Android는 화면 전환 애니메이션 중에 focus()를 호출하면 무시되므로
+  // InteractionManager로 애니메이션 완료 후 실행
+  useFocusEffect(
+    useCallback(() => {
+      const task = InteractionManager.runAfterInteractions(() => {
+        inputRef.current?.focus();
+      });
+      return () => task.cancel();
+    }, []),
+  );
   const setSelectedGroupId = useMainStore((state) => state.setSelectedGroupId);
   const groupUseCase = useMemo(() => new GroupUseCase(createGroupRepository()), []);
 
@@ -33,6 +46,7 @@ export function GroupJoinScreen() {
 
         <View style={styles.formSection}>
           <TextInput
+            ref={inputRef}
             value={joinCode}
             onChangeText={(text) => setJoinCode(text.slice(0, 8))}
             onFocus={() => setIsFocused(true)}
