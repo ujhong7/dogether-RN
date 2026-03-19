@@ -1,10 +1,10 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { AppAlertModal } from '../../components/AppAlertModal';
 import { Screen } from '../../components/Screen';
 import { useOnboarding } from '../../hooks/useOnboarding';
-import { colors } from '../../theme/colors';
+import { styles } from './styles';
 
 export function OnboardingScreen() {
   const {
@@ -70,55 +70,3 @@ export function OnboardingScreen() {
     </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  title: {
-    fontSize: 26,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  description: {
-    color: colors.muted,
-    lineHeight: 22,
-  },
-  button: {
-    borderRadius: 12,
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    alignItems: 'center',
-    marginTop: 6,
-  },
-  primary: {
-    backgroundColor: colors.primary,
-  },
-  kakao: {
-    backgroundColor: '#FEE500',
-  },
-  buttonDisabled: {
-    opacity: 0.55,
-  },
-  ghost: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-  },
-  appleButtonWrapper: {
-    marginTop: 6,
-  },
-  appleButton: {
-    width: '100%',
-    height: 50,
-  },
-  buttonText: {
-    color: '#04210E',
-    fontWeight: '700',
-  },
-  kakaoText: {
-    color: '#181600',
-    fontWeight: '700',
-  },
-  ghostText: {
-    color: colors.text,
-    fontWeight: '600',
-  },
-});

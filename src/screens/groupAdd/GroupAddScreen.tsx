@@ -1,8 +1,8 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { Screen } from '../../components/Screen';
 import { GroupEntryCards } from '../start/components/GroupEntryCards';
-import { colors } from '../../theme/colors';
+import { styles } from './styles';
 
 export function GroupAddScreen() {
   return (
@@ -21,27 +21,3 @@ export function GroupAddScreen() {
     </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  nav: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 28,
-  },
-  back: {
-    color: colors.text,
-    fontSize: 24,
-  },
-  navTitle: {
-    color: colors.text,
-    fontSize: 18,
-    fontWeight: '800',
-  },
-  navSpacer: {
-    width: 24,
-  },
-  cardsWrap: {
-    marginTop: 8,
-  },
-});
