@@ -6,6 +6,8 @@ import { Screen } from '../../components/Screen';
 import { useGroupManagementScreen } from '../../hooks/useGroupManagementScreen';
 import { toAppError } from '../../services/errors/appError';
 import { useSessionStore } from '../../stores/sessionStore';
+import { GroupManagementCard } from './components/GroupManagementCard';
+import { LeaveGroupConfirmModal } from './components/LeaveGroupConfirmModal';
 import { styles } from './styles';
 
 export function GroupManagementScreen() {
@@ -63,55 +65,19 @@ export function GroupManagementScreen() {
       </View>
 
       <ScrollView style={styles.listScroll} contentContainerStyle={styles.listContent} showsVerticalScrollIndicator={false}>
-        {/* 각 카드는 그룹 요약과 탈퇴 액션을 함께 보여준다. */}
         {groups.map((group) => (
-          <View key={group.id} style={styles.card}>
-            <View style={styles.cardHeader}>
-              <Text style={styles.cardTitle}>{group.name}</Text>
-              <Pressable style={styles.leaveButton} onPress={() => openLeaveConfirm(group.id)}>
-                <Text style={styles.leaveButtonText}>탈퇴하기</Text>
-              </Pressable>
-            </View>
-
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>그룹원</Text>
-              <Text style={styles.infoValue}>
-                {group.currentMember}/{group.maximumMember}
-              </Text>
-              <Text style={styles.infoLabel}>종료일</Text>
-              <Text style={styles.infoValue}>{group.endDate}</Text>
-            </View>
-
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>초대코드</Text>
-              <Text style={styles.infoValue}>{group.joinCode}</Text>
-            </View>
-          </View>
+          <GroupManagementCard key={group.id} group={group} onPressLeave={openLeaveConfirm} />
         ))}
       </ScrollView>
 
-      {pendingLeaveGroup ? (
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>현재 그룹을 탈퇴하시겠어요?</Text>
-            <Text style={styles.modalMessage}>그룹을 탈퇴하면 그룹 내 모든 데이터가{"\n"}삭제되며 복구할 수 없어요.</Text>
-            <View style={styles.modalActions}>
-              <Pressable style={[styles.modalButton, styles.modalCancelButton]} onPress={closeLeaveConfirm}>
-                <Text style={styles.modalCancelText}>뒤로가기</Text>
-              </Pressable>
-              <Pressable
-                style={[styles.modalButton, styles.modalConfirmButton, isLeaving ? styles.modalConfirmButtonDisabled : undefined]}
-                disabled={isLeaving}
-                onPress={() => {
-                  void handleConfirmLeave();
-                }}
-              >
-                <Text style={styles.modalConfirmText}>{isLeaving ? '탈퇴중...' : '탈퇴하기'}</Text>
-              </Pressable>
-            </View>
-          </View>
-        </View>
-      ) : null}
+      <LeaveGroupConfirmModal
+        visible={Boolean(pendingLeaveGroup)}
+        isLeaving={isLeaving}
+        onClose={closeLeaveConfirm}
+        onConfirm={() => {
+          void handleConfirmLeave();
+        }}
+      />
     </Screen>
   );
 }
