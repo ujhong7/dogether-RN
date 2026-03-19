@@ -1,6 +1,5 @@
 import { Platform } from 'react-native';
 import * as FileSystem from 'expo-file-system/legacy';
-import { toByteArray } from 'base64-js';
 import { apiClient } from './client';
 import { endpoints } from './endpoints';
 import type { ApiEnvelope } from '../../types/api';
@@ -76,24 +75,15 @@ export async function uploadImageToS3(localUri: string) {
   const normalizedLocalUri = await normalizeLocalImageUri(localUri);
   const uploadContentType = getUploadContentType(normalizedLocalUri);
 
-  const imageBase64 = await FileSystem.readAsStringAsync(normalizedLocalUri, {
-    encoding: FileSystem.EncodingType.Base64,
-  });
-
-  const uploadBytes = toByteArray(imageBase64);
-  const uploadBuffer = uploadBytes.buffer.slice(
-    uploadBytes.byteOffset,
-    uploadBytes.byteOffset + uploadBytes.byteLength,
-  );
-  const uploadResponse = await fetch(presignedUrl, {
-    method: 'PUT',
+  const uploadResponse = await FileSystem.uploadAsync(presignedUrl, normalizedLocalUri, {
+    httpMethod: 'PUT',
     headers: {
       'Content-Type': uploadContentType,
     },
-    body: uploadBuffer as unknown as BodyInit,
+    uploadType: FileSystem.FileSystemUploadType.BINARY_CONTENT,
   });
 
-  if (!uploadResponse.ok) {
+  if (uploadResponse.status < 200 || uploadResponse.status >= 300) {
     console.warn('[S3Upload] upload failed', {
       localUri: normalizedLocalUri,
       status: uploadResponse.status,
