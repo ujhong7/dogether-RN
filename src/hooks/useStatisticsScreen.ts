@@ -19,6 +19,7 @@ export function useStatisticsScreen() {
 
   const handleSelectGroup = (groupId: number) => {
     setSelectedGroupId(groupId);
+    // 메인 화면과 동일하게 마지막 선택 그룹을 저장해 다음 진입 시 복원한다.
     void groupUseCase.saveLastSelectedGroup(groupId).catch((error: unknown) => {
       console.error('[Statistics] failed to save last selected group', error);
     });
@@ -29,6 +30,7 @@ export function useStatisticsScreen() {
       return null;
     }
 
+    // 통계 차트는 항상 최대 4칸만 노출하고, 현재 일차가 마지막 칸에 오도록 계산한다.
     const currentDay = getCurrentGroupDay(currentGroup.startDate, Math.max(currentGroup.duration, 1));
     const firstVisibleDay = currentDay <= 4 ? 1 : currentDay - 3;
     const visibleDays = Array.from({ length: 4 }, (_, index) => firstVisibleDay + index);

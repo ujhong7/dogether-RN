@@ -20,6 +20,7 @@ function getPastOffsetLimit(group: Group | undefined) {
     return 0;
   }
 
+  // 과거 날짜 조회는 "오늘"이 아니라 그룹 시작일을 기준으로 제한한다.
   const today = startOfDay(new Date());
   const groupStart = startOfDay(startDate);
   const diff = Math.floor((today.getTime() - groupStart.getTime()) / (1000 * 60 * 60 * 24));
@@ -83,6 +84,7 @@ export function useMainScreen() {
       return;
     }
 
+    // 저장된 선택 그룹이 없거나 유효하지 않으면 첫 그룹을 기본값으로 맞춘다.
     if (!currentGroup) {
       setSelectedGroupId(groupsQuery.data[0].id);
     }

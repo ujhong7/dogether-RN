@@ -63,6 +63,7 @@ export function GroupManagementScreen() {
       </View>
 
       <ScrollView style={styles.listScroll} contentContainerStyle={styles.listContent} showsVerticalScrollIndicator={false}>
+        {/* 각 카드는 그룹 요약과 탈퇴 액션을 함께 보여준다. */}
         {groups.map((group) => (
           <View key={group.id} style={styles.card}>
             <View style={styles.cardHeader}>

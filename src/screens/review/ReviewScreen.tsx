@@ -159,6 +159,7 @@ export function ReviewScreen() {
           transparent
           onRequestClose={closeRejectModal}
         >
+          {/* 노인정은 사유가 필수라서 별도 입력 모달에서 확정한다. */}
           <KeyboardAvoidingView
             style={styles.modalOverlay}
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}

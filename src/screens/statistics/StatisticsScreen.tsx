@@ -166,6 +166,7 @@ export function StatisticsScreen() {
             ))}
           </View>
           <View style={styles.barRow}>
+            {/* 현재 그룹의 최근 4일 통계만 차트로 보여준다. */}
             {summary?.chartValues.map((item) => (
               <View key={item.label} style={styles.barColumn}>
                 <View style={styles.barVisualArea}>
