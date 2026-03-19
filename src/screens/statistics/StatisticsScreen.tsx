@@ -8,8 +8,10 @@ import { useStatisticsScreen } from '../../hooks/useStatisticsScreen';
 import { toAppError } from '../../services/errors/appError';
 import { useSessionStore } from '../../stores/sessionStore';
 import { colors } from '../../theme/colors';
+import { StatisticsChartCard } from './components/StatisticsChartCard';
+import { StatisticsGroupHeader } from './components/StatisticsGroupHeader';
+import { StatisticsSummarySection } from './components/StatisticsSummarySection';
 import { styles } from './styles';
-import { BAR_MAX_HEIGHT } from './utils';
 
 export function StatisticsScreen() {
   const logout = useSessionStore((state) => state.logout);
@@ -119,142 +121,20 @@ export function StatisticsScreen() {
         <View style={styles.headerSpacer} />
       </View>
 
-      <View style={styles.groupHeader}>
-        <View style={styles.groupInfoArea}>
-          <Pressable style={styles.groupNameRow} onPress={openSheet}>
-            <Text style={styles.groupName}>{currentGroup?.name}</Text>
-            <Text style={styles.groupChevron}>⌄</Text>
-          </Pressable>
+      <StatisticsGroupHeader group={currentGroup} onPressGroupSelect={openSheet} />
 
-          <View style={styles.metaRow}>
-            <View style={styles.metaColumn}>
-              <Text style={styles.metaLabel}>그룹원</Text>
-              <Text style={styles.metaValue}>
-                {currentGroup ? `${currentGroup.currentMember}/${currentGroup.maximumMember}` : '-'}
-              </Text>
-            </View>
-            <View style={styles.metaColumn}>
-              <Text style={styles.metaLabel}>초대코드</Text>
-              <Text style={styles.metaValue}>{currentGroup?.joinCode ?? '-'}</Text>
-            </View>
-            <View style={styles.metaColumn}>
-              <Text style={styles.metaLabel}>종료일</Text>
-              <Text style={styles.metaValue}>{currentGroup?.endDate ?? '-'}</Text>
-            </View>
-          </View>
-        </View>
+      <StatisticsChartCard
+        chartValues={summary.chartValues}
+        achievementPercent={summary.achievementPercent}
+      />
 
-        <View style={styles.characterWrap}>
-          <View style={styles.characterBody} />
-          <View style={styles.characterGlasses} />
-          <View style={styles.characterLaptop} />
-        </View>
-      </View>
-
-      <View style={styles.chartCard}>
-        <View style={styles.cardHeader}>
-          <Text style={styles.cardIcon}>🗓</Text>
-          <Text style={styles.cardTitle}>인증한 기간</Text>
-        </View>
-
-        <View style={styles.chartArea}>
-          <View style={styles.axisColumn}>
-            {[10, 8, 6, 4, 2, 0].map((value) => (
-              <Text key={value} style={styles.axisText}>
-                {value}
-              </Text>
-            ))}
-          </View>
-          <View style={styles.barRow}>
-            {/* 현재 그룹의 최근 4일 통계만 차트로 보여준다. */}
-            {summary?.chartValues.map((item) => (
-              <View key={item.label} style={styles.barColumn}>
-                <View style={styles.barVisualArea}>
-                  {item.isCurrent && !item.isFuture ? (
-                    <View
-                      style={[
-                        styles.currentIndicator,
-                        {
-                          bottom: Math.max((item.createdCount / item.total) * BAR_MAX_HEIGHT + 10, 10),
-                        },
-                      ]}
-                    >
-                      <View style={styles.badge}>
-                        <Text numberOfLines={1} style={styles.badgeText}>
-                          {summary?.achievementPercent ?? 0}% 달성중
-                        </Text>
-                      </View>
-                      <View style={styles.badgePointer} />
-                      <View style={styles.currentDot} />
-                    </View>
-                  ) : null}
-
-                  {item.createdCount > 0 ? (
-                    <View
-                      style={[
-                        styles.barTrack,
-                        {
-                          height: (item.createdCount / item.total) * BAR_MAX_HEIGHT,
-                        },
-                      ]}
-                    >
-                      <View style={styles.barStripeWrap}>
-                        {Array.from({ length: 8 }, (_, index) => (
-                          <View key={index} style={[styles.barStripe, { left: index * 18 - 12 }]} />
-                        ))}
-                      </View>
-                      {item.certificatedCount > 0 ? (
-                        <View
-                          style={[
-                            styles.barFill,
-                            item.isCurrent ? styles.barFillCurrent : undefined,
-                            {
-                              height: `${(item.certificatedCount / item.createdCount) * 100}%`,
-                            },
-                          ]}
-                        />
-                      ) : null}
-                    </View>
-                  ) : (
-                    <View style={styles.barTrackPlaceholder} />
-                  )}
-                </View>
-                <Text style={[styles.barLabel, item.isFuture ? styles.barLabelFuture : undefined]}>{item.label}</Text>
-              </View>
-            ))}
-          </View>
-        </View>
-      </View>
-
-      <View style={styles.summaryRow}>
-        <View style={styles.infoCard}>
-          <View style={styles.infoHeader}>
-            <Text style={styles.infoIcon}>✦</Text>
-            <Text style={styles.infoTitle}>내 순위</Text>
-          </View>
-          <Text style={styles.infoSubText}>{summary?.totalMembers ?? 0}명 중</Text>
-          <Text style={styles.rankValue}>{summary?.rank ?? 0}등</Text>
-        </View>
-
-        <View style={styles.infoCard}>
-          <View style={styles.infoHeader}>
-            <Text style={styles.infoIcon}>▥</Text>
-            <Text style={styles.infoTitle}>요약</Text>
-          </View>
-          <View style={styles.summaryItem}>
-            <Text style={styles.summaryBullet}>✔</Text>
-            <Text style={styles.summaryItemText}>달성 {summary?.certificatedCount ?? 0}개</Text>
-          </View>
-          <View style={styles.summaryItem}>
-            <Text style={styles.summaryBullet}>◔</Text>
-            <Text style={styles.summaryItemText}>인정 {summary?.approvedCount ?? 0}개</Text>
-          </View>
-          <View style={styles.summaryItem}>
-            <Text style={styles.summaryBullet}>✿</Text>
-            <Text style={styles.summaryItemText}>노인정 {summary?.rejectedCount ?? 0}개</Text>
-          </View>
-        </View>
-      </View>
+      <StatisticsSummarySection
+        totalMembers={summary.totalMembers}
+        rank={summary.rank}
+        certificatedCount={summary.certificatedCount}
+        approvedCount={summary.approvedCount}
+        rejectedCount={summary.rejectedCount}
+      />
 
       <GroupSelectBottomSheet
         visible={sheetVisible}
