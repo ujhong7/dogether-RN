@@ -28,12 +28,13 @@ export function GroupCreateStepOne({
       <View>
         <TextInput
           value={groupName}
-          onChangeText={(text) => onChangeGroupName(text.slice(0, 20))}
+          onChangeText={onChangeGroupName}
           onFocus={onFocus}
           onBlur={onBlur}
           placeholder="멋진 그룹명으로 동기부여를 해보세요 !"
           placeholderTextColor="#9CA3AF"
           autoCorrect={false}
+          maxLength={20}
           style={[styles.input, isFocused ? styles.inputFocused : undefined]}
         />
         <Text style={[styles.counterText, isFocused ? styles.counterTextFocused : undefined]}>

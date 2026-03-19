@@ -31,13 +31,14 @@ export function TodoInputBar({
       <View style={styles.inputWrap}>
         <TextInput
           value={draft}
-          onChangeText={(text) => onChangeDraft(text.slice(0, MAX_TODO_LENGTH))}
+          onChangeText={onChangeDraft}
           onFocus={onFocus}
           onBlur={onBlur}
           placeholder={placeholder}
           placeholderTextColor={todoCount >= MAX_TODO_COUNT ? '#7B8090' : '#9CA3AF'}
           editable={todoCount < MAX_TODO_COUNT}
           autoCorrect={false}
+          maxLength={MAX_TODO_LENGTH}
           returnKeyType="done"
           onSubmitEditing={() => {
             if (canAdd) {

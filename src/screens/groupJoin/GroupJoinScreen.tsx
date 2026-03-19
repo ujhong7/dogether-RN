@@ -48,13 +48,14 @@ export function GroupJoinScreen() {
           <TextInput
             ref={inputRef}
             value={joinCode}
-            onChangeText={(text) => setJoinCode(text.slice(0, 8))}
+            onChangeText={setJoinCode}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
             placeholder="코드입력 (8자리 이상)"
             placeholderTextColor="#9CA3AF"
             autoCapitalize="characters"
             autoCorrect={false}
+            maxLength={8}
             style={[styles.input, isFocused ? styles.inputFocused : undefined]}
           />
         </View>

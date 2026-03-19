@@ -138,13 +138,12 @@ export function useOnboarding() {
       loginStore(data);
     },
     onError: (error) => {
-      console.error('[KakaoLogin] sign in failed', error);
-
       const appError = toKakaoAuthAppError(error);
       if (!appError) {
         return;
       }
 
+      console.warn('[KakaoLogin] sign in failed', error);
       setLoginError(appError);
     },
   });
@@ -187,13 +186,12 @@ export function useOnboarding() {
       loginStore(data);
     },
     onError: (error) => {
-      console.error('[AppleLogin] sign in failed', error);
-
       const appError = toAppleAuthAppError(error);
       if (!appError) {
         return;
       }
 
+      console.warn('[AppleLogin] sign in failed', error);
       setLoginError(appError);
     },
   });
