@@ -2,7 +2,8 @@
 
 ## 프로젝트 개요
 
-- **프로젝트 기간:** 2025.03
+- **프로젝트 기간:** 2026.03
+- **인원:** 개인 프로젝트
 - **형태:** iOS 네이티브([dogether-iOS](https://github.com/dogether-project/dogether-iOS)) 기반 React Native 재구현 학습 프로젝트
 - **기술스택:** React Native · Expo · TypeScript · Expo Router · React Query · Zustand · MMKV · Axios · Zod
 - Claude Code · Codex를 활용한 AI 보조 개발 워크플로우 적용
