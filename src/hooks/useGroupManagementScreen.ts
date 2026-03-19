@@ -30,6 +30,7 @@ export function useGroupManagementScreen() {
 
     try {
       const remainingGroups = await groupUseCase.leaveGroup(pendingLeaveGroupId);
+      // 그룹 정보가 바뀌는 화면들이 많아서 관련 query를 함께 무효화한다.
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['groups'] }),
         queryClient.invalidateQueries({ queryKey: ['certification-list'] }),
@@ -43,6 +44,7 @@ export function useGroupManagementScreen() {
         return;
       }
 
+      // 현재 보고 있던 그룹을 탈퇴한 경우에는 남아 있는 첫 그룹으로 선택 상태를 옮긴다.
       if (selectedGroupId === pendingLeaveGroupId) {
         setSelectedGroupId(remainingGroups[0].id);
       }
