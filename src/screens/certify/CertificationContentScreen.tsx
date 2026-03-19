@@ -78,7 +78,7 @@ export function CertificationContentScreen() {
         <View>
           <TextInput
             value={draft.content}
-            onChangeText={setContent}
+            onChangeText={(text) => setContent(text.slice(0, MAX_CONTENT_LENGTH))}
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
             placeholder="팀원이 이해하기 쉽도록 투두에 대한 설명을 입력해주세요."

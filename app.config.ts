@@ -53,13 +53,11 @@ export default {
       backgroundColor: '#ffffff',
     },
     ios: {
-      scheme: 'com.ujhong7.dogether' + bundleSuffix,
       supportsTablet: true,
       usesAppleSignIn: enableAppleSignIn,
       bundleIdentifier: 'com.ujhong7.dogether' + bundleSuffix,
     },
     android: {
-      scheme: 'com.ujhong7.dogether' + bundleSuffix,
       package: 'com.ujhong7.dogether' + bundleSuffix,
       adaptiveIcon: {
         backgroundColor: '#E6F4FE',

@@ -1,3 +1,6 @@
+import { Platform } from 'react-native';
+import * as FileSystem from 'expo-file-system/legacy';
+import { toByteArray } from 'base64-js';
 import { apiClient } from './client';
 import { endpoints } from './endpoints';
 import type { ApiEnvelope } from '../../types/api';
@@ -6,7 +9,6 @@ import { getAppError } from '../../models/error';
 type PresignedUrlResponse = {
   presignedUrls: string[];
 };
-const UPLOAD_CONTENT_TYPE = 'image/png';
 
 function stripQueryString(url: string) {
   try {
@@ -16,6 +18,43 @@ function stripQueryString(url: string) {
   } catch {
     return url.split('?')[0] ?? url;
   }
+}
+
+function getUploadContentType(fileUri: string) {
+  const normalizedUri = fileUri.toLowerCase();
+
+  if (normalizedUri.endsWith('.png')) {
+    return 'image/png';
+  }
+
+  if (normalizedUri.endsWith('.webp')) {
+    return 'image/webp';
+  }
+
+  if (normalizedUri.endsWith('.heic')) {
+    return 'image/heic';
+  }
+
+  return 'image/jpeg';
+}
+
+async function normalizeLocalImageUri(localUri: string) {
+  if (Platform.OS !== 'android' || !localUri.startsWith('content://')) {
+    return localUri;
+  }
+
+  const cacheDirectory = FileSystem.cacheDirectory ?? FileSystem.documentDirectory;
+  if (!cacheDirectory) {
+    throw getAppError('COMMON');
+  }
+
+  const normalizedUri = `${cacheDirectory}certification-upload-${Date.now()}.jpg`;
+  await FileSystem.copyAsync({
+    from: localUri,
+    to: normalizedUri,
+  });
+
+  return normalizedUri;
 }
 
 async function requestPresignedUrl() {
@@ -34,27 +73,31 @@ async function requestPresignedUrl() {
 
 export async function uploadImageToS3(localUri: string) {
   const presignedUrl = await requestPresignedUrl();
-  const localFileResponse = await fetch(localUri);
-  if (!localFileResponse.ok) {
-    console.warn('[S3Upload] local file read failed', localUri);
-    throw getAppError('COMMON');
-  }
+  const normalizedLocalUri = await normalizeLocalImageUri(localUri);
+  const uploadContentType = getUploadContentType(normalizedLocalUri);
 
-  const imageBlob = await localFileResponse.blob();
+  const imageBase64 = await FileSystem.readAsStringAsync(normalizedLocalUri, {
+    encoding: FileSystem.EncodingType.Base64,
+  });
+
+  const uploadBytes = toByteArray(imageBase64);
+  const uploadBuffer = uploadBytes.buffer.slice(
+    uploadBytes.byteOffset,
+    uploadBytes.byteOffset + uploadBytes.byteLength,
+  );
   const uploadResponse = await fetch(presignedUrl, {
     method: 'PUT',
     headers: {
-      'Content-Type': UPLOAD_CONTENT_TYPE,
+      'Content-Type': uploadContentType,
     },
-    body: imageBlob,
+    body: uploadBuffer as unknown as BodyInit,
   });
 
   if (!uploadResponse.ok) {
     console.warn('[S3Upload] upload failed', {
-      localUri,
+      localUri: normalizedLocalUri,
       status: uploadResponse.status,
-      statusText: uploadResponse.statusText,
-      contentType: UPLOAD_CONTENT_TYPE,
+      contentType: uploadContentType,
     });
     throw getAppError('COMMON');
   }
