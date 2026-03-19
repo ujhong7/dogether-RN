@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { ActivityIndicator, StyleSheet, Text } from 'react-native';
+import { ActivityIndicator, Text } from 'react-native';
 import { router } from 'expo-router';
 import { AppAlertModal } from '../../components/AppAlertModal';
 import { Screen } from '../../components/Screen';
@@ -8,6 +8,7 @@ import { useSessionStore } from '../../stores/sessionStore';
 import { useLaunchFlowQuery } from '../../queries/useLaunchFlowQuery';
 import { toAppError } from '../../services/errors/appError';
 import { colors } from '../../theme/colors';
+import { styles } from './styles';
 
 export function SplashScreen() {
   const hydrate = useSessionStore((state) => state.hydrate);
@@ -87,15 +88,3 @@ export function SplashScreen() {
     </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  logo: {
-    fontSize: 34,
-    fontWeight: '800',
-    color: colors.text,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: colors.muted,
-  },
-});
