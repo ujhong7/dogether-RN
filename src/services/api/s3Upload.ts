@@ -1,13 +1,15 @@
 import { Platform } from 'react-native';
 import * as FileSystem from 'expo-file-system/legacy';
+import { toByteArray } from 'base64-js';
 import { apiClient } from './client';
 import { endpoints } from './endpoints';
 import type { ApiEnvelope } from '../../types/api';
 import { getAppError } from '../../models/error';
 
-type PresignedUrlResponse = {
-  presignedUrls: string[];
-};
+type PresignedUrlResponse = { presignedUrls: string[] };
+
+// The current dev backend signs image uploads with a fixed png content-type.
+const UPLOAD_CONTENT_TYPE = 'image/png';
 
 function stripQueryString(url: string) {
   try {
@@ -19,26 +21,11 @@ function stripQueryString(url: string) {
   }
 }
 
-function getUploadContentType(fileUri: string) {
-  const normalizedUri = fileUri.toLowerCase();
-
-  if (normalizedUri.endsWith('.png')) {
-    return 'image/png';
-  }
-
-  if (normalizedUri.endsWith('.webp')) {
-    return 'image/webp';
-  }
-
-  if (normalizedUri.endsWith('.heic')) {
-    return 'image/heic';
-  }
-
-  return 'image/jpeg';
-}
-
 async function normalizeLocalImageUri(localUri: string) {
-  if (Platform.OS !== 'android' || !localUri.startsWith('content://')) {
+  if (
+    Platform.OS !== 'android' ||
+    (!localUri.startsWith('content://') && !localUri.startsWith('file://'))
+  ) {
     return localUri;
   }
 
@@ -73,12 +60,54 @@ async function requestPresignedUrl() {
 export async function uploadImageToS3(localUri: string) {
   const presignedUrl = await requestPresignedUrl();
   const normalizedLocalUri = await normalizeLocalImageUri(localUri);
-  const uploadContentType = getUploadContentType(normalizedLocalUri);
+
+  console.warn('[S3Upload] start', {
+    originalLocalUri: localUri,
+    normalizedLocalUri,
+    presignedUrlHost: (() => {
+      try {
+        return new URL(presignedUrl).host;
+      } catch {
+        return presignedUrl;
+      }
+    })(),
+  });
+
+  if (Platform.OS === 'android') {
+    const imageBase64 = await FileSystem.readAsStringAsync(normalizedLocalUri, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
+    const uploadBytes = toByteArray(imageBase64);
+    const uploadBuffer = uploadBytes.buffer.slice(
+      uploadBytes.byteOffset,
+      uploadBytes.byteOffset + uploadBytes.byteLength,
+    );
+
+    const uploadResponse = await fetch(presignedUrl, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': UPLOAD_CONTENT_TYPE,
+      },
+      body: uploadBuffer as unknown as BodyInit,
+    });
+
+    if (!uploadResponse.ok) {
+      console.warn('[S3Upload] upload failed', {
+        localUri: normalizedLocalUri,
+        status: uploadResponse.status,
+        body: await uploadResponse.text(),
+        contentType: UPLOAD_CONTENT_TYPE,
+      });
+      throw getAppError('COMMON');
+    }
+
+    return stripQueryString(presignedUrl);
+  }
 
   const uploadResponse = await FileSystem.uploadAsync(presignedUrl, normalizedLocalUri, {
     httpMethod: 'PUT',
     headers: {
-      'Content-Type': uploadContentType,
+      'Content-Type': UPLOAD_CONTENT_TYPE,
     },
     uploadType: FileSystem.FileSystemUploadType.BINARY_CONTENT,
   });
@@ -87,7 +116,8 @@ export async function uploadImageToS3(localUri: string) {
     console.warn('[S3Upload] upload failed', {
       localUri: normalizedLocalUri,
       status: uploadResponse.status,
-      contentType: uploadContentType,
+      body: uploadResponse.body,
+      contentType: UPLOAD_CONTENT_TYPE,
     });
     throw getAppError('COMMON');
   }
