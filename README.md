@@ -132,7 +132,8 @@
     - TypeScript의 type, interface, union type을 활용해 API 응답 구조와 앱 내부 모델의 차이를 명시
     
 - **전환하며 느낀 차이**
-    - iOS에서는 Decodable DTO를 통해 서버 응답을 받고 Entity/ViewData로 변환하는 흐름이었다면, RN에서는 TypeScript 타입을 기준으로 API 응답과 앱 내부 모델을 구분해 매핑
+    - iOS에서는 Decodable DTO를 통해 서버 응답을 받고 Entity/ViewData로 변환하는 흐름이었다면, 
+    RN에서는 TypeScript 타입을 기준으로 API 응답과 앱 내부 모델을 구분해 매핑
     - Swift는 런타임 디코딩 단계에서 응답 구조를 모델로 변환하는 성격이 강했고, TypeScript는 컴파일 타임 타입 정의를 통해 데이터 사용 형태를 점검하는 방식에 가까웠음
     - RN에서는 서버 응답의 필드명, enum 값, nullable 값을 Repository 매핑 계층에서 정리해 Hook과 Screen이 일관된 모델만 다루도록 구성
     - 결과적으로 화면 로직은 API 응답 원본보다 앱 내부 모델에 의존하게 되어, 서버 응답 구조 변경 시 수정 범위를 Repository 계층으로 줄일 수 있었음
