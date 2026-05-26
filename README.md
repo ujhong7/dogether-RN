@@ -66,9 +66,11 @@ flowchart LR
 
 ### iOS에서 React Native로 전환하며 달라진 설계 기준
 
-#### **1. ViewController 중심 화면 구성에서 Screen + Hook 중심 구성으로 전환**
+#### **1. ViewController 중심 UI 갱신에서 Screen + Hook 중심 UI 구성으로 전환**
 
-- **기존 iOS 구조**: ViewController가 ViewModel을 구독하고 UIKit view의 속성과 이벤트를 직접 연결
+- **기존 iOS 구조**
+    - ViewController가 ViewModel 상태를 구독
+    - 상태 변경 시 UIKit view 속성과 이벤트를 직접 연결
 - **React Native에서의 접근**
     - Screen은 JSX로 현재 상태에 맞는 화면을 선언
     - 화면에 필요한 파생 상태는 Custom Hook에서 계산
@@ -80,7 +82,9 @@ flowchart LR
 
 #### **2. RxSwift 상태 스트림에서 React Query / Zustand 기반 상태 관리로 전환**
 
-- **기존 iOS 구조**: Relay/Observable을 ViewModel이 소유하고 ViewController가 구독해 화면을 갱신
+- **기존 iOS 구조**
+    - ViewModel이 Relay/Observable로 상태를 전달
+    - ViewController가 상태 스트림을 구독해 화면을 갱신
 - **React Native에서의 접근**
     - 서버에서 받아오는 데이터는 React Query Hook으로 분리
     - 앱이 직접 소유하는 UI 상태와 세션은 Zustand에서 관리
@@ -92,7 +96,9 @@ flowchart LR
 
 #### **3. Coordinator 기반 화면 전환에서 Expo Router 파일 라우팅으로 전환**
 
-- **기존 iOS 구조**: Coordinator가 ViewController 생성, push/pop, root 교체, modal 전환 정책을 관리
+- **기존 iOS 구조**
+    - Coordinator가 ViewController 생성과 의존성 주입을 담당
+    - push/pop, root 교체, modal 전환 정책을 중앙에서 관리
 - **React Native에서의 접근**
     - `app/main.tsx`, `app/group-create.tsx`처럼 파일을 route로 사용
     - `router.push` / `router.replace`로 경로 기반 화면 전환을 수행
@@ -104,7 +110,9 @@ flowchart LR
 
 #### **4. ViewModel의 데이터 요청 책임을 React Query Hook으로 이전**
 
-- **기존 iOS 구조**: ViewModel이 UseCase를 호출하고 로딩, 성공, 실패 상태를 직접 Relay로 관리
+- **기존 iOS 구조**
+    - ViewModel이 UseCase를 호출해 데이터를 요청
+    - 로딩, 성공, 실패 상태를 Relay로 직접 관리
 - **React Native에서의 접근**
     - `useGroupsQuery`, `useMyTodosQuery`, `useRankingQuery`처럼 조회 단위별 Query Hook을 구성
     - UseCase 호출은 Query Hook 내부로 모아 Screen에서 분리
@@ -116,7 +124,9 @@ flowchart LR
 
 #### **5. DIManager 방식에서 환경 기반 Repository Factory로 전환**
 
-- **기존 iOS 구조**: DIManager가 Protocol 타입에 실제 구현체 또는 Mock 구현체를 주입
+- **기존 iOS 구조**
+    - DIManager가 Protocol 타입 의존성을 조립
+    - 실제 구현체 또는 Mock 구현체를 화면 흐름에 맞게 주입
 - **React Native에서의 접근**
     - Repository contract를 TypeScript interface로 정의
     - 실제 API 구현체와 Mock 구현체가 같은 contract를 따르도록 구성
@@ -128,7 +138,9 @@ flowchart LR
 
 #### **6. 네이티브 저장소 중심 세션 관리에서 Zustand + MMKV 조합으로 전환**
 
-- **기존 iOS 구조**: Keychain/UserDefaults와 앱 시작 플로우에서 인증 상태를 읽고 화면 분기를 결정
+- **기존 iOS 구조**
+    - Keychain/UserDefaults에서 인증 상태를 읽음
+    - 앱 시작 플로우에서 로그인 여부와 초기 화면 분기를 결정
 - **React Native에서의 접근**
     - MMKV에 로그인 세션과 마지막 선택 그룹을 저장
     - 앱 시작 시 MMKV 값을 Zustand store로 hydrate
@@ -140,7 +152,9 @@ flowchart LR
 
 #### **7. 플랫폼별 네이티브 기능을 공통 플로우 안에 연결**
 
-- **기존 iOS 구조**: 카카오/애플 로그인, 이미지 선택, 인증 업로드 같은 기능을 iOS 네이티브 API와 직접 연결
+- **기존 iOS 구조**
+    - 카카오/애플 로그인 흐름을 iOS 네이티브 API와 직접 연결
+    - 이미지 선택, 인증 업로드 같은 기능도 iOS 환경에 맞춰 처리
 - **React Native에서의 접근**
     - Expo와 RN 라이브러리로 로그인, 이미지 피커, 파일 업로드, 권한 요청을 연결
     - 공통 화면 플로우 안에서 iOS와 Android 동작을 함께 처리
