@@ -33,19 +33,34 @@ flowchart LR
 ### **주요성과**
 
 - **Screen · Custom Hook · UseCase · Repository 계층 분리로 화면 책임 정리**
-    - Screen은 UI 조립과 이벤트 연결에 집중하고, 파생 상태와 핸들러는 Custom Hook, 기능 흐름은 UseCase, 데이터 접근은 Repository로 분리
+    - Screen은 UI 조립과 사용자 이벤트 연결에 집중
+    - Custom Hook은 화면에 필요한 파생 상태와 핸들러를 조합
+    - UseCase는 화면에서 호출하는 기능 흐름을 담당
+    - Repository는 실제 API 또는 Mock 데이터 접근을 담당
 
 - **React Query와 Zustand로 서버 상태 / 클라이언트 상태 분리**
-    - 그룹 목록, 투두, 랭킹, 통계처럼 원격 데이터는 React Query에서 캐싱하고, 선택 그룹, 날짜 오프셋, 필터, 세션, 토스트 등 앱 내부 상태는 Zustand에서 관리
+    - 그룹 목록, 투두, 랭킹, 통계 등 원격 데이터는 React Query에서 관리
+    - 로딩, 에러, 캐싱, 리패치 흐름은 Query Hook 단위로 분리
+    - 선택 그룹, 날짜 오프셋, 필터, 토스트 등 UI 상태는 Zustand에서 관리
+    - 로그인 세션처럼 앱 재실행 후에도 필요한 값은 MMKV와 함께 관리
 
 - **Expo Router 기반 파일 라우팅 흐름 정리**
-    - `app/` 폴더의 파일 구조를 화면 경로로 사용하고, `_layout.tsx`에서 Stack 화면과 전역 Provider를 구성해 앱 시작, 그룹, 메인, 인증, 설정 플로우를 관리
+    - `app/` 폴더의 파일 구조를 화면 경로로 사용
+    - `_layout.tsx`에서 Stack 화면과 전역 Provider를 구성
+    - 앱 시작, 그룹 생성/참여, 메인, 인증, 설정 플로우를 route 단위로 분리
+    - 화면 이동은 `router.push` / `router.replace` 기반으로 정리
 
 - **Repository Interface와 API/Mock 구현체 분리**
-    - contracts, impl, mock 계층을 나누고 환경변수에 따라 실제 API 구현체와 Mock 구현체를 교체할 수 있도록 Repository factory를 구성
+    - `contracts/`에서 Repository 계약을 TypeScript interface로 정의
+    - `impl/`에는 실제 API 호출 구현체를 배치
+    - `mock/`에는 서버 없이 동작하는 Mock 구현체와 더미 데이터를 배치
+    - 환경변수에 따라 Repository factory에서 API 구현체와 Mock 구현체를 선택
 
 - **공통 Axios Client · MMKV Storage · AppError로 외부 의존성 표준화**
-    - 인증 헤더, 로컬 세션 저장, 서버 에러 변환을 공통 계층으로 모아 Screen이 네트워크와 저장소 구현 세부사항에 직접 의존하지 않도록 구성
+    - Axios Client에서 baseURL, timeout, 인증 헤더 주입을 공통 처리
+    - MMKV Storage 계층에서 세션과 선택 그룹 같은 로컬 값을 관리
+    - 서버 에러 응답은 AppError 모델로 변환
+    - Screen은 네트워크와 저장소 구현 세부사항에 직접 의존하지 않도록 구성
 
 ---
 
