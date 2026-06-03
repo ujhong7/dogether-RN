@@ -1,20 +1,61 @@
 type AppEnv = 'mock' | 'dev' | 'prod';
 
 function normalizeAppEnv(value: string | undefined): AppEnv {
-  if (value === 'dev' || value === 'prod') {
+  if (value === 'dev' || value === 'prod' || value === 'mock') {
     return value;
   }
 
-  return 'mock';
+  if (!value && process.env.CI !== 'true') {
+    return 'mock';
+  }
+
+  throw new Error(`Invalid APP_ENV: ${value ?? '(missing)'}`);
 }
 
-const appEnv = normalizeAppEnv(process.env.APP_ENV);
-const appVersion = process.env.npm_package_version ?? '1.0.0';
+function parseOptionalBoolean(value: string | undefined, name: string) {
+  if (value === undefined) {
+    return false;
+  }
+  if (value === 'true') {
+    return true;
+  }
+  if (value === 'false') {
+    return false;
+  }
+
+  throw new Error(`Invalid ${name}: ${value}`);
+}
+
+function readOptionalTrimmed(value: string | undefined) {
+  return value?.trim() || undefined;
+}
+
+function readAppVersion() {
+  return process.env.npm_package_version?.trim() || '1.0.0';
+}
+
+function readKakaoNativeAppKey() {
+  return readOptionalTrimmed(process.env.EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY);
+}
+
+function readEnableAppleSignIn() {
+  return parseOptionalBoolean(
+    process.env.EXPO_PUBLIC_ENABLE_APPLE_SIGN_IN,
+    'EXPO_PUBLIC_ENABLE_APPLE_SIGN_IN',
+  );
+}
+
+function readAppEnv() {
+  return normalizeAppEnv(process.env.APP_ENV);
+}
+
+const appEnv = readAppEnv();
+const appVersion = readAppVersion();
 const appDisplayName =
   appEnv === 'prod' ? 'dogether-RN' : appEnv === 'dev' ? 'dogether-RN Dev' : 'dogether-RN Mock';
 const bundleSuffix = appEnv === 'prod' ? '' : '.' + appEnv;
-const kakaoNativeAppKey = process.env.EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY?.trim();
-const enableAppleSignIn = process.env.EXPO_PUBLIC_ENABLE_APPLE_SIGN_IN === 'true';
+const kakaoNativeAppKey = readKakaoNativeAppKey();
+const enableAppleSignIn = readEnableAppleSignIn();
 const plugins: (string | [string, Record<string, unknown>])[] = ['expo-router'];
 
 if (enableAppleSignIn) {
