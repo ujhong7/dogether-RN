@@ -1,3 +1,7 @@
+// MARK: - Mock Auth Repository
+//
+// 역할: mock 모드에서 외부 SDK 없이 로그인 세션을 만들어 반환합니다.
+
 import type {
   AppleLoginPayload,
   AuthSession,
@@ -44,4 +48,6 @@ export class MockAuthRepository implements AuthRepository {
       refreshToken,
     };
   }
+
+  async withdraw(): Promise<void> {}
 }

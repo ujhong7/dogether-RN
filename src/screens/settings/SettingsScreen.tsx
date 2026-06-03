@@ -1,19 +1,32 @@
+// MARK: - 설정 Screen
+//
+// 역할: 로그아웃/회원탈퇴 확인 플로우와 앱 버전 표시를 담당합니다.
+// 읽는 법: "hook action -> menu render -> confirm modal" 순서로 보면 됩니다.
+
 import { Pressable, Text, View } from 'react-native';
 import { router } from 'expo-router';
+import { AppErrorAlertModal } from '../../components/AppErrorAlertModal';
 import { Screen } from '../../components/Screen';
 import { env } from '../../config/env';
 import { useSettingsScreen } from '../../hooks/useSettingsScreen';
 import { styles } from './styles';
 
 export function SettingsScreen() {
+  // MARK: - Hook actions
+
   const {
     confirmVariant,
+    settingsError,
+    isWithdrawing,
     openLogoutConfirm,
     openWithdrawConfirm,
     closeConfirm,
+    clearSettingsError,
     handleLogout,
     handleWithdraw,
   } = useSettingsScreen();
+
+  // MARK: - Render
 
   return (
     <Screen>
@@ -62,7 +75,14 @@ export function SettingsScreen() {
                   styles.modalButton,
                   confirmVariant === 'logout' ? styles.logoutButton : styles.withdrawButton,
                 ]}
-                onPress={confirmVariant === 'logout' ? handleLogout : handleWithdraw}
+                disabled={confirmVariant === 'withdraw' && isWithdrawing}
+                onPress={
+                  confirmVariant === 'logout'
+                    ? handleLogout
+                    : () => {
+                        void handleWithdraw();
+                      }
+                }
               >
                 <Text style={styles.confirmButtonText}>
                   {confirmVariant === 'logout' ? '로그아웃' : '탈퇴하기'}
@@ -71,6 +91,10 @@ export function SettingsScreen() {
             </View>
           </View>
         </View>
+      ) : null}
+
+      {settingsError ? (
+        <AppErrorAlertModal visible error={settingsError} onClose={clearSettingsError} />
       ) : null}
     </Screen>
   );
