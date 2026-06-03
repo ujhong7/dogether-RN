@@ -1,8 +1,13 @@
+// MARK: - 인증 내용 Screen
+//
+// 역할: 사진 선택 이후 인증 설명을 입력받고, 최종 인증 API를 호출합니다.
+// 읽는 법: "draft/dependency -> 제출 가능 조건 -> submit -> render/error" 순서로 보면 됩니다.
+
 import { useMemo, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, Text, TextInput, View } from 'react-native';
 import { router } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
-import { AppAlertModal } from '../../components/AppAlertModal';
+import { AppErrorAlertModal } from '../../components/AppErrorAlertModal';
 import { Screen } from '../../components/Screen';
 import { CertificationHeader } from './components/CertificationHeader';
 import { certificationStyles as styles } from './styles';
@@ -16,6 +21,9 @@ import { colors } from '../../theme/colors';
 const MAX_CONTENT_LENGTH = 60;
 
 export function CertificationContentScreen() {
+  // MARK: - Dependencies and draft
+  //
+  // 사진 단계에서 저장한 draft를 이어받아 인증 설명과 함께 제출합니다.
   const queryClient = useQueryClient();
   const challengeGroupUseCase = useMemo(
     () => new ChallengeGroupUseCase(createChallengeGroupRepository()),
@@ -28,6 +36,8 @@ export function CertificationContentScreen() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<AppError | null>(null);
 
+  // MARK: - Validation
+
   const contentLength = draft.content.length;
   const canSubmit =
     Boolean(draft.todoId) &&
@@ -37,6 +47,9 @@ export function CertificationContentScreen() {
     draft.content.trim().length > 0 &&
     !submitting;
 
+  // MARK: - Submit certification
+  //
+  // 인증 성공 후 관련 query들을 무효화해 메인/인증목록/통계가 최신 데이터를 다시 읽게 합니다.
   const handleSubmit = async () => {
     if (!canSubmit || !draft.todoId || !draft.groupId || !draft.date || !draft.imageUri) {
       return;
@@ -49,7 +62,10 @@ export function CertificationContentScreen() {
         draft.date,
         draft.todoId,
         draft.content.trim(),
-        draft.imageUri,
+        {
+          uri: draft.imageUri,
+          mimeType: draft.imageMimeType,
+        },
       );
       await queryClient.invalidateQueries({ queryKey: ['todos'] });
       await queryClient.invalidateQueries({ queryKey: ['certification-list'] });
@@ -62,6 +78,8 @@ export function CertificationContentScreen() {
       setSubmitting(false);
     }
   };
+
+  // MARK: - Render
 
   return (
     <Screen>
@@ -99,7 +117,7 @@ export function CertificationContentScreen() {
         </Pressable>
 
         {submitError ? (
-          <AppAlertModal visible error={submitError} onClose={() => setSubmitError(null)} />
+          <AppErrorAlertModal visible error={submitError} onClose={() => setSubmitError(null)} />
         ) : null}
       </KeyboardAvoidingView>
     </Screen>

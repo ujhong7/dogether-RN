@@ -1,3 +1,8 @@
+// MARK: - 인증 사진 Screen
+//
+// 역할: 인증할 투두 정보를 draft store에 저장하고, 카메라/앨범에서 인증 이미지를 선택합니다.
+// 읽는 법: "route params -> draft store -> permission/image picker -> render/modal" 순서로 보면 됩니다.
+
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Image, KeyboardAvoidingView, Platform, Pressable, Text, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -12,18 +17,27 @@ import { colors } from '../../theme/colors';
 type PermissionType = 'camera' | 'gallery' | null;
 
 export function CertificationImageScreen() {
+  // MARK: - Route params
+  //
+  // TodoRow에서 넘긴 todoId/groupId/date/content를 읽어 인증 draft의 시작값으로 사용합니다.
   const params = useLocalSearchParams<{
     todoId?: string;
     groupId?: string;
     date?: string;
     content?: string;
   }>();
+
+  // MARK: - Draft store
+  //
+  // 사진 단계와 내용 입력 단계가 서로 다른 route라서 Zustand store에 draft를 보관합니다.
   const draft = useCertificationDraftStore((state) => state.draft);
   const startDraft = useCertificationDraftStore((state) => state.startDraft);
-  const setImageUri = useCertificationDraftStore((state) => state.setImageUri);
+  const setImageAsset = useCertificationDraftStore((state) => state.setImageAsset);
 
   const [permissionType, setPermissionType] = useState<PermissionType>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  // MARK: - Start draft from route
 
   useEffect(() => {
     if (!params.todoId || !params.groupId || !params.date || !params.content) {
@@ -38,6 +52,9 @@ export function CertificationImageScreen() {
     });
   }, [params.content, params.date, params.groupId, params.todoId, startDraft]);
 
+  // MARK: - Pick image
+  //
+  // gallery와 camera는 권한 요청 API와 picker 실행 API가 달라서 mode별로 분기합니다.
   const pickImage = async (mode: 'camera' | 'gallery') => {
     setIsLoading(true);
     try {
@@ -66,7 +83,8 @@ export function CertificationImageScreen() {
         });
 
         if (!result.canceled) {
-          setImageUri(result.assets[0]?.uri ?? null);
+          const asset = result.assets[0];
+          setImageAsset({ uri: asset?.uri ?? null, mimeType: asset?.mimeType });
         }
         return;
       }
@@ -86,12 +104,15 @@ export function CertificationImageScreen() {
       });
 
       if (!result.canceled) {
-        setImageUri(result.assets[0]?.uri ?? null);
+        const asset = result.assets[0];
+        setImageAsset({ uri: asset?.uri ?? null, mimeType: asset?.mimeType });
       }
     } finally {
       setIsLoading(false);
     }
   };
+
+  // MARK: - Render
 
   return (
     <Screen>
