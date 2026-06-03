@@ -1,3 +1,8 @@
+// MARK: - 유저 Mock Repository 구현
+//
+// 역할: 서버 없이 마이페이지/랭킹/통계/인증 목록 화면을 확인할 수 있는 가짜 데이터를 제공합니다.
+// 읽는 법: "mock 원본 데이터 -> 날짜/통계 helper -> 인증 목록 builder -> repository method" 순서로 보면 됩니다.
+
 import type { Profile } from '../../../models/profile';
 import type { Ranking } from '../../../models/ranking';
 import type {
@@ -10,6 +15,8 @@ import type { StatisticsData } from '../../../models/statistics';
 import type { UserRepository } from '../contracts/userRepository';
 import { getMockJoinedGroups } from './data/mockGroupData';
 import { getAllMockTodoEntries } from './data/mockTodoData';
+
+// MARK: - Static mock data
 
 const mockRanking: Ranking[] = [
   { memberId: 1, rank: 1, name: '승용차', achievementRate: 100, historyReadStatus: 'READ_YET' },
@@ -25,6 +32,8 @@ const mockProfile: Profile = {
 };
 
 const KOREAN_WEEK_DAYS = ['일', '월', '화', '수', '목', '금', '토'];
+
+// MARK: - Date helpers
 
 function parseDate(value: string) {
   if (value.includes('-')) {
@@ -44,6 +53,8 @@ function formatSectionDate(value: string) {
   const day = String(date.getDate()).padStart(2, '0');
   return `${year}.${month}.${day} (${weekDay})`;
 }
+
+// MARK: - Group day helpers
 
 function parseGroupDate(dateLabel: string | undefined) {
   if (!dateLabel) {
@@ -74,6 +85,8 @@ function getCurrentGroupDay(startDateLabel: string | undefined, duration: number
 
   return Math.min(Math.max(diff, 1), Math.max(duration, 1));
 }
+
+// MARK: - Statistics builders
 
 function getMockWrittenTodoCount(groupId: number, day: number) {
   return Math.min(10, ((groupId + day) % 3) + 2);
@@ -114,6 +127,8 @@ function buildMockStatistics(groupId: number): StatisticsData {
     rejectedCount: achievements.length,
   };
 }
+
+// MARK: - Certification list builders
 
 function buildMockCertificationList(sort: CertificationListSort): CertificationListData {
   const groups = getMockJoinedGroups();
@@ -167,12 +182,13 @@ function buildMockCertificationList(sort: CertificationListSort): CertificationL
       return right.date.localeCompare(left.date);
     }
 
-    const groupDateDiff = parseDate(right.groupStartDate).getTime() - parseDate(left.groupStartDate).getTime();
+    const groupDateDiff =
+      parseDate(right.groupStartDate ?? '').getTime() - parseDate(left.groupStartDate ?? '').getTime();
     if (groupDateDiff !== 0) {
       return groupDateDiff;
     }
     if (left.groupId !== right.groupId) {
-      return right.groupId - left.groupId;
+      return (right.groupId ?? 0) - (left.groupId ?? 0);
     }
     if (left.date === right.date) {
       return right.todoId - left.todoId;
@@ -182,6 +198,9 @@ function buildMockCertificationList(sort: CertificationListSort): CertificationL
 
   const sectionsMap = new Map<string, CertificationListSection>();
 
+  // MARK: Section grouping
+  //
+  // 정렬 기준에 따라 날짜별 또는 그룹별 section으로 다시 묶습니다.
   sortedItems.forEach((item) => {
     const sectionKey = sort === 'TODO_COMPLETION_DATE' ? `date:${item.date}` : `group:${item.groupId}`;
     const sectionTitle = sort === 'TODO_COMPLETION_DATE' ? formatSectionDate(item.date) : item.groupName;
@@ -210,6 +229,9 @@ function buildMockCertificationList(sort: CertificationListSort): CertificationL
 }
 
 export class MockUserRepository implements UserRepository {
+  // MARK: - Repository methods
+  //
+  // 실제 API repository와 같은 interface를 구현하므로 env 값만 바꾸면 화면 코드는 그대로 재사용됩니다.
   async getRanking(): Promise<Ranking[]> {
     return mockRanking;
   }

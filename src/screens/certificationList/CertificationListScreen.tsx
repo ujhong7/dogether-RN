@@ -1,16 +1,18 @@
+// MARK: - 인증 목록 Screen
+//
+// 역할: 내 인증 목록을 정렬/필터링해서 보여주고, 선택한 인증을 상세 viewer로 연결합니다.
+// 읽는 법: "state/query -> filtered sections -> open detail -> error/render" 순서로 보면 됩니다.
+
 import { useMemo, useState } from 'react';
 import { Image, Pressable, ScrollView, Text, View } from 'react-native';
 import { router } from 'expo-router';
-import { AppAlertModal } from '../../components/AppAlertModal';
-import { FullScreenErrorState } from '../../components/FullScreenErrorState';
+import { QueryErrorState } from '../../components/QueryErrorState';
 import { Screen } from '../../components/Screen';
 import { SelectionBottomSheet } from '../../components/SelectionBottomSheet';
 import type { CertificationListFilter, CertificationListItem, CertificationListSort } from '../../models/certificationList';
 import type { Todo } from '../../models/todo';
 import { useCertificationListQuery } from '../../queries/useCertificationListQuery';
-import { toAppError } from '../../services/errors/appError';
 import { useCertificationViewerStore } from '../../stores/certificationViewerStore';
-import { useSessionStore } from '../../stores/sessionStore';
 import { certificationListStyles as styles } from './styles';
 import {
   CERTIFICATION_FILTERS,
@@ -21,13 +23,18 @@ import {
 } from './utils';
 
 export function CertificationListScreen() {
+  // MARK: - Local UI state
+  //
+  // 정렬 기준, 필터 탭, 정렬 bottom sheet 표시 여부처럼 화면 내부에서만 쓰는 상태입니다.
   const [sort, setSort] = useState<CertificationListSort>('TODO_COMPLETION_DATE');
   const [filter, setFilter] = useState<CertificationListFilter>('all');
   const [sortSheetVisible, setSortSheetVisible] = useState(false);
-  const logout = useSessionStore((state) => state.logout);
   const openViewer = useCertificationViewerStore((state) => state.openViewer);
   const certificationListQuery = useCertificationListQuery(sort);
 
+  // MARK: - Derived sections
+  //
+  // query 결과를 현재 필터에 맞게 줄이고, 빈 목록/필터 결과 여부를 계산합니다.
   const sections = certificationListQuery.data?.sections ?? [];
   const summary = certificationListQuery.data?.summary;
   const filteredSections = useMemo(
@@ -44,14 +51,23 @@ export function CertificationListScreen() {
   const hasFilteredItems = filteredSections.length > 0;
   const currentSortLabel = CERTIFICATION_SORT_OPTIONS.find((option) => option.key === sort)?.label ?? '투두 완료일순';
 
+  // MARK: - Open detail
+  //
+  // 카드 하나를 누르면 같은 날짜 또는 같은 그룹의 인증들을 viewer context에 담고 상세 화면으로 이동합니다.
   const openCertificationDetail = (item: CertificationListItem) => {
     const relatedItems = sections
       .flatMap((section) => section.items)
-      .filter((entry) =>
-        sort === 'TODO_COMPLETION_DATE'
-          ? entry.groupId === item.groupId && entry.date === item.date
-          : entry.groupName === item.groupName,
-      );
+      .filter((entry) => {
+        if (sort !== 'TODO_COMPLETION_DATE') {
+          return entry.groupName === item.groupName;
+        }
+
+        if (item.groupId) {
+          return entry.groupId === item.groupId && entry.date === item.date;
+        }
+
+        return entry.todoId === item.todoId;
+      });
     const selectedIndex = relatedItems.findIndex((entry) => entry.todoId === item.todoId);
     const viewerTodos: Todo[] = relatedItems.map((entry) => ({
       id: entry.todoId,
@@ -65,7 +81,7 @@ export function CertificationListScreen() {
     openViewer({
       source: 'mine',
       title: '내 인증 정보',
-      groupId: item.groupId,
+      groupId: item.groupId ?? null,
       date: item.date,
       todoIds: viewerTodos.map((entry) => entry.id),
       todos: viewerTodos,
@@ -74,38 +90,23 @@ export function CertificationListScreen() {
     router.push('/certification');
   };
 
+  // MARK: - Error state
+  //
+  // 인증 목록 query 실패 시 공통 에러 UI를 먼저 렌더링합니다.
   if (certificationListQuery.isError) {
-    const appError = toAppError(certificationListQuery.error);
-
-    if (appError.variant === 'alert') {
-      return (
-        <Screen>
-          <AppAlertModal
-            visible
-            error={appError}
-            onClose={() => {
-              logout();
-              router.replace('/onboarding');
-            }}
-          />
-        </Screen>
-      );
-    }
-
     return (
-      <Screen>
-        <FullScreenErrorState
-          title={appError.title}
-          message={appError.message}
-          actionLabel={appError.actionLabel}
-          onRetry={() => {
-            void certificationListQuery.refetch();
-          }}
-        />
-      </Screen>
+      <QueryErrorState
+        error={certificationListQuery.error}
+        onRetry={() => {
+          void certificationListQuery.refetch();
+        }}
+      />
     );
   }
 
+  // MARK: - Render
+  //
+  // 헤더, 빈 상태 또는 요약/필터/그리드, 정렬 bottom sheet 순서로 화면을 구성합니다.
   return (
     <Screen scroll>
       <View style={styles.flex}>

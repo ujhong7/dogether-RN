@@ -1,3 +1,7 @@
+// MARK: - Ranking Avatar
+//
+// 역할: 랭킹 사용자 이미지가 없을 때 fallback avatar와 읽음 상태 ring을 보여줍니다.
+
 import { Image, Text, View } from 'react-native';
 import type { RankingHistoryReadStatus } from '../../../models/ranking';
 import { rankingStyles as styles } from '../styles';

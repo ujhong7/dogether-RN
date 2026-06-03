@@ -1,3 +1,11 @@
+// MARK: - 앱 공통 에러 모델
+//
+// 역할: 서버/SDK/비즈니스 에러 코드를 화면에서 보여줄 title/message/action으로 변환합니다.
+// 읽는 법: "에러 코드 union -> AppError shape -> preset dictionary -> helper" 순서로 보면 됩니다.
+
+// MARK: - Error codes
+//
+// 서버나 SDK 흐름에서 식별할 수 있는 에러 코드를 앱 내부 union type으로 제한합니다.
 export type AppErrorCode =
   | 'COMMON'
   | 'ATF-0002'
@@ -20,6 +28,9 @@ export type AppError = {
   variant: 'fullScreen' | 'alert';
 };
 
+// MARK: - Error presets
+//
+// 각 에러 코드가 alert인지 fullScreen인지, 어떤 문구와 버튼을 보여줄지 정의합니다.
 const APP_ERROR_PRESETS: Record<AppErrorCode, AppError> = {
   COMMON: {
     code: 'COMMON',
@@ -104,8 +115,14 @@ const APP_ERROR_PRESETS: Record<AppErrorCode, AppError> = {
   },
 };
 
+// MARK: - Error helpers
+
 export function getAppError(code: AppErrorCode = 'COMMON'): AppError {
   return APP_ERROR_PRESETS[code];
+}
+
+export function isAuthExpiredError(error: AppError) {
+  return error.code === 'ATF-0003';
 }
 
 export function isAppError(value: unknown): value is AppError {

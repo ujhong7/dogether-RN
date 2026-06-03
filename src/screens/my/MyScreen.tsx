@@ -1,16 +1,21 @@
+// MARK: - 마이페이지 Screen
+//
+// 역할: 내 프로필, 통계/인증 목록/그룹 관리/설정 이동 메뉴, 로그아웃 진입점을 보여줍니다.
+// 읽는 법: "hook state -> profile error -> profile card -> menu list -> logout" 순서로 보면 됩니다.
+
 import { Pressable, Text, View } from 'react-native';
 import { router } from 'expo-router';
-import { AppAlertModal } from '../../components/AppAlertModal';
-import { FullScreenErrorState } from '../../components/FullScreenErrorState';
+import { QueryErrorState } from '../../components/QueryErrorState';
 import { Screen } from '../../components/Screen';
 import { useMyScreen } from '../../hooks/useMyScreen';
-import { toAppError } from '../../services/errors/appError';
 import { styles } from './styles';
 
 export function MyScreen() {
+  // MARK: - Hook state
+  //
+  // 화면 이동과 로그아웃 처리는 useMyScreen hook에 모아두었습니다.
   const {
     displayName,
-    logout,
     profileQuery,
     moveToCertificationList,
     moveToGroupManagement,
@@ -19,37 +24,20 @@ export function MyScreen() {
     handleLogout,
   } = useMyScreen();
 
+  // MARK: - Error state
+
   if (profileQuery.isError) {
-    const appError = toAppError(profileQuery.error);
-
-    if (appError.variant === 'alert') {
-      return (
-        <Screen>
-          <AppAlertModal
-            visible
-            error={appError}
-            onClose={() => {
-              logout();
-              router.replace('/onboarding');
-            }}
-          />
-        </Screen>
-      );
-    }
-
     return (
-      <Screen>
-        <FullScreenErrorState
-          title={appError.title}
-          message={appError.message}
-          actionLabel={appError.actionLabel}
-          onRetry={() => {
-            void profileQuery.refetch();
-          }}
-        />
-      </Screen>
+      <QueryErrorState
+        error={profileQuery.error}
+        onRetry={() => {
+          void profileQuery.refetch();
+        }}
+      />
     );
   }
+
+  // MARK: - Render
 
   return (
     <Screen>

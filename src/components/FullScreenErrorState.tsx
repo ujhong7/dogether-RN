@@ -1,3 +1,8 @@
+// MARK: - 공통 전체화면 에러 State
+//
+// 역할: 재시도 가능한 fullScreen variant 에러를 화면 전체 상태로 보여줍니다.
+// 읽는 법: "props 기본값 -> render -> styles" 순서로 보면 됩니다.
+
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { colors } from '../theme/colors';
 
@@ -14,6 +19,8 @@ export function FullScreenErrorState({
   actionLabel = '다시 시도',
   onRetry,
 }: Props) {
+  // MARK: - Render
+
   return (
     <View style={styles.container}>
       <Text style={styles.emoji}>🧊</Text>
@@ -25,6 +32,8 @@ export function FullScreenErrorState({
     </View>
   );
 }
+
+// MARK: - Styles
 
 const styles = StyleSheet.create({
   container: {

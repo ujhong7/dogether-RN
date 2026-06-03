@@ -1,3 +1,7 @@
+// MARK: - Onboarding Styles
+//
+// 역할: 온보딩 화면의 레이아웃, 로그인 버튼, 배경 요소 스타일을 정의합니다.
+
 import { StyleSheet } from 'react-native';
 import { colors } from '../../theme/colors';
 

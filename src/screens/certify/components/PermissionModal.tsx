@@ -1,3 +1,7 @@
+// MARK: - 권한 안내 Modal
+//
+// 역할: 카메라/앨범 권한이 필요할 때 사용자에게 설정 이동 안내를 보여줍니다.
+
 import { Linking, Modal, Pressable, Text, View } from 'react-native';
 import { certificationStyles as styles } from '../styles';
 

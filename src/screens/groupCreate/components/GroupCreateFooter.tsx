@@ -1,3 +1,7 @@
+// MARK: - 그룹 생성 Footer
+//
+// 역할: 단계별 이전/다음/완료 버튼 영역을 렌더링합니다.
+
 import { Pressable, Text, View } from 'react-native';
 import { groupCreateStyles as styles } from '../styles';
 

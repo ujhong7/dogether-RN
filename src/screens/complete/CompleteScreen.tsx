@@ -1,3 +1,7 @@
+// MARK: - Complete Screen
+//
+// 역할: 그룹 생성/참여가 끝난 뒤 결과 요약과 메인 이동 action을 보여줍니다.
+
 import { useEffect, useState } from 'react';
 import { Pressable, Text } from 'react-native';
 import { router } from 'expo-router';

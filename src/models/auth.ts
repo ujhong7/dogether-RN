@@ -1,3 +1,7 @@
+// MARK: - Auth Models
+//
+// 역할: 로그인/세션 관련 화면과 repository가 공유하는 타입을 정의합니다.
+
 export type LoginType = 'apple' | 'kakao' | 'demo';
 
 export type AuthSession = {

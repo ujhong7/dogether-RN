@@ -1,3 +1,7 @@
+// MARK: - 그룹 생성 Header
+//
+// 역할: 그룹 생성 단계의 상단 타이틀과 진행 상태를 보여줍니다.
+
 import { Pressable, Text, View } from 'react-native';
 import { groupCreateStyles as styles } from '../styles';
 

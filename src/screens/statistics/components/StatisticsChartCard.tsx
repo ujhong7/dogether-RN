@@ -1,3 +1,8 @@
+// MARK: - 통계 차트 Card
+//
+// 역할: 최근 일차별 작성/인증 개수를 막대 차트로 보여줍니다.
+// 읽는 법: "chart item 타입 -> props -> axis -> bar list/current indicator" 순서로 보면 됩니다.
+
 import { Text, View } from 'react-native';
 import { styles } from '../styles';
 import { BAR_MAX_HEIGHT } from '../utils';
@@ -19,6 +24,8 @@ type Props = {
 };
 
 export function StatisticsChartCard({ chartValues, achievementPercent }: Props) {
+  // MARK: - Render
+
   return (
     <View style={styles.chartCard}>
       <View style={styles.cardHeader}>

@@ -1,3 +1,7 @@
+// MARK: - Color Tokens
+//
+// 역할: 앱 전역에서 반복해서 쓰는 색상 값을 한곳에 모아 관리합니다.
+
 export const colors = {
   // 배경
   bg: '#0B1020',

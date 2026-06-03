@@ -1,3 +1,7 @@
+// MARK: - Update Styles
+//
+// 역할: 업데이트 안내 화면의 문구와 버튼 스타일을 정의합니다.
+
 import { StyleSheet } from 'react-native';
 import { colors } from '../../theme/colors';
 

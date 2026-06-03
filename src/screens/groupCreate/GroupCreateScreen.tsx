@@ -1,8 +1,14 @@
+// MARK: - 그룹 생성 Screen
+//
+// 역할: 3단계 그룹 생성 플로우의 입력 상태를 관리하고, 완료 시 생성 결과 화면으로 이동합니다.
+// 읽는 법: "state -> derived schedule -> submit -> step render/footer/modal" 순서로 보면 됩니다.
+
 import { useMemo, useState } from 'react';
 import { KeyboardAvoidingView, Platform } from 'react-native';
 import { router } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { AppAlertModal } from '../../components/AppAlertModal';
+import { AppErrorAlertModal } from '../../components/AppErrorAlertModal';
 import { Screen } from '../../components/Screen';
 import type { AppError } from '../../models/error';
 import { createGroupRepository } from '../../services/repositories';
@@ -21,7 +27,14 @@ import type { DurationOption, StartOption } from './types';
 import { buildSchedule } from './utils';
 
 export function GroupCreateScreen() {
+  // MARK: - Dependencies
+  //
+  // 그룹 생성 후 groups query를 갱신하고, 메인/완료 화면에서 사용할 전역 상태를 저장합니다.
   const queryClient = useQueryClient();
+
+  // MARK: - Form state
+  //
+  // step별 입력값과 modal/error 상태입니다. step은 1, 2, 3 중 하나만 가질 수 있게 타입으로 제한합니다.
   const [groupName, setGroupName] = useState('');
   const [memberCount, setMemberCount] = useState(10);
   const [step, setStep] = useState<1 | 2 | 3>(1);
@@ -34,10 +47,15 @@ export function GroupCreateScreen() {
   const setSelectedGroupId = useMainStore((state) => state.setSelectedGroupId);
   const groupUseCase = useMemo(() => new GroupUseCase(createGroupRepository()), []);
 
+  // MARK: - Derived form values
+
   const normalizedName = groupName.trim();
   const schedule = useMemo(() => buildSchedule(startOption, duration), [startOption, duration]);
   const canGoStepOne = normalizedName.length >= 2;
 
+  // MARK: - Submit group create
+  //
+  // 서버에 그룹을 만들고, 완료 화면에서 보여줄 payload를 startFlowStore에 저장합니다.
   const completeGroupCreate = async () => {
     try {
       const createdGroup = await groupUseCase.createGroup({
@@ -52,7 +70,7 @@ export function GroupCreateScreen() {
         kind: 'create',
         targetGroupId: createdGroup.id,
         groupName: createdGroup.name,
-        joinCode: createdGroup.joinCode,
+        joinCode: createdGroup.joinCode ?? '',
         durationLabel: duration,
         memberCountLabel: `총 ${memberCount}명`,
         startDateLabel: createdGroup.startDate,
@@ -63,6 +81,8 @@ export function GroupCreateScreen() {
       setSubmitError(toAppError(error));
     }
   };
+
+  // MARK: - Render
 
   return (
     <Screen>
@@ -136,7 +156,7 @@ export function GroupCreateScreen() {
       />
 
       {submitError ? (
-        <AppAlertModal visible error={submitError} onClose={() => setSubmitError(null)} />
+        <AppErrorAlertModal visible error={submitError} onClose={() => setSubmitError(null)} />
       ) : null}
     </Screen>
   );

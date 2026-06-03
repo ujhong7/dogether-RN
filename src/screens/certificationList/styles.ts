@@ -1,5 +1,12 @@
+// MARK: - 인증 목록 화면 스타일
+//
+// 역할: 인증 목록 화면의 header, summary, filter control, section grid, empty state 스타일을 모아둡니다.
+// 읽는 법: CertificationListScreen의 렌더 순서와 style key 이름을 맞춰 보면 됩니다.
+
 import { StyleSheet } from 'react-native';
 import { colors } from '../../theme/colors';
+
+// MARK: - Style definitions
 
 export const certificationListStyles = StyleSheet.create({
   flex: {

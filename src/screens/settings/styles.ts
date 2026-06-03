@@ -1,5 +1,12 @@
+// MARK: - 설정 화면 스타일
+//
+// 역할: 설정 화면의 header, menu row, danger action 스타일을 모아둡니다.
+// 읽는 법: SettingsScreen JSX 순서와 같은 style key를 따라가면 됩니다.
+
 import { StyleSheet } from 'react-native';
 import { colors } from '../../theme/colors';
+
+// MARK: - Style definitions
 
 export const styles = StyleSheet.create({
   header: {

@@ -1,3 +1,8 @@
+// MARK: - 투두 입력 Bar
+//
+// 역할: 투두 draft 입력, 글자 수 제한, 추가 버튼을 한 줄 UI로 제공합니다.
+// 읽는 법: "props -> TextInput -> add button" 순서로 보면 됩니다.
+
 import { Pressable, Text, TextInput, View } from 'react-native';
 import { todoWriteStyles as styles } from '../styles';
 import { MAX_TODO_COUNT, MAX_TODO_LENGTH } from '../utils';
@@ -23,6 +28,8 @@ export function TodoInputBar({
   onBlur,
   onAdd,
 }: Props) {
+  // MARK: - Render
+
   const placeholder =
     todoCount >= MAX_TODO_COUNT ? '모든 투두를 작성했어요!' : '예) 30분 걷기, 책 20페이지 읽기';
 

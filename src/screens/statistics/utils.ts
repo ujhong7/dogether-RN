@@ -1,3 +1,7 @@
+// MARK: - Statistics Utils
+//
+// 역할: 통계 차트 높이와 그룹 진행 일차 계산에 필요한 값을 제공합니다.
+
 export const MAX_TODOS_PER_DAY = 10;
 export const BAR_MAX_HEIGHT = 176;
 

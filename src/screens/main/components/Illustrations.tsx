@@ -1,4 +1,11 @@
+// MARK: - 메인 Panel 일러스트 컴포넌트
+//
+// 역할: 메인 하단 패널의 빈 상태/완료 상태/오늘 작성 CTA에 쓰는 간단한 RN View 일러스트입니다.
+// 읽는 법: 각 export 함수가 하나의 작은 그림이고, 아래 styles에서 도형 조각을 만듭니다.
+
 import { StyleSheet, View } from 'react-native';
+
+// MARK: - Empty state illustration
 
 export function EmptyIllustration({ tint = '#7F89A8' }: { tint?: string }) {
   return (
@@ -12,6 +19,8 @@ export function EmptyIllustration({ tint = '#7F89A8' }: { tint?: string }) {
   );
 }
 
+// MARK: - Done illustration
+
 export function DoneIllustration() {
   return (
     <View style={styles.doneFigure}>
@@ -20,6 +29,8 @@ export function DoneIllustration() {
     </View>
   );
 }
+
+// MARK: - Today illustration
 
 export function TodayIllustration() {
   return (
@@ -30,6 +41,8 @@ export function TodayIllustration() {
     </View>
   );
 }
+
+// MARK: - Styles
 
 const styles = StyleSheet.create({
   todayFigure: {

@@ -1,3 +1,7 @@
+// MARK: - Review Hero Card
+//
+// 역할: 리뷰 대상 인증 이미지와 기본 정보를 크게 보여주는 상단 카드입니다.
+
 import { Image, Text, View } from 'react-native';
 import { reviewStyles as styles } from '../styles';
 

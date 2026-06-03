@@ -1,5 +1,12 @@
+// MARK: - 인증 상세 화면 스타일
+//
+// 역할: 인증 상세 viewer의 navigation, thumbnail list, media pager, status/feedback, CTA 스타일입니다.
+// 읽는 법: CertificationDetailScreen JSX 순서와 style key 이름을 맞춰 보면 됩니다.
+
 import { StyleSheet } from 'react-native';
 import { colors } from '../../theme/colors';
+
+// MARK: - Style definitions
 
 export const certificationDetailStyles = StyleSheet.create({
   flex: {

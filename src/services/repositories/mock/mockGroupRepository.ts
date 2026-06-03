@@ -1,3 +1,7 @@
+// MARK: - Mock Group Repository
+//
+// 역할: mock 모드에서 그룹 생성/참여/탈퇴를 로컬 mock 데이터로 처리합니다.
+
 import type { Group } from '../../../models/group';
 import type { CreateGroupInput, GroupRepository, JoinGroupResult } from '../contracts/groupRepository';
 import { createMockGroup, getMockJoinedGroups, hasMockJoinedGroups, joinMockGroupByCode, leaveMockGroup } from './data/mockGroupData';

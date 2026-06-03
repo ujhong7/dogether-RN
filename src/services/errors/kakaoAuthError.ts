@@ -1,3 +1,8 @@
+// MARK: - Kakao Auth Error Mapper
+//
+// 역할: Kakao 로그인 error message를 앱 공통 AppError로 변환합니다.
+// 읽는 법: 취소성 메시지는 null, 나머지는 카카오 로그인 실패 에러로 매핑합니다.
+
 import { getAppError, type AppError } from '../../models/error';
 
 function extractErrorMessage(error: unknown): string {

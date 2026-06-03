@@ -1,3 +1,7 @@
+// MARK: - Group Create Utils
+//
+// 역할: 그룹 생성 일정 선택값을 서버 요청/화면 표시값으로 변환합니다.
+
 import type { DurationOption, StartOption } from './types';
 
 export function buildSchedule(label: StartOption, duration: DurationOption) {

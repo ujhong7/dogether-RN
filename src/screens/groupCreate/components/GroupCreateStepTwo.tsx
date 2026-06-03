@@ -1,3 +1,7 @@
+// MARK: - 그룹 생성 Step 2
+//
+// 역할: 활동 기간과 시작 옵션을 선택받습니다.
+
 import { Pressable, Text, View } from 'react-native';
 import type { DurationOption, StartOption } from '../types';
 import { groupCreateStyles as styles } from '../styles';

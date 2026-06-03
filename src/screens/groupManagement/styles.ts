@@ -1,5 +1,12 @@
+// MARK: - 그룹 관리 화면 스타일
+//
+// 역할: 그룹 관리 화면의 header, list, empty state, leave dialog 스타일을 모아둡니다.
+// 읽는 법: GroupManagementScreen과 components 폴더의 리스트/다이얼로그 key를 이름으로 찾습니다.
+
 import { StyleSheet } from 'react-native';
 import { colors } from '../../theme/colors';
+
+// MARK: - Style definitions
 
 export const styles = StyleSheet.create({
   header: {

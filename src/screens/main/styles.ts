@@ -1,7 +1,17 @@
+// MARK: - 메인 화면 Panel 스타일
+//
+// 역할: MainPanel 전용 날짜 이동, 필터, 상태별 본문, 투두 목록, 인라인 추가 버튼 스타일입니다.
+// 읽는 법: MainPanel JSX 순서와 style key 이름을 맞춰 보면 됩니다.
+
 import { StyleSheet } from 'react-native';
 import { colors } from '../../theme/colors';
 
+// styles.ts는 JSX를 렌더링하지 않고 스타일 객체만 만들기 때문에 .ts를 사용합니다.
+// RN의 StyleSheet.create는 SwiftUI의 View modifier 모음이나 UIKit의 style 상수 모음처럼 볼 수 있습니다.
+// 화면 파일(MainScreen.tsx)에 스타일을 전부 넣지 않고 분리하면 UI 구조와 시각 스타일을 따로 읽을 수 있습니다.
 /** MainPanel 전용 스타일. 각 컴포넌트 고유 스타일은 해당 파일 내부에 정의됨. */
+// MARK: - Style definitions
+
 export const mainStyles = StyleSheet.create({
   panel: {
     flex: 1,

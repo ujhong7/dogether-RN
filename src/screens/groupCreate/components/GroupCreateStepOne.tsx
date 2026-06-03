@@ -1,3 +1,8 @@
+// MARK: - 그룹 생성 1단계 컴포넌트
+//
+// 역할: 그룹 이름과 최대 인원 입력 UI를 제공합니다.
+// 읽는 법: "그룹명 input -> 인원 stepper" 순서로 보면 됩니다.
+
 import { Pressable, Text, TextInput, View } from 'react-native';
 import { groupCreateStyles as styles } from '../styles';
 
@@ -22,6 +27,8 @@ export function GroupCreateStepOne({
   onDecreaseMemberCount,
   onIncreaseMemberCount,
 }: Props) {
+  // MARK: - Render
+
   return (
     <View style={styles.section}>
       <Text style={styles.label}>그룹명</Text>

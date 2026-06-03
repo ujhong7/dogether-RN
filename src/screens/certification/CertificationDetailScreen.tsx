@@ -1,5 +1,11 @@
+// MARK: - 인증 상세 Screen
+//
+// 역할: 인증 이미지/내용을 가로 pager로 보여주고, 썸네일 선택과 읽음 처리를 관리합니다.
+// 읽는 법: "상수 -> viewer/query state -> 정렬된 todo -> side effect -> empty/render" 순서로 따라갑니다.
+
 import { useEffect, useMemo, useRef } from 'react';
 import {
+  ActivityIndicator,
   FlatList,
   Image,
   Pressable,
@@ -11,10 +17,12 @@ import {
 import { router } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { Screen } from '../../components/Screen';
+import { QueryErrorState } from '../../components/QueryErrorState';
 import { createChallengeGroupRepository } from '../../services/repositories';
 import { ChallengeGroupUseCase } from '../../services/usecases/challengeGroupUseCase';
 import { useCertificationViewerStore } from '../../stores/certificationViewerStore';
 import { useMyTodosQuery } from '../../queries/useMyTodosQuery';
+import { colors } from '../../theme/colors';
 import { certificationDetailStyles as styles } from './styles';
 import { getFeedbackText, getStatusMeta } from './utils';
 
@@ -23,6 +31,9 @@ const THUMB_GAP = 8;
 const THUMB_ITEM_WIDTH = THUMB_SIZE + THUMB_GAP;
 
 export function CertificationDetailScreen() {
+  // MARK: - Viewer state and refs
+  //
+  // 이전 화면에서 열어둔 viewer context와 FlatList/ScrollView 제어용 ref를 준비합니다.
   const { context, selectedIndex, setSelectedIndex } = useCertificationViewerStore();
   const thumbListRef = useRef<FlatList>(null);
   const mediaScrollRef = useRef<ScrollView>(null);
@@ -34,14 +45,22 @@ export function CertificationDetailScreen() {
     () => new ChallengeGroupUseCase(createChallengeGroupRepository()),
     [],
   );
+  const shouldUseRemoteTodos = context.source === 'mine' && Boolean(context.groupId && context.date);
 
+  // MARK: - Todo query
+  //
+  // 내 인증 목록에서 온 경우에는 최신 투두 목록을 query로 다시 읽고, 없으면 viewer context의 todo를 사용합니다.
   const todosQuery = useMyTodosQuery({
-    groupId: context.groupId ?? undefined,
-    date: context.date ?? '',
+    groupId: shouldUseRemoteTodos ? context.groupId ?? undefined : undefined,
+    date: shouldUseRemoteTodos ? context.date ?? '' : '',
   });
 
+  // MARK: - Ordered todos
+  //
+  // viewer context에 저장된 todoIds 순서에 맞춰 실제 렌더링할 todo 배열을 재정렬합니다.
   const orderedTodos = useMemo(() => {
-    const todos = todosQuery.data && todosQuery.data.length > 0 ? todosQuery.data : context.todos;
+    const remoteTodos = shouldUseRemoteTodos ? todosQuery.data : undefined;
+    const todos = remoteTodos && remoteTodos.length > 0 ? remoteTodos : context.todos;
     if (!context.todoIds.length) {
       return todos;
     }
@@ -50,11 +69,14 @@ export function CertificationDetailScreen() {
     return context.todoIds
       .map((id) => todoMap.get(id))
       .filter((todo): todo is NonNullable<typeof todo> => Boolean(todo));
-  }, [context.todoIds, context.todos, todosQuery.data]);
+  }, [context.todoIds, context.todos, shouldUseRemoteTodos, todosQuery.data]);
 
   const safeIndex = orderedTodos.length === 0 ? 0 : Math.min(selectedIndex, orderedTodos.length - 1);
   const currentTodo = orderedTodos[safeIndex];
 
+  // MARK: - Ranking read side effect
+  //
+  // 랭킹에서 다른 멤버 인증을 열었을 때는 현재 todo를 읽음 처리하고 랭킹 query를 갱신합니다.
   useEffect(() => {
     if (context.source !== 'ranking' || !currentTodo?.id || readTodoIdsRef.current.has(currentTodo.id)) {
       return;
@@ -74,6 +96,9 @@ export function CertificationDetailScreen() {
       });
   }, [challengeGroupUseCase, context.groupId, context.source, currentTodo?.id, queryClient]);
 
+  // MARK: - Scroll synchronization
+  //
+  // 선택 index가 바뀌면 썸네일 리스트와 큰 이미지 pager 위치를 함께 맞춥니다.
   useEffect(() => {
     if (orderedTodos.length === 0) {
       return;
@@ -94,6 +119,30 @@ export function CertificationDetailScreen() {
 
   const hasViewerTodos = context.todos.length > 0;
 
+  if (shouldUseRemoteTodos && todosQuery.isError) {
+    return (
+      <QueryErrorState
+        error={todosQuery.error}
+        onRetry={() => {
+          void todosQuery.refetch();
+        }}
+      />
+    );
+  }
+
+  if (shouldUseRemoteTodos && todosQuery.isLoading) {
+    return (
+      <Screen>
+        <View style={styles.emptyState}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+      </Screen>
+    );
+  }
+
+  // MARK: - Empty state
+  //
+  // route context가 없거나 보여줄 todo가 없으면 상세 화면 대신 빈 상태를 보여줍니다.
   if ((!context.groupId && !hasViewerTodos) || (!context.date && !hasViewerTodos) || orderedTodos.length === 0 || !currentTodo) {
     return (
       <Screen>
@@ -105,6 +154,9 @@ export function CertificationDetailScreen() {
     );
   }
 
+  // MARK: - Render
+  //
+  // 상단 navigation, 썸네일, 큰 이미지 pager, 인증하기 CTA 순서로 구성합니다.
   return (
     <Screen>
       <View style={styles.flex}>

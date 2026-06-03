@@ -1,5 +1,12 @@
+// MARK: - 마이페이지 스타일
+//
+// 역할: 마이페이지의 header, profile, summary card, menu row, logout button 스타일을 모아둡니다.
+// 읽는 법: MyScreen JSX 순서와 같은 style key를 따라가면 됩니다.
+
 import { StyleSheet } from 'react-native';
 import { colors } from '../../theme/colors';
+
+// MARK: - Style definitions
 
 export const styles = StyleSheet.create({
   header: {

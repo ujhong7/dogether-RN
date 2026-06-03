@@ -1,3 +1,7 @@
+// MARK: - 인증 목록 유틸
+//
+// 역할: 인증 목록 필터/정렬 옵션과 빈 상태 문구를 계산합니다.
+
 import type { CertificationListFilter, CertificationListItem, CertificationListSort } from '../../models/certificationList';
 
 export const CERTIFICATION_SORT_OPTIONS: Array<{ key: CertificationListSort; label: string }> = [

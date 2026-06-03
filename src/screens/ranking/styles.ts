@@ -1,5 +1,12 @@
+// MARK: - 랭킹 화면 스타일
+//
+// 역할: 랭킹 화면의 loading/empty, header, podium, row, alert modal 스타일을 모아둡니다.
+// 읽는 법: RankingScreen과 RankingTopThree/RankingAvatar가 참조하는 key를 이름으로 따라가면 됩니다.
+
 import { StyleSheet } from 'react-native';
 import { colors } from '../../theme/colors';
+
+// MARK: - Style definitions
 
 export const rankingStyles = StyleSheet.create({
   loadingWrap: {

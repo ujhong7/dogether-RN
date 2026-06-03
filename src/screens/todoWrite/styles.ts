@@ -1,5 +1,12 @@
+// MARK: - 투두 작성 화면 스타일
+//
+// 역할: 투두 작성 화면의 navigation, input bar, draft list, 저장 버튼, 확인 modal 스타일을 모아둡니다.
+// 읽는 법: TodoWriteScreen과 components 폴더의 UI 조각들이 같은 style 객체를 공유합니다.
+
 import { StyleSheet } from 'react-native';
 import { colors } from '../../theme/colors';
+
+// MARK: - Style definitions
 
 export const todoWriteStyles = StyleSheet.create({
   flex: { flex: 1 },

@@ -1,3 +1,7 @@
+// MARK: - Todo Draft List
+//
+// 역할: 작성 중인 투두 draft 목록과 삭제 action을 렌더링합니다.
+
 import { Pressable, Text, View } from 'react-native';
 import type { Todo } from '../../../models/todo';
 import { todoWriteStyles as styles } from '../styles';

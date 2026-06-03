@@ -1,8 +1,15 @@
+// MARK: - 그룹 시작 Entry Cards
+//
+// 역할: 시작 화면에서 그룹 만들기/초대 코드 참여하기 진입 카드를 보여줍니다.
+// 읽는 법: 두 Pressable card가 각각 group-create, group-join route로 이동합니다.
+
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { colors } from '../../../theme/colors';
 
 export function GroupEntryCards() {
+  // MARK: - Render
+
   return (
     <View style={styles.wrap}>
       <Pressable style={styles.card} onPress={() => router.push('/group-create')}>
@@ -25,6 +32,8 @@ export function GroupEntryCards() {
     </View>
   );
 }
+
+// MARK: - Styles
 
 const styles = StyleSheet.create({
   wrap: {

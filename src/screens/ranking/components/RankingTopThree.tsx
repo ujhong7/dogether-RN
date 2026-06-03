@@ -1,3 +1,7 @@
+// MARK: - Ranking Top Three
+//
+// 역할: 랭킹 상위 3명을 podium 형태의 강조 UI로 렌더링합니다.
+
 import { Pressable, Text, View } from 'react-native';
 import type { Ranking } from '../../../models/ranking';
 import { rankingStyles as styles } from '../styles';

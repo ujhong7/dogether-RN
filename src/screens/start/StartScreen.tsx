@@ -1,3 +1,7 @@
+// MARK: - Start Screen
+//
+// 역할: 참여 중인 그룹이 없거나 시작 플로우가 필요한 사용자의 그룹 진입 선택 화면입니다.
+
 import { Text, View } from 'react-native';
 import { Screen } from '../../components/Screen';
 import { GroupEntryCards } from './components/GroupEntryCards';

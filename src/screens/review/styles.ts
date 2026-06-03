@@ -1,5 +1,12 @@
+// MARK: - 리뷰 화면 스타일
+//
+// 역할: 리뷰 화면의 인증 카드, 승인/거절 선택 버튼, 피드백 입력, 제출 footer, modal 스타일을 모아둡니다.
+// 읽는 법: ReviewScreen JSX와 components 폴더의 작은 컴포넌트들이 같은 style 객체를 공유합니다.
+
 import { StyleSheet } from 'react-native';
 import { colors } from '../../theme/colors';
+
+// MARK: - Style definitions
 
 export const reviewStyles = StyleSheet.create({
   container: {

@@ -1,19 +1,23 @@
+// MARK: - 랭킹 Screen
+//
+// 역할: 현재 그룹의 랭킹을 보여주고, 읽을 인증이 있는 멤버를 누르면 인증 상세 viewer로 이동합니다.
+// 읽는 법: "query/state -> focus refetch -> error/loading/empty -> member detail -> render" 순서로 보면 됩니다.
+
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useMemo, useState } from 'react';
-import { AppAlertModal } from '../../components/AppAlertModal';
-import { FullScreenErrorState } from '../../components/FullScreenErrorState';
+import { AppErrorAlertModal } from '../../components/AppErrorAlertModal';
+import { QueryErrorState } from '../../components/QueryErrorState';
 import { Screen } from '../../components/Screen';
 import type { Ranking } from '../../models/ranking';
 import { useGroupsQuery } from '../../queries/useGroupsQuery';
 import { useRankingQuery } from '../../queries/useRankingQuery';
 import { createChallengeGroupRepository } from '../../services/repositories';
-import { toAppError } from '../../services/errors/appError';
+import { selectPreferredError, toAppError } from '../../services/errors/appError';
 import { ChallengeGroupUseCase } from '../../services/usecases/challengeGroupUseCase';
 import { useCertificationViewerStore } from '../../stores/certificationViewerStore';
 import { useMainStore } from '../../stores/mainStore';
-import { useSessionStore } from '../../stores/sessionStore';
 import { colors } from '../../theme/colors';
 import { rankingStyles as styles } from './styles';
 import { getRankAccent } from './utils';
@@ -21,9 +25,11 @@ import { RankingAvatar } from './components/RankingAvatar';
 import { RankingTopThree } from './components/RankingTopThree';
 
 export function RankingScreen() {
+  // MARK: - Query and store state
+  //
+  // 현재 선택 그룹을 기준으로 그룹 목록과 랭킹 목록을 조회합니다.
   const groupsQuery = useGroupsQuery();
   const selectedGroupId = useMainStore((state) => state.selectedGroupId);
-  const logout = useSessionStore((state) => state.logout);
   const openViewer = useCertificationViewerStore((state) => state.openViewer);
   const groups = groupsQuery.data ?? [];
   const currentGroup = groups.find((group) => group.id === selectedGroupId) ?? groups[0];
@@ -34,48 +40,35 @@ export function RankingScreen() {
   );
   const [modalError, setModalError] = useState<ReturnType<typeof toAppError> | null>(null);
 
+  // MARK: - Focus refresh
+  //
+  // 랭킹 화면으로 다시 돌아올 때 읽음 상태/순위가 바뀌었을 수 있어 refetch합니다.
   useFocusEffect(
     useCallback(() => {
       void rankingQuery.refetch();
     }, [rankingQuery]),
   );
 
+  // MARK: - Error state
+  //
+  // 그룹 또는 랭킹 query가 실패하면 정상 화면 대신 공통 에러 UI를 보여줍니다.
   if (groupsQuery.isError || rankingQuery.isError) {
-    const appError = toAppError(groupsQuery.error ?? rankingQuery.error);
-
-    if (appError.variant === 'alert') {
-      return (
-        <Screen>
-          <AppAlertModal
-            visible
-            error={appError}
-            onClose={() => {
-              logout();
-              router.replace('/onboarding');
-            }}
-          />
-        </Screen>
-      );
-    }
-
     return (
-      <Screen>
-        <FullScreenErrorState
-          title={appError.title}
-          message={appError.message}
-          actionLabel={appError.actionLabel}
-          onRetry={() => {
-            if (groupsQuery.isError) {
-              void groupsQuery.refetch();
-            }
-            if (rankingQuery.isError) {
-              void rankingQuery.refetch();
-            }
-          }}
-        />
-      </Screen>
+      <QueryErrorState
+        error={selectPreferredError(groupsQuery.error, rankingQuery.error)}
+        onRetry={() => {
+          if (groupsQuery.isError) {
+            void groupsQuery.refetch();
+          }
+          if (rankingQuery.isError) {
+            void rankingQuery.refetch();
+          }
+        }}
+      />
     );
   }
+
+  // MARK: - Loading state
 
   if (groupsQuery.isLoading || rankingQuery.isLoading) {
     return (
@@ -86,6 +79,8 @@ export function RankingScreen() {
       </Screen>
     );
   }
+
+  // MARK: - Empty group state
 
   if (!currentGroup) {
     return (
@@ -101,6 +96,9 @@ export function RankingScreen() {
   const rankings = rankingQuery.data ?? [];
   const others = rankings.slice(3);
 
+  // MARK: - Open member certification
+  //
+  // 멤버 row를 누르면 해당 멤버의 투두 목록을 읽고 인증 상세 viewer context를 구성합니다.
   const handleOpenMemberCertification = async (ranking: Ranking) => {
     if (!currentGroup || !ranking.historyReadStatus) {
       return;
@@ -123,6 +121,8 @@ export function RankingScreen() {
       setModalError(toAppError(error));
     }
   };
+
+  // MARK: - Render
 
   return (
     <Screen scroll>
@@ -173,7 +173,9 @@ export function RankingScreen() {
         ))}
       </ScrollView>
 
-      {modalError ? <AppAlertModal visible error={modalError} onClose={() => setModalError(null)} /> : null}
+      {modalError ? (
+        <AppErrorAlertModal visible error={modalError} onClose={() => setModalError(null)} />
+      ) : null}
     </Screen>
   );
 }

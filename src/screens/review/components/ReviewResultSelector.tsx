@@ -1,3 +1,7 @@
+// MARK: - Review Result Selector
+//
+// 역할: 인정/노인정 리뷰 결과를 선택하는 segmented control 역할을 합니다.
+
 import { Pressable, Text, View } from 'react-native';
 import type { ReviewResult } from '../../../models/review';
 import { reviewStyles as styles } from '../styles';

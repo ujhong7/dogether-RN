@@ -1,3 +1,8 @@
+// MARK: - 준비 중 Screen
+//
+// 역할: 아직 구현되지 않은 route를 공통 안내 화면으로 보여줍니다.
+// 읽는 법: "props -> header/card render -> styles" 순서로 보면 됩니다.
+
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { Screen } from '../../components/Screen';
@@ -9,6 +14,8 @@ type Props = {
 };
 
 export function ComingSoonScreen({ title, description }: Props) {
+  // MARK: - Render
+
   return (
     <Screen>
       <View style={styles.header}>
@@ -27,6 +34,8 @@ export function ComingSoonScreen({ title, description }: Props) {
     </Screen>
   );
 }
+
+// MARK: - Styles
 
 const styles = StyleSheet.create({
   header: {

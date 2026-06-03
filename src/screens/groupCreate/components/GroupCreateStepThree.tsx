@@ -1,3 +1,7 @@
+// MARK: - 그룹 생성 Step 3
+//
+// 역할: 입력한 그룹 생성 정보를 최종 확인용 summary로 보여줍니다.
+
 import { Text, View } from 'react-native';
 import { groupCreateStyles as styles } from '../styles';
 

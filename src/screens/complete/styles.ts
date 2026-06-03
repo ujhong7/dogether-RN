@@ -1,5 +1,12 @@
+// MARK: - 완료 화면 스타일
+//
+// 역할: 그룹 생성/참여 완료 화면의 icon, code card, summary, primary button 스타일을 모아둡니다.
+// 읽는 법: CompleteContent JSX 순서와 style key 이름을 맞춰 보면 됩니다.
+
 import { StyleSheet } from 'react-native';
 import { colors } from '../../theme/colors';
+
+// MARK: - Style definitions
 
 export const completeStyles = StyleSheet.create({
   iconWrap: {

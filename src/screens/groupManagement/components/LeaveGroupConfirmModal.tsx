@@ -1,3 +1,7 @@
+// MARK: - 그룹 탈퇴 확인 Modal
+//
+// 역할: 그룹 탈퇴 전 마지막 확인 문구와 취소/탈퇴 action을 보여줍니다.
+
 import { Pressable, Text, View } from 'react-native';
 import { styles } from '../styles';
 

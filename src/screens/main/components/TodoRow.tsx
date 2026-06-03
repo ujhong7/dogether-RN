@@ -1,3 +1,8 @@
+// MARK: - 투두 Row 컴포넌트
+//
+// 역할: 메인 화면의 투두 한 줄을 그리고, 인증 상세 또는 인증 작성 화면으로 이동시킵니다.
+// 읽는 법: "props -> 파생 상태 -> 상세 열기 -> 인증 이동 -> render/styles" 순서로 보면 됩니다.
+
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import type { Todo } from '../../../models/todo';
@@ -14,10 +19,15 @@ type Props = {
 };
 
 export function TodoRow({ todo, dateOffset, currentGroupId, queryDate, todoIds, selectedIndex }: Props) {
+  // MARK: - Derived state
+
   const openViewer = useCertificationViewerStore((state) => state.openViewer);
   const uncertified = todo.status === 'WAIT_CERTIFICATION';
   const accent = getTodoAccent(todo.status);
 
+  // MARK: - Open certification detail
+  //
+  // 이미 인증된 투두를 누르면 같은 날짜의 투두 목록을 viewer context에 담고 상세 화면으로 이동합니다.
   const handleOpenViewer = () => {
     if (!currentGroupId) {
       return;
@@ -34,6 +44,9 @@ export function TodoRow({ todo, dateOffset, currentGroupId, queryDate, todoIds, 
     router.push('/certification');
   };
 
+  // MARK: - Go certify
+  //
+  // 오늘의 미인증 투두만 인증 작성 화면으로 이동할 수 있습니다.
   const handleGoCertify = () => {
     if (!currentGroupId || dateOffset < 0) {
       return;
@@ -49,6 +62,8 @@ export function TodoRow({ todo, dateOffset, currentGroupId, queryDate, todoIds, 
       },
     });
   };
+
+  // MARK: - Render
 
   return (
     <View style={styles.todoRow}>
@@ -79,6 +94,8 @@ export function TodoRow({ todo, dateOffset, currentGroupId, queryDate, todoIds, 
     </View>
   );
 }
+
+// MARK: - Styles
 
 const styles = StyleSheet.create({
   todoRow: {

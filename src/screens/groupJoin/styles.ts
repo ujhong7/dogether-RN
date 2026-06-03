@@ -1,5 +1,12 @@
+// MARK: - 그룹 참여 화면 스타일
+//
+// 역할: 초대 코드 입력 화면의 header, input, button 스타일을 모아둡니다.
+// 읽는 법: GroupJoinScreen JSX 순서와 style key 이름을 맞춰 보면 됩니다.
+
 import { StyleSheet } from 'react-native';
 import { colors } from '../../theme/colors';
+
+// MARK: - Style definitions
 
 export const groupJoinStyles = StyleSheet.create({
   flex: { flex: 1 },

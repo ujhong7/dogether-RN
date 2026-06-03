@@ -1,3 +1,7 @@
+// MARK: - Statistics Summary Section
+//
+// 역할: 통계 화면의 주요 숫자 요약 카드들을 렌더링합니다.
+
 import { Text, View } from 'react-native';
 import { styles } from '../styles';
 

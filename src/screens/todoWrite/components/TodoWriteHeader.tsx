@@ -1,3 +1,7 @@
+// MARK: - Todo Write Header
+//
+// 역할: 투두 작성 화면의 상단 title과 닫기 action을 렌더링합니다.
+
 import { Pressable, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { todoWriteStyles as styles } from '../styles';

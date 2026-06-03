@@ -1,3 +1,8 @@
+// MARK: - 공통 선택 BottomSheet
+//
+// 역할: 정렬/선택 옵션 목록을 modal bottom sheet 형태로 보여주는 공통 컴포넌트입니다.
+// 읽는 법: "item 타입 -> 높이 계산 -> modal render -> styles" 순서로 보면 됩니다.
+
 import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../theme/colors';
@@ -22,6 +27,9 @@ type Props = {
 };
 
 export function SelectionBottomSheet({ visible, title, items, onClose, onSelect, footerAction }: Props) {
+  // MARK: - Layout metrics
+  //
+  // 항목 수와 safe area bottom inset을 기준으로 sheet 높이를 계산합니다.
   const insets = useSafeAreaInsets();
   const rowHeight = 40;
   const rowGap = 8;
@@ -36,6 +44,8 @@ export function SelectionBottomSheet({ visible, title, items, onClose, onSelect,
     footerAction ? 198 : 170,
     topPadding + titleHeight + titleMarginBottom + listHeight + footerHeight + bottomPadding,
   );
+
+  // MARK: - Render
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
@@ -86,6 +96,8 @@ export function SelectionBottomSheet({ visible, title, items, onClose, onSelect,
     </Modal>
   );
 }
+
+// MARK: - Styles
 
 const styles = StyleSheet.create({
   overlay: {

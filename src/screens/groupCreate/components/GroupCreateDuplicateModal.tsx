@@ -1,3 +1,7 @@
+// MARK: - 그룹명 중복 Modal
+//
+// 역할: 그룹 생성 중 중복 이름 경고를 보여주고 생성 계속 진행 여부를 받습니다.
+
 import { Pressable, Text, View } from 'react-native';
 import { groupCreateStyles as styles } from '../styles';
 

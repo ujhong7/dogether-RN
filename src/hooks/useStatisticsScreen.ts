@@ -1,3 +1,8 @@
+// MARK: - 통계 화면 Hook
+//
+// 역할: 통계 화면의 그룹 선택, 통계 query, 차트용 summary 값을 조합합니다.
+// 읽는 법: "query/state -> group selection -> summary memo -> hook output" 순서로 보면 됩니다.
+
 import { useMemo, useState } from 'react';
 import { createGroupRepository } from '../services/repositories';
 import { GroupUseCase } from '../services/usecases/groupUseCase';
@@ -7,6 +12,8 @@ import { useMainStore } from '../stores/mainStore';
 import { getCurrentGroupDay, MAX_TODOS_PER_DAY } from '../screens/statistics/utils';
 
 export function useStatisticsScreen() {
+  // MARK: - Query and state
+
   const groupsQuery = useGroupsQuery();
   const selectedGroupId = useMainStore((state) => state.selectedGroupId);
   const setSelectedGroupId = useMainStore((state) => state.setSelectedGroupId);
@@ -17,6 +24,8 @@ export function useStatisticsScreen() {
   const currentGroup = groups.find((group) => group.id === selectedGroupId) ?? groups[0];
   const statisticsQuery = useStatisticsQuery(currentGroup?.id);
 
+  // MARK: - Select group
+
   const handleSelectGroup = (groupId: number) => {
     setSelectedGroupId(groupId);
     // 메인 화면과 동일하게 마지막 선택 그룹을 저장해 다음 진입 시 복원한다.
@@ -25,6 +34,9 @@ export function useStatisticsScreen() {
     });
   };
 
+  // MARK: - Summary values
+  //
+  // 화면에서 바로 그릴 수 있도록 서버 통계를 4칸 차트와 요약 숫자로 변환합니다.
   const summary = useMemo(() => {
     if (!currentGroup || !statisticsQuery.data) {
       return null;
@@ -65,6 +77,8 @@ export function useStatisticsScreen() {
       rejectedCount: statisticsQuery.data.rejectedCount,
     };
   }, [currentGroup, statisticsQuery.data]);
+
+  // MARK: - Hook output
 
   return {
     groupsQuery,

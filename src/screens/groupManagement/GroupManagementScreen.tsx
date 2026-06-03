@@ -1,17 +1,20 @@
+// MARK: - 그룹 관리 Screen
+//
+// 역할: 참여 중인 그룹 목록을 보여주고, 그룹 탈퇴 확인 모달을 연결합니다.
+// 읽는 법: "hook state -> error state -> list render -> leave modal" 순서로 보면 됩니다.
+
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { router } from 'expo-router';
-import { AppAlertModal } from '../../components/AppAlertModal';
-import { FullScreenErrorState } from '../../components/FullScreenErrorState';
+import { QueryErrorState } from '../../components/QueryErrorState';
 import { Screen } from '../../components/Screen';
 import { useGroupManagementScreen } from '../../hooks/useGroupManagementScreen';
-import { toAppError } from '../../services/errors/appError';
-import { useSessionStore } from '../../stores/sessionStore';
 import { GroupManagementCard } from './components/GroupManagementCard';
 import { LeaveGroupConfirmModal } from './components/LeaveGroupConfirmModal';
 import { styles } from './styles';
 
 export function GroupManagementScreen() {
-  const logout = useSessionStore((state) => state.logout);
+  // MARK: - Hook state
+
   const {
     groupsQuery,
     groups,
@@ -22,37 +25,20 @@ export function GroupManagementScreen() {
     handleConfirmLeave,
   } = useGroupManagementScreen();
 
+  // MARK: - Error state
+
   if (groupsQuery.isError) {
-    const appError = toAppError(groupsQuery.error);
-
-    if (appError.variant === 'alert') {
-      return (
-        <Screen>
-          <AppAlertModal
-            visible
-            error={appError}
-            onClose={() => {
-              logout();
-              router.replace('/onboarding');
-            }}
-          />
-        </Screen>
-      );
-    }
-
     return (
-      <Screen>
-        <FullScreenErrorState
-          title={appError.title}
-          message={appError.message}
-          actionLabel={appError.actionLabel}
-          onRetry={() => {
-            void groupsQuery.refetch();
-          }}
-        />
-      </Screen>
+      <QueryErrorState
+        error={groupsQuery.error}
+        onRetry={() => {
+          void groupsQuery.refetch();
+        }}
+      />
     );
   }
+
+  // MARK: - Render
 
   return (
     <Screen>

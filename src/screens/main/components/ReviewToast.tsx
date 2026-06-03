@@ -1,3 +1,7 @@
+// MARK: - 리뷰 완료 Toast
+//
+// 역할: 리뷰 처리 후 메인 화면 위에 잠깐 나타나는 완료 메시지를 렌더링합니다.
+
 import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useReviewToastStore } from '../../../stores/reviewToastStore';

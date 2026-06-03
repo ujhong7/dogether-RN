@@ -1,3 +1,8 @@
+// MARK: - 투두 Mock 데이터 저장소
+//
+// 역할: mock 모드에서 그룹/날짜별 투두 목록을 MMKV에 저장하고, 기본 seed 데이터를 제공합니다.
+// 읽는 법: "seed 데이터 -> storage helper -> 날짜별 기본값 -> CRUD 함수 -> 전체 목록/초기화" 순서로 보면 됩니다.
+
 import type { Todo } from '../../../../models/todo';
 import type { TodoStatus } from '../../../../models/todo';
 import { storage } from '../../../../lib/storage';
@@ -6,6 +11,9 @@ const TODOS_KEY = 'mockTodosByGroupDate';
 
 type TodoMap = Record<string, Todo[]>;
 
+// MARK: - Seed data
+//
+// 서버 없이도 메인/인증 목록/통계 화면을 확인할 수 있도록 기본 투두를 준비합니다.
 const seededCurrentTodosByGroupId: Record<number, Todo[]> = {
   101: [
     { id: 10101, content: '10분 아침 요가하기', status: 'WAIT_CERTIFICATION' },
@@ -115,6 +123,9 @@ const seededHistoricalTodoMap: TodoMap = {
   ],
 };
 
+// MARK: - Storage helpers
+//
+// mock 데이터도 앱을 재실행했을 때 유지되도록 MMKV에 JSON 문자열로 저장합니다.
 function readTodoMap(): TodoMap {
   const raw = storage.getString(TODOS_KEY);
   if (!raw) {
@@ -136,10 +147,15 @@ function buildKey(groupId: number, date: string) {
   return `${groupId}:${date}`;
 }
 
+// MARK: - Date helpers
+
 function getTodayDateLabel() {
   return formatDate(new Date());
 }
 
+// MARK: - Historical todo builder
+//
+// 오늘 seed 투두를 과거 날짜용 승인/거절 완료 데이터처럼 보이도록 변환합니다.
 function buildHistoricalTodos(todos: Todo[]) {
   return todos.map((todo, index): Todo => ({
     ...todo,
@@ -148,6 +164,8 @@ function buildHistoricalTodos(todos: Todo[]) {
     reviewFeedback: index % 2 === 0 ? '인증 완료' : '인증 실패',
   }));
 }
+
+// MARK: - Read mock todos
 
 export function getMockTodos(groupId: number, date: string) {
   const todos = readTodoMap()[buildKey(groupId, date)];
@@ -171,6 +189,8 @@ export function getMockDefaultTodosForDate(groupId: number, date: string) {
   return buildHistoricalTodos(todaysTodos);
 }
 
+// MARK: - Write mock todos
+
 export function setMockTodos(groupId: number, date: string, todos: Todo[]) {
   const todoMap = readTodoMap();
   todoMap[buildKey(groupId, date)] = todos;
@@ -178,6 +198,9 @@ export function setMockTodos(groupId: number, date: string, todos: Todo[]) {
   return todos;
 }
 
+// MARK: - Create mock todos
+//
+// 투두 작성 화면에서 저장한 contents를 WAIT_CERTIFICATION 상태의 Todo 모델로 바꿉니다.
 export function saveMockTodos(groupId: number, date: string, contents: string[]) {
   const todoMap = readTodoMap();
   const key = buildKey(groupId, date);
@@ -199,6 +222,9 @@ function formatDate(date: Date) {
   return `${year}-${month}-${day}`;
 }
 
+// MARK: - Read all mock todo entries
+//
+// 인증 목록/통계 화면은 날짜별 전체 인증 데이터를 필요로 해서 저장 데이터와 seed 데이터를 합쳐 반환합니다.
 export function getAllMockTodoEntries() {
   const mergedMap: TodoMap = { ...seededHistoricalTodoMap, ...readTodoMap() };
   const todayKeyDate = formatDate(new Date());
@@ -226,6 +252,8 @@ export function getAllMockTodoEntries() {
       return right.date.localeCompare(left.date);
     });
 }
+
+// MARK: - Cleanup
 
 export function removeMockTodosByGroup(groupId: number) {
   const todoMap = readTodoMap();

@@ -1,5 +1,12 @@
+// MARK: - 인증 작성 화면 스타일
+//
+// 역할: 사진 선택 화면과 인증 내용 입력 화면이 공유하는 header, image box, input, button 스타일입니다.
+// 읽는 법: CertificationImageScreen과 CertificationContentScreen에서 참조하는 key를 기준으로 찾습니다.
+
 import { StyleSheet } from 'react-native';
 import { colors } from '../../theme/colors';
+
+// MARK: - Style definitions
 
 export const certificationStyles = StyleSheet.create({
   flex: {

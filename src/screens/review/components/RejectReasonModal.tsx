@@ -1,3 +1,8 @@
+// MARK: - 거절 사유 Modal
+//
+// 역할: 리뷰 거절 시 사유를 입력받고 부모 hook에 confirm 이벤트를 전달합니다.
+// 읽는 법: "props -> modal/input -> footer actions" 순서로 보면 됩니다.
+
 import { KeyboardAvoidingView, Modal, Platform, Pressable, Text, TextInput, View } from 'react-native';
 import { reviewStyles as styles } from '../styles';
 
@@ -18,6 +23,8 @@ export function RejectReasonModal({
   onChangeText,
   onConfirm,
 }: Props) {
+  // MARK: - Render
+
   return (
     <Modal visible={visible} animationType="fade" transparent onRequestClose={onClose}>
       <KeyboardAvoidingView

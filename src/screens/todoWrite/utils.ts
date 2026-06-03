@@ -1,3 +1,7 @@
+// MARK: - Todo Write Utils
+//
+// 역할: 투두 작성 화면의 최대 개수/글자 수와 오늘 날짜 표시값을 제공합니다.
+
 export const MAX_TODO_COUNT = 10;
 export const MAX_TODO_LENGTH = 20;
 

@@ -1,3 +1,7 @@
+// MARK: - 그룹 관리 Card
+//
+// 역할: 참여 중인 그룹 하나의 정보와 탈퇴 action을 카드 형태로 보여줍니다.
+
 import { Pressable, Text, View } from 'react-native';
 import type { Group } from '../../../models/group';
 import { styles } from '../styles';
@@ -28,7 +32,7 @@ export function GroupManagementCard({ group, onPressLeave }: Props) {
 
       <View style={styles.infoRow}>
         <Text style={styles.infoLabel}>초대코드</Text>
-        <Text style={styles.infoValue}>{group.joinCode}</Text>
+        <Text style={styles.infoValue}>{group.joinCode ?? '-'}</Text>
       </View>
     </View>
   );

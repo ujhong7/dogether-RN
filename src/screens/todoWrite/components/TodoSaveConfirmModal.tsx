@@ -1,3 +1,7 @@
+// MARK: - Todo 저장 확인 Modal
+//
+// 역할: 투두 저장 전 최종 확인과 취소/저장 action을 보여줍니다.
+
 import { Pressable, Text, View } from 'react-native';
 import { todoWriteStyles as styles } from '../styles';
 

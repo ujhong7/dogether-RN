@@ -12,6 +12,11 @@ import { MockGroupRepository } from './mock/mockGroupRepository';
 import { MockReviewRepository } from './mock/mockReviewRepository';
 import { MockUserRepository } from './mock/mockUserRepository';
 
+// MARK: - Repository Factory
+//
+// Repository factory 모음입니다.
+// 화면/UseCase는 "진짜 API인지 목 데이터인지"를 몰라도 되고, env 값만 바꾸면 구현체가 교체됩니다.
+// Swift로 비유하면 protocol 타입에 실제 구현체 또는 mock 구현체를 주입하는 DI 지점입니다.
 export function createAppInfoRepository() {
   return env.useMockAppInfo ? new MockAppInfoRepository() : new AppInfoRepositoryImpl();
 }

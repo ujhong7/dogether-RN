@@ -1,12 +1,14 @@
+// MARK: - 통계 Screen
+//
+// 역할: 선택 그룹의 달성률 차트와 요약 통계를 보여주고, 그룹 선택 bottom sheet를 연결합니다.
+// 읽는 법: "hook state -> 그룹 query 에러/빈 상태 -> 통계 query 에러/loading -> render" 순서로 봅니다.
+
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 import { router } from 'expo-router';
-import { AppAlertModal } from '../../components/AppAlertModal';
-import { FullScreenErrorState } from '../../components/FullScreenErrorState';
+import { QueryErrorState } from '../../components/QueryErrorState';
 import { GroupSelectBottomSheet } from '../../components/GroupSelectBottomSheet';
 import { Screen } from '../../components/Screen';
 import { useStatisticsScreen } from '../../hooks/useStatisticsScreen';
-import { toAppError } from '../../services/errors/appError';
-import { useSessionStore } from '../../stores/sessionStore';
 import { colors } from '../../theme/colors';
 import { StatisticsChartCard } from './components/StatisticsChartCard';
 import { StatisticsGroupHeader } from './components/StatisticsGroupHeader';
@@ -14,7 +16,9 @@ import { StatisticsSummarySection } from './components/StatisticsSummarySection'
 import { styles } from './styles';
 
 export function StatisticsScreen() {
-  const logout = useSessionStore((state) => state.logout);
+  // MARK: - Hook state
+  //
+  // 통계 화면의 그룹 선택, query, summary 계산은 useStatisticsScreen에서 담당합니다.
   const {
     groupsQuery,
     groups,
@@ -27,38 +31,22 @@ export function StatisticsScreen() {
     handleSelectGroup,
   } = useStatisticsScreen();
 
+  // MARK: - Groups error state
+
   if (groupsQuery.isError) {
-    const appError = toAppError(groupsQuery.error);
-
-    if (appError.variant === 'alert') {
-      return (
-        <Screen>
-          <AppAlertModal
-            visible
-            error={appError}
-            onClose={() => {
-              logout();
-              router.replace('/onboarding');
-            }}
-          />
-        </Screen>
-      );
-    }
-
     return (
-      <Screen>
-        <FullScreenErrorState
-          title={appError.title}
-          message={appError.message}
-          actionLabel={appError.actionLabel}
-          onRetry={() => {
-            void groupsQuery.refetch();
-          }}
-        />
-      </Screen>
+      <QueryErrorState
+        error={groupsQuery.error}
+        onRetry={() => {
+          void groupsQuery.refetch();
+        }}
+      />
     );
   }
 
+  // MARK: - Empty group state
+  //
+  // 가입한 그룹이 없으면 통계 대신 그룹 생성 CTA를 보여줍니다.
   if (!groups.length) {
     return (
       <Screen>
@@ -84,22 +72,20 @@ export function StatisticsScreen() {
     );
   }
 
-  if (statisticsQuery.isError) {
-    const appError = toAppError(statisticsQuery.error);
+  // MARK: - Statistics error state
 
+  if (statisticsQuery.isError) {
     return (
-      <Screen>
-        <FullScreenErrorState
-          title={appError.title}
-          message={appError.message}
-          actionLabel={appError.actionLabel}
-          onRetry={() => {
-            void statisticsQuery.refetch();
-          }}
-        />
-      </Screen>
+      <QueryErrorState
+        error={statisticsQuery.error}
+        onRetry={() => {
+          void statisticsQuery.refetch();
+        }}
+      />
     );
   }
+
+  // MARK: - Loading state
 
   if (groupsQuery.isLoading || statisticsQuery.isLoading || !summary) {
     return (
@@ -110,6 +96,8 @@ export function StatisticsScreen() {
       </Screen>
     );
   }
+
+  // MARK: - Render
 
   return (
     <Screen>

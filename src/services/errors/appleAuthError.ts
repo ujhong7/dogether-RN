@@ -1,3 +1,8 @@
+// MARK: - Apple Auth Error Mapper
+//
+// 역할: Apple 로그인 SDK/native error를 앱 공통 AppError로 변환합니다.
+// 읽는 법: 사용자가 취소한 경우는 null, 실제 실패는 로그인 관련 AppError로 매핑합니다.
+
 import { getAppError } from '../../models/error';
 
 type NativeAppleAuthError = {

@@ -1,5 +1,12 @@
+// MARK: - 그룹 생성 화면 스타일
+//
+// 역할: 그룹 생성 3단계 화면의 navigation, form input, option chip, preview, footer, modal 스타일입니다.
+// 읽는 법: GroupCreateScreen과 step 컴포넌트들이 같은 style 객체를 공유합니다.
+
 import { StyleSheet } from 'react-native';
 import { colors } from '../../theme/colors';
+
+// MARK: - Style definitions
 
 export const groupCreateStyles = StyleSheet.create({
   flex: { flex: 1 },

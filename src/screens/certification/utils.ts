@@ -1,3 +1,7 @@
+// MARK: - 인증 상세 유틸
+//
+// 역할: 인증 상세 화면에서 보여줄 상태 문구/색상/피드백 문구를 계산합니다.
+
 import type { Todo, TodoStatus } from '../../models/todo';
 
 export function getStatusMeta(status: TodoStatus) {

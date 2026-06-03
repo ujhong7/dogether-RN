@@ -1,3 +1,8 @@
+// MARK: - 메인 하단 Panel 컴포넌트
+//
+// 역할: 날짜 이동, 필터, 투두 작성 CTA, 투두 목록/빈 상태를 sheetStatus에 따라 바꿔 보여줍니다.
+// 읽는 법: "날짜 헤더 -> 필터 -> 상태별 본문 -> 추가 버튼" 순서로 JSX를 따라가면 됩니다.
+
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import type { Todo } from '../../../models/todo';
@@ -43,6 +48,7 @@ export function MainPanel({
 }: Props) {
   return (
     <View style={styles.panel}>
+      {/* MARK: - Date navigation */}
       <View style={styles.dateHeader}>
         <Pressable
           style={[styles.dateArrow, !canGoPast ? styles.dateArrowDisabled : undefined]}
@@ -61,6 +67,7 @@ export function MainPanel({
         </Pressable>
       </View>
 
+      {/* MARK: - Status filter */}
       {sheetStatus !== 'createTodo' && sheetStatus !== 'done' ? (
         <View style={styles.filterRow}>
           {MAIN_FILTERS.map((option) => {
@@ -88,6 +95,7 @@ export function MainPanel({
         </View>
       ) : null}
 
+      {/* MARK: - Create todo state */}
       {sheetStatus === 'createTodo' ? (
         <View style={styles.centerState}>
           <TodayIllustration />
@@ -99,6 +107,7 @@ export function MainPanel({
         </View>
       ) : null}
 
+      {/* MARK: - Finished group state */}
       {sheetStatus === 'done' ? (
         <View style={styles.centerState}>
           <DoneIllustration />
@@ -107,6 +116,7 @@ export function MainPanel({
         </View>
       ) : null}
 
+      {/* MARK: - Todo list state */}
       {sheetStatus === 'certificateTodo' || sheetStatus === 'todoList' || sheetStatus === 'emptyList' ? (
         <View style={styles.todoSection}>
           <ScrollView
@@ -135,6 +145,7 @@ export function MainPanel({
             )}
           </ScrollView>
 
+          {/* MARK: - Inline add todo action */}
           {dateOffset === 0 && filter === 'all' && visibleTodos.length < 10 ? (
             <Pressable style={styles.addTodoInline} onPress={() => router.push('/todo-write')}>
               <Text style={styles.addTodoPlus}>⊕</Text>

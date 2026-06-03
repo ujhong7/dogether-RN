@@ -1,3 +1,7 @@
+// MARK: - Statistics Group Header
+//
+// 역할: 통계 화면에서 현재 선택 그룹명과 그룹 선택 action을 보여줍니다.
+
 import { Pressable, Text, View } from 'react-native';
 import type { Group } from '../../../models/group';
 import { styles } from '../styles';

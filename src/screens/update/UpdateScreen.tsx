@@ -1,3 +1,7 @@
+// MARK: - Update Screen
+//
+// 역할: 앱 강제 업데이트가 필요할 때 안내 문구와 이동 action을 보여줍니다.
+
 import { Linking, Pressable, Text } from 'react-native';
 import { Screen } from '../../components/Screen';
 import { env } from '../../config/env';

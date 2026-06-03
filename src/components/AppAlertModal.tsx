@@ -1,3 +1,8 @@
+// MARK: - 공통 Alert Modal
+//
+// 역할: AppError 중 alert variant를 RN Modal로 보여주는 공통 컴포넌트입니다.
+// 읽는 법: "props -> modal render -> confirm/cancel action -> styles" 순서로 보면 됩니다.
+
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import type { AppError } from '../models/error';
 import { colors } from '../theme/colors';
@@ -10,6 +15,9 @@ type Props = {
 };
 
 export function AppAlertModal({ visible, error, onClose, onConfirm }: Props) {
+  // MARK: - Render
+  //
+  // onConfirm이 있으면 확인 버튼에서 onConfirm을 실행하고, 없으면 단순히 닫습니다.
   return (
     <Modal animationType="fade" transparent visible={visible} onRequestClose={onClose}>
       <View style={styles.overlay}>
@@ -41,6 +49,8 @@ export function AppAlertModal({ visible, error, onClose, onConfirm }: Props) {
     </Modal>
   );
 }
+
+// MARK: - Styles
 
 const styles = StyleSheet.create({
   overlay: {

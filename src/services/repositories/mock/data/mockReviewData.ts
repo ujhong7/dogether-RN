@@ -1,3 +1,7 @@
+// MARK: - Mock Review Data
+//
+// 역할: mock 모드에서 리뷰 대기 목록을 MMKV에 저장/조회/제출 처리합니다.
+
 import type { PendingReview, ReviewResult } from '../../../../models/review';
 import { storage } from '../../../../lib/storage';
 

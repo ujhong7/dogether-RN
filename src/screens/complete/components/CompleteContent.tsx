@@ -1,3 +1,7 @@
+// MARK: - 완료 화면 Content
+//
+// 역할: 생성/참여 완료 payload를 화면용 문구와 정보 행으로 렌더링합니다.
+
 import { Text, View } from 'react-native';
 import type { CompletePayload } from '../../../stores/startFlowStore';
 import { completeStyles as styles } from '../styles';

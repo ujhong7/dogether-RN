@@ -1,3 +1,7 @@
+// MARK: - 그룹 참여 Header
+//
+// 역할: 그룹 참여 화면의 상단 title과 뒤로가기 버튼을 그립니다.
+
 import { Pressable, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { groupJoinStyles as styles } from '../styles';

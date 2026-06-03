@@ -1,3 +1,8 @@
+// MARK: - 그룹 Mock 데이터 저장소
+//
+// 역할: mock 모드에서 참여 그룹 목록을 MMKV에 저장하고, 초대 코드 참여용 seed 그룹을 제공합니다.
+// 읽는 법: "seed 그룹 -> storage helper -> 조회/생성/참여/탈퇴" 순서로 보면 됩니다.
+
 import type { Group } from '../../../../models/group';
 import type { AppErrorCode } from '../../../../models/error';
 import { storage } from '../../../../lib/storage';
@@ -5,6 +10,9 @@ import { storage } from '../../../../lib/storage';
 const JOINED_GROUPS_KEY = 'mockJoinedGroups';
 const NEXT_GROUP_ID_KEY = 'mockNextGroupId';
 
+// MARK: - Joinable seed groups
+//
+// 그룹 참여 화면에서 초대 코드 입력을 테스트하기 위한 서버 대체 데이터입니다.
 const seededJoinableGroups: Group[] = [
   {
     id: 101,
@@ -44,11 +52,15 @@ const seededJoinableGroups: Group[] = [
   },
 ];
 
+// MARK: - Date helpers
+
 function formatDate(date: Date) {
   return `${String(date.getFullYear()).slice(2)}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(
     date.getDate(),
   ).padStart(2, '0')}`;
 }
+
+// MARK: - Storage helpers
 
 function readGroups(): Group[] {
   const raw = storage.getString(JOINED_GROUPS_KEY);
@@ -75,6 +87,8 @@ function writeNextGroupId(nextId: number) {
   storage.set(NEXT_GROUP_ID_KEY, nextId);
 }
 
+// MARK: - Read joined groups
+
 export function getMockJoinedGroups() {
   return readGroups();
 }
@@ -83,6 +97,9 @@ export function hasMockJoinedGroups() {
   return readGroups().length > 0;
 }
 
+// MARK: - Create group
+//
+// 사용자가 입력한 그룹 생성 폼을 Group 모델로 바꾸고 mock 저장소 맨 앞에 추가합니다.
 export function createMockGroup(input: {
   name: string;
   memberCount: number;
@@ -120,15 +137,18 @@ export type JoinMockGroupResult =
   | { ok: true; group: Group }
   | { ok: false; code: Extract<AppErrorCode, 'CGF-0002' | 'CGF-0003' | 'CGF-0004' | 'CGF-0005'> };
 
+// MARK: - Join group by code
+//
+// 실제 API처럼 중복 참여/정원 초과/존재하지 않는 코드 에러를 결과값으로 반환합니다.
 export function joinMockGroupByCode(code: string): JoinMockGroupResult {
   const normalizedCode = code.trim().toUpperCase();
   const joinedGroups = readGroups();
 
-  if (joinedGroups.some((group) => group.joinCode.toUpperCase() === normalizedCode)) {
+  if (joinedGroups.some((group) => group.joinCode?.toUpperCase() === normalizedCode)) {
     return { ok: false, code: 'CGF-0002' };
   }
 
-  const target = seededJoinableGroups.find((group) => group.joinCode.toUpperCase() === normalizedCode);
+  const target = seededJoinableGroups.find((group) => group.joinCode?.toUpperCase() === normalizedCode);
   if (!target) {
     return { ok: false, code: 'CGF-0005' };
   }
@@ -145,6 +165,8 @@ export function joinMockGroupByCode(code: string): JoinMockGroupResult {
   writeGroups([joinedGroup, ...joinedGroups]);
   return { ok: true, group: joinedGroup };
 }
+
+// MARK: - Cleanup
 
 export function resetMockJoinedGroups() {
   storage.remove(JOINED_GROUPS_KEY);

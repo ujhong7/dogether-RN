@@ -1,3 +1,8 @@
+// MARK: - 메인 Header 컴포넌트
+//
+// 역할: 현재 그룹 정보, 진행률, 마이페이지/랭킹 이동 버튼을 보여줍니다.
+// 읽는 법: "상단 바 -> 그룹 정보 -> 진행률 -> 랭킹 버튼 -> styles" 순서로 보면 됩니다.
+
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import type { Group } from '../../../models/group';
@@ -11,6 +16,8 @@ type Props = {
 };
 
 export function MainHeader({ group, dayLabel, progressPercent, onPressGroupName }: Props) {
+  // MARK: - Render
+
   return (
     <>
       <View style={styles.topBar}>
@@ -68,6 +75,8 @@ export function MainHeader({ group, dayLabel, progressPercent, onPressGroupName 
     </>
   );
 }
+
+// MARK: - Styles
 
 const styles = StyleSheet.create({
   topBar: {

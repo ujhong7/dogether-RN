@@ -1,6 +1,13 @@
+// MARK: - 통계 화면 스타일
+//
+// 역할: 통계 화면의 header, empty/loading, 그룹 요약, 차트, summary card 스타일을 모아둡니다.
+// 읽는 법: StatisticsScreen JSX 순서와 같은 이름의 style key를 찾아가면 됩니다.
+
 import { StyleSheet } from 'react-native';
 import { colors } from '../../theme/colors';
 import { BAR_MAX_HEIGHT } from './utils';
+
+// MARK: - Style definitions
 
 export const styles = StyleSheet.create({
   header: {
