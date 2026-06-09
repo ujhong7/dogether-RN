@@ -46,8 +46,10 @@ yarn-error.*
 # Claude Code
 .claude/
 
-# docs (local notes, not tracked)
-docs/
+# docs (local notes, track RN study docs)
+docs/*
+!docs/rn/
+!docs/rn/**
 
 # watchman
 .watchman-cookie-*
