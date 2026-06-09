@@ -14,6 +14,35 @@ iOS로 구현했던 Dogether의 주요 앱 플로우를 React Native로 재구�
 
 ---
 
+### 공부했던 문서
+
+- [Dogether RN 기술 정리](docs/rn/01_dogether_RN_기술_정리.md)
+- [Dogether RN 프로젝트 읽는 법](docs/rn/02_dogether_RN_프로젝트_읽는_법.md)
+- [iOS 개발자를 위한 RN 개념](docs/rn/03_ios_개발자를_위한_RN_개념.md)
+- [TypeScript 언어 읽는 법](docs/rn/04_typescript_언어_읽는_법.md)
+- [JSX 컴포넌트 읽는 법](docs/rn/05_jsx_컴포넌트_읽는_법.md)
+- [React Hook 읽는 법](docs/rn/06_react_hook_읽는_법.md)
+- [Expo Router 화면이동 읽는 법](docs/rn/07_expo_router_화면이동_읽는_법.md)
+- [React Native Layout 읽는 법](docs/rn/08_react_native_layout_읽는_법.md)
+- [Zustand 상태관리 읽는 법](docs/rn/09_zustand_상태관리_읽는_법.md)
+- [React Query 서버상태 읽는 법](docs/rn/10_react_query_서버상태_읽는_법.md)
+- [Repository / UseCase 구조 읽는 법](docs/rn/11_repository_usecase_구조_읽는_법.md)
+- [RN 앱 생명주기](docs/rn/12_RN_앱_생명주기.md)
+- [RN 화면 생명주기](docs/rn/13_RN_화면_생명주기.md)
+- [네트워크 API 흐름 읽는 법](docs/rn/14_네트워크_API_흐름_읽는_법.md)
+- [로컬저장소 MMKV 읽는 법](docs/rn/15_로컬저장소_MMKV_읽는_법.md)
+- [Mock API 전환 읽는 법](docs/rn/16_mock_API_전환_읽는_법.md)
+- [인증 로그인 흐름 읽는 법](docs/rn/17_인증_로그인_흐름_읽는_법.md)
+- [메인화면 데이터흐름 읽는 법](docs/rn/18_메인화면_데이터흐름_읽는_법.md)
+- [투두작성 인증 흐름 읽는 법](docs/rn/19_투두작성_인증_흐름_읽는_법.md)
+- [리뷰 랭킹 통계 흐름 읽는 법](docs/rn/20_리뷰_랭킹_통계_흐름_읽는_법.md)
+- [RN 렌더링과 OTA 업데이트 읽는 법](docs/rn/21_RN_렌더링과_OTA_업데이트_읽는_법.md)
+- [Expo와 RN CLI 차이 읽는 법](docs/rn/22_Expo와_RN_CLI_차이_읽는_법.md)
+- [RN 실행방법 읽는 법](docs/rn/23_RN_실행방법_읽는_법.md)
+- [앱 프론트엔드 자격요건 공부 로드맵](docs/rn/24_앱프론트엔드_자격요건_공부로드맵.md)
+
+---
+
 ### 구조
 
 ```mermaid
